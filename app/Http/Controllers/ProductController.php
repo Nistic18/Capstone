@@ -10,7 +10,7 @@ class ProductController extends Controller
     public function index()
     {
         if (auth()->user()->is_admin) {
-            // Admin sees all products
+            // Admin sees all products tite
             $products = Product::all();
         } else {
             // Supplier sees only their products
