@@ -7,10 +7,16 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    public function home()
+    {
+        $products = Product::latest()->paginate(9); // you can change number per page
+        return view('home', compact('products'));
+    }
+
     public function index()
     {
-        if (auth()->user()->is_admin) {
-            // Admin sees all products tite
+        if (auth()->user()->role === 'admin') {
+            // Admin sees all products
             $products = Product::all();
         } else {
             // Supplier sees only their products
@@ -28,22 +34,21 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-        'name' => 'required',
-        'price' => 'required|numeric',
-        'description' => 'nullable|string',
+            'name' => 'required',
+            'price' => 'required|numeric',
+            'description' => 'nullable|string',
         ]);
 
         $data = $request->all();
-        $data['user_id'] = auth()->id(); // 👈 Add this line
+        $data['user_id'] = auth()->id();
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
+        Product::create($data);
 
-    Product::create($data);
-
-    return redirect()->route('products.index')->with('success', 'Product created!');
+        return redirect()->route('products.index')->with('success', 'Product created!');
     }
 
     public function show(Product $product)
@@ -53,13 +58,12 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-            if (!auth()->user()->is_admin) {
-        abort(403, 'Unauthorized access.');
-    }
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized access.');
+        }
 
-    return view('products.create', compact('product'));
+        return view('products.create', compact('product'));
     }
-
 
     public function update(Request $request, Product $product)
     {
@@ -78,18 +82,15 @@ class ProductController extends Controller
         $product->update($data);
 
         return redirect()->route('products.index')->with('success', 'Product updated!');
-        }
-
-public function destroy(Product $product)
-{
-    if (!auth()->user()->is_admin) {
-        abort(403, 'Unauthorized access.');
     }
 
-    $product->delete();
-    return redirect()->route('products.index')->with('success', 'Product deleted!');
+    public function destroy(Product $product)
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $product->delete();
+        return redirect()->route('products.index')->with('success', 'Product deleted!');
+    }
 }
-
-}
-
-

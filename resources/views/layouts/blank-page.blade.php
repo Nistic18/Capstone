@@ -6,7 +6,7 @@
     <!-- CSS Libraries -->
 @endpush
 
-@section('content')<div class="main-content">
+@section('content')
         <section class="section">
             <div class="section-header">
                 <h1>Blank Page</h1>
@@ -20,7 +20,7 @@
                 </p>
             </div>
         </section>
-    </div>
+
 @endsection
 
 @push('scripts')

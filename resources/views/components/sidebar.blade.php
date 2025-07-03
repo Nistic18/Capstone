@@ -8,9 +8,13 @@
         <a href="">FISH</a>
         </div>
         <ul class="sidebar-menu">
-            <li class="menu-header">Dashboard</li>
+            <li class="menu-header">Home</li>
             <li class="{{ Request::is('home') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('home') }}"><i class="fas fa-fire"></i><span>Dashboard</span></a>
+                <a class="nav-link" href="{{ url('home') }}"><i class="fas fa-fire"></i><span>Home</span></a>
+            </li>
+            <li class="menu-header">Dashboard</li>
+            <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('dashboard') }}"><i class="fas fa-fire"></i><span>Dashboard</span></a>
             </li>
             @if (Auth::user()->role == 'superadmin')
             <li class="menu-header">Hak Akses</li>
@@ -19,20 +23,24 @@
             </li>
             @endif
             <!-- profile ganti password -->
-            <li class="menu-header">Profile</li>
-            <li class="{{ Request::is('profile/edit') ? 'active' : '' }}">
+            <li class="menu-header">User Manage</li>
+            <li class="{{ Request::routeIs('users.index') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('users.index') }}">
+            <i class="far fa-user"></i> <span>User Manage</span></a>
+            </li>
+            {{-- <li class="{{ Request::is('profile/edit') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('profile/edit') }}"><i class="far fa-user"></i> <span>Profile</span></a>
             </li>
             <li class="{{ Request::is('profile/change-password') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('profile/change-password') }}"><i class="fas fa-key"></i> <span>Ganti Password</span></a>
-            </li>
+                <a class="nav-link" href="{{ url('profile/change-password') }}"><i class="fas fa-key"></i> <span>Change Password</span></a>
+            </li> --}}
             <li class="menu-header">Starter</li>
             <li class="{{ Request::is('blank-page') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('blank-page') }}"><i class="far fa-square"></i> <span>Blank Page</span></a>
             </li>
-            <li class="menu-header">Examples</li>
+            <li class="menu-header">Manage Product</li>
             <li class="{{ Request::is('products/index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('products/index') }}"><i class="fas fa-table"></i> <span>Products</span></a>
+                <a class="nav-link" href="{{ url('products/index') }}"><i class="fas fa-table"></i> <span>Manage Products</span></a>
             </li>
         </ul>
     </aside>

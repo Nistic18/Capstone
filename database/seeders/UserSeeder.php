@@ -14,16 +14,30 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
-            'password' => Hash::make('admin123'), // use bcrypt hashing
-            'is_admin' => true,
+            'password' => Hash::make('admin123'), // use bcrypt hashing,
+            'role' => 'admin',
         ]);
 
-        // Regular user account
+        // Buyer user account
         User::create([
-            'name' => 'Regular User',
-            'email' => 'user@example.com',
-            'password' => Hash::make('user123'),
-            'is_admin' => false,
+            'name' => 'Buyer User',
+            'email' => 'buyer@example.com',
+            'password' => Hash::make('buyer123'),
+            'role' => 'buyer',
+        ]);
+        // Supplier user account
+        User::create([
+            'name' => 'Supplier User',
+            'email' => 'supplier@example.com',
+            'password' => Hash::make('supplier123'),
+            'role' => 'supplier',
+        ]);
+        // Reseller user account
+        User::create([
+            'name' => 'Reseller User',
+            'email' => 'reseller@example.com',
+            'password' => Hash::make('reseller123'),
+            'role' => 'reseller',
         ]);
     }
 }
