@@ -25,7 +25,7 @@ This repository contains a laravel 12 template that comes pre-configured with au
 ### Installation Steps
 1. Clone the repository:
     ```bash
-    git clone https://github.com/vickymaulana/laravel11-stisla.git
+    git clone https://github.com/Nistic18/Capstone
     ```
 
 2. Navigate into the project directory:
