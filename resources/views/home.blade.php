@@ -35,12 +35,15 @@
                         View Details
                     </a>
                 
-                <form action="{{ route('cart.add', $product->id) }}" method="POST">
-                    @csrf
-                        <button class="btn btn-sm btn-outline-success w-100 mt-2">
-                        Add to Cart
-                        </button>
-                </form>
+                    <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mt-2">
+                        @csrf
+                        <div class="input-group">
+                            <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 80px;">
+                            <button type="submit" class="btn btn-sm btn-outline-success">
+                            Add to Cart
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

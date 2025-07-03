@@ -3,43 +3,53 @@
 @section('content')
 <div class="container mt-5">
     <div class="card card-body">
-    <h3>Your Cart</h3>
+        <h3 class="mb-4">🛒 Your Cart</h3>
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
 
-    @if(empty($cart))
-        <p>Your cart is empty.</p>
-    @else
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Product</th><th>Price</th><th>Qty</th><th>Total</th><th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php $total = 0; @endphp
-                @foreach($cart as $id => $item)
-                    @php $total += $item['price'] * $item['quantity']; @endphp
+        @if($cart->isEmpty())
+            <p class="text-muted">Your cart is empty.</p>
+        @else
+            @php $total = 0; @endphp
+
+            <table class="table table-bordered">
+                <thead class="thead-light">
                     <tr>
-                        <td>{{ $item['name'] }}</td>
-                        <td>${{ number_format($item['price'], 2) }}</td>
-                        <td>{{ $item['quantity'] }}</td>
-                        <td>${{ number_format($item['price'] * $item['quantity'], 2) }}</td>
-                        <td>
-                            <form action="{{ route('cart.remove', $id) }}" method="POST">
-                                @csrf
-                                <button class="btn btn-danger btn-sm">Remove</button>
-                            </form>
-                        </td>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Subtotal</th>
+                        <th>Action</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach($cart as $item)
+                        @php
+                            $subtotal = $item->product->price * $item->quantity;
+                            $total += $subtotal;
+                        @endphp
+                        <tr>
+                            <td>{{ $item->product->name }}</td>
+                            <td>${{ number_format($item->product->price, 2) }}</td>
+                            <td>{{ $item->quantity }}</td>
+                            <td>${{ number_format($subtotal, 2) }}</td>
+                            <td>
+                                <form action="{{ route('cart.remove', $item->product->id) }}" method="POST">
+                                    @csrf
+                                    <button class="btn btn-sm btn-danger" onclick="return confirm('Remove this item?')">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
 
-        <h5>Total: ${{ number_format($total, 2) }}</h5>
-    @endif
+            <div class="d-flex justify-content-end">
+                <h5><strong>Total: ${{ number_format($total, 2) }}</strong></h5>
+            </div>
+        @endif
     </div>
 </div>
 @endsection

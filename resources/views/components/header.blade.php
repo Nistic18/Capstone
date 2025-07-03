@@ -77,9 +77,8 @@
           <ul class="navbar-nav ml-auto">
             @php
             $cart = session()->get('cart', []);
-            $cartCount = array_sum(array_column($cart, 'quantity'));
+            $cartCount = \App\Models\Cart::where('user_id', auth()->id())->sum('quantity');
             @endphp
-
           <li class="nav-item">
             <a href="{{ route('cart.index') }}" class="nav-link nav-link-lg beep beep-sidebar position-relative">
           <i class="fas fa-shopping-cart fa-lg"></i>
