@@ -68,7 +68,7 @@
                                 @endif
                                 <br>
                                 <a class="btn btn-link" href="{{ route('register') }}">
-                                    {{ __('Belum Punya Akun? Register') }}
+                                    {{ __('First time? Register now.') }}
                                 </a>
                             </div>
                         </div>

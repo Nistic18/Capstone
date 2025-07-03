@@ -16,15 +16,15 @@ class ProductController extends Controller
     public function index()
     {
         if (auth()->user()->role === 'admin') {
-            // Admin sees all products
-            $products = Product::all();
+            // Admin sees all products with user info
+            $products = Product::with('user')->get();
         } else {
             // Supplier sees only their products
-            $products = Product::where('user_id', auth()->id())->get();
+            $products = Product::with('user')->where('user_id', auth()->id())->get();
         }
-
         return view('products.index', compact('products'));
     }
+
 
     public function create()
     {

@@ -30,6 +30,11 @@
                     <h5 class="card-title">{{ $product->name }}</h5>
                     <p class="card-text">{{ Str::limit($product->description, 100) }}</p>
                     <p class="card-text fw-bold">${{ number_format($product->price, 2) }}</p>
+                        @if(isset($product->user))
+                        <span class="badge bg-secondary text-white">
+                        Supplier: {{ $product->user->name }}
+                        </span>
+                        @endif
                 </div>
                 <div class="card-footer bg-white border-top-0">
                     <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-warning">Edit</a>
