@@ -49,6 +49,11 @@
             <div class="d-flex justify-content-end">
                 <h5><strong>Total: ${{ number_format($total, 2) }}</strong></h5>
             </div>
+            <form action="{{ route('cart.checkout') }}" method="POST">
+            @csrf
+            <button type="submit" class="btn btn-primary btn-lg mt-3">Checkout</button>
+            </form>
+
         @endif
     </div>
 </div>

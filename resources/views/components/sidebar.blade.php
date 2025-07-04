@@ -12,21 +12,21 @@
             <li class="{{ Request::is('home') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('home') }}"><i class="fas fa-fire"></i><span>Home</span></a>
             </li>
-            <li class="menu-header">Dashboard</li>
+             <li class="{{ Request::is('orders') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('orders') }}"><i class="fas fa-fire"></i><span>Orders</span></a>
+            </li>
             <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('dashboard') }}"><i class="fas fa-fire"></i><span>Dashboard</span></a>
             </li>
-            @if (Auth::user()->role == 'superadmin')
-            <li class="menu-header">Hak Akses</li>
-            <li class="{{ Request::is('hakakses') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('hakakses') }}"><i class="fas fa-user-shield"></i> <span>Hak Akses</span></a>
-            </li>
-            @endif
-            <!-- profile ganti password -->
-            <li class="menu-header">User Manage</li>
+            <li class="menu-header">Manage</li>
             <li class="{{ Request::routeIs('users.index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('users.index') }}">
-            <i class="far fa-user"></i> <span>User Manage</span></a>
+                <a class="nav-link" href="{{ route('users.index') }}"><i class="far fa-user"></i> <span>User Manage</span></a>
+            </li>
+             <li class="{{ Request::is('products/index') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('products/index') }}"><i class="fas fa-table"></i> <span>Manage Products</span></a>
+            </li>
+            <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('supplier.orders') }}"><i class="fas fa-fire"></i><span>Supplier Orders</span></a>
             </li>
             {{-- <li class="{{ Request::is('profile/edit') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('profile/edit') }}"><i class="far fa-user"></i> <span>Profile</span></a>
@@ -37,10 +37,6 @@
             <li class="menu-header">Starter</li>
             <li class="{{ Request::is('blank-page') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('blank-page') }}"><i class="far fa-square"></i> <span>Blank Page</span></a>
-            </li>
-            <li class="menu-header">Manage Product</li>
-            <li class="{{ Request::is('products/index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('products/index') }}"><i class="fas fa-table"></i> <span>Manage Products</span></a>
             </li>
         </ul>
     </aside>

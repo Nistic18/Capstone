@@ -1,18 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
-    <h2 class="mb-4">Browse Products</h2>
-
+<div class=" mt-5">
+        <div class="card card-body">
+            <h2 class="fw-bold mb-0 text-primary">Browse Products</h2>
+        </div>
     @php use Illuminate\Support\Str; @endphp
 
     @if($products->isEmpty())
-        <div class="alert alert-info">No products available.</div>
+        <div class="alert alert-info text-center">No products available.</div>
     @else
     <div class="row">
         @foreach($products as $product)
         <div class="col-md-4 mb-4">
-            <div class="card shadow-sm border-0 h-100"> {{-- ✅ Added shadow & border --}}
+            <div class="card h-100 border-0 shadow-sm position-relative">
                 @if($product->image)
                     <img src="{{ asset('storage/' . $product->image) }}"
                          class="card-img-top rounded-top"
@@ -25,32 +26,38 @@
                     </div>
                 @endif
 
-                <div class="card-body">
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ $product->name }}</h5>
-                    <p class="card-text text-muted">{{ Str::limit($product->description, 100) }}</p>
-                    <p class="fw-bold text-primary">${{ number_format($product->price, 2) }}</p>
-                </div>
-                @if($product->user)
-                <div class="px-3 pb-2">
-                    <span class="badge bg-secondary text-white">Supplier: {{ $product->user->name }}</span>
-                </div>
-                @endif
-                <div class="card-footer bg-transparent border-0 text-center">
-                    <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline-primary w-100">
+                    <p class="card-text text-muted small mb-2">{{ Str::limit($product->description, 100) }}</p>
+                    <p class="fw-semibold text-primary fs-5 mb-3">${{ number_format($product->price, 2) }}</p>
+
+                    @if($product->user)
+                        <span class="badge bg-secondary mb-2 align-self-start">Supplier: {{ $product->user->name }}</span>
+                    @endif
+
+                    <a href="{{ route('products.show', $product) }}" class="btn btn-outline-primary btn-sm w-100 mb-2 mt-auto">
                         View Details
                     </a>
-                
-                <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mt-2">
-                    @csrf
-                    <div class="mb-2">
-                        <label for="quantity-{{ $product->id }}" class="form-label">Quantity</label>
-                        <input type="number" id="quantity-{{ $product->id }}" name="quantity" value="1" min="1" class="form-control form-control-sm text-center" style="max-width: 100px; margin: 0 auto;">
-                    </div>
-                        <button type="submit" class="btn btn-sm btn-outline-success w-100">
+
+                    <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                        @csrf
+                        <div class="mb-2">
+                            <label for="quantity-{{ $product->id }}" class="form-label small">Quantity</label>
+                            <input type="number" id="quantity-{{ $product->id }}" name="quantity" value="1" min="1"
+                                   class="form-control form-control-sm text-center mx-auto" style="max-width: 100px;">
+                        </div>
+                        <button type="submit" class="btn btn-outline-success btn-sm w-100 mb-2">
                             Add to Cart
                         </button>
-                </form>
                     </form>
+
+                    <div class="text-center">
+                        @if($product->status === 'sold')
+                            <span class="badge bg-danger">Sold</span>
+                        @else
+                            <span class="badge bg-success">Available</span>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->decimal('price', 12, 2);
             $table->string('image')->nullable(); // <-- added image column
             $table->timestamps();
+            $table->string('status')->default('available');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
         });
     }
 
