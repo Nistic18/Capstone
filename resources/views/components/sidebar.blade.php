@@ -10,13 +10,13 @@
         <ul class="sidebar-menu">
             <li class="menu-header">Home</li>
             <li class="{{ Request::is('home') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('home') }}"><i class="fas fa-fire"></i><span>Home</span></a>
+                <a class="nav-link" href="{{ url('home') }}"><i class="fas fa-home"></i><span>Home</span></a>
             </li>
              <li class="{{ Request::is('orders') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('orders') }}"><i class="fas fa-fire"></i><span>Orders</span></a>
+                <a class="nav-link" href="{{ url('orders') }}"><i class="fas fa-box"></i><span>Orders</span></a>
             </li>
             <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('dashboard') }}"><i class="fas fa-fire"></i><span>Dashboard</span></a>
+                <a class="nav-link" href="{{ url('dashboard') }}"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
             </li>
             <li class="menu-header">Manage</li>
             <li class="{{ Request::routeIs('users.index') ? 'active' : '' }}">

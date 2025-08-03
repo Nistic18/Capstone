@@ -24,7 +24,7 @@
             <select name="role" class="form-select" required>
                 <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
                 <option value="buyer" {{ $user->role === 'buyer' ? 'selected' : '' }}>Buyer</option>
-                <option value="seller" {{ $user->role === 'seller' ? 'selected' : '' }}>Seller</option>
+                <option value="reseller" {{ $user->role === 'reseller' ? 'selected' : '' }}>Reseller</option>
                 <option value="supplier" {{ $user->role === 'supplier' ? 'selected' : '' }}>Supplier</option>
             </select>
         </div>

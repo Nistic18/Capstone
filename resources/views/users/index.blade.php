@@ -25,8 +25,8 @@
                             @case('admin')
                                 <span class="badge bg-success text-white">Admin</span>
                                 @break
-                            @case('seller')
-                                <span class="badge bg-info text-dark text-white">Seller</span>
+                            @case('reseller')
+                                <span class="badge bg-info text-dark text-white">Reseller</span>
                                 @break
                             @case('supplier')
                                 <span class="badge bg-primary text-white">Supplier</span>

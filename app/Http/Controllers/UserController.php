@@ -23,7 +23,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,buyer,seller,supplier',
+            'role' => 'required|in:admin,buyer,reseller,supplier',
         ]);
 
         $user->update($request->only('name', 'email', 'role'));
