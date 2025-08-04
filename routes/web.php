@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\LocationController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -61,6 +62,21 @@ Route::middleware(['auth'])->group(function () {
 Route::put('/supplier/orders/{order}/bulk-status-update', [OrderController::class, 'bulkUpdateProductStatus'])
     ->name('supplier.orders.status.bulk-update')
     ->middleware('auth');
+
+Route::get('/map', function () {
+    return view('map'); // your map.blade.php
+});
+
+Route::post('/locations', [LocationController::class, 'store'])->name('locations.store');
+
+Route::get('/location-map', function () {
+    return view('map'); // make sure you have resources/views/map.blade.php
+})->middleware('auth')->name('map');
+
+
+Route::get('/location-map', [LocationController::class, 'showMap'])->name('map');
+Route::post('/locations/store', [LocationController::class, 'store'])->name('locations.store');
+
 
 
 

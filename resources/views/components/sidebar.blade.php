@@ -28,12 +28,12 @@
             <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('supplier.orders') }}"><i class="fas fa-fire"></i><span>Supplier Orders</span></a>
             </li>
-            {{-- <li class="{{ Request::is('profile/edit') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('profile/edit') }}"><i class="far fa-user"></i> <span>Profile</span></a>
+            <li class="{{ Request::is('location-map') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('map') }}"><i class="fas fa-map-marked-alt"></i><span>Map Location</span></a>
             </li>
             <li class="{{ Request::is('profile/change-password') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('profile/change-password') }}"><i class="fas fa-key"></i> <span>Change Password</span></a>
-            </li> --}}
+            </li>
             <li class="menu-header">Starter</li>
             <li class="{{ Request::is('blank-page') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('blank-page') }}"><i class="far fa-square"></i> <span>Blank Page</span></a>
