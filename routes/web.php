@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\SupplierProductController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -19,9 +20,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', [App\Http\Controllers\ProductController::class, 'home'])->name('home');
     Route::view('/dashboard', 'dashboard')->name('dashboard');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+
     Route::get('/products/show', [ProductController::class, 'show'])->name('products.show');
     Route::get('/products/index', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+
+    Route::get('/supplierproduct/show', [SupplierProductController::class, 'show'])->name('supplierproduct.show');
+    Route::get('/supplierproduct/index', [SupplierProductController::class, 'index'])->name('supplierproduct.index');
+    Route::get('/supplierproduct/create', [SupplierProductController::class, 'create'])->name('supplierproduct.create');
+
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/profile/change-password', [ProfileController::class, 'changepassword'])->name('profile.change-password');
     Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
@@ -30,17 +37,12 @@ Route::middleware(['auth'])->group(function () {
     ->name('supplier.orders')
     ->middleware('auth');
     Route::put('/supplier/orders/{order}/product/{product}/status', [OrderController::class, 'updateProductStatus'])
+    
     ->name('supplier.orders.status.update')
     ->middleware('auth');
 
-    Route::get('/hakakses', [App\Http\Controllers\HakaksesController::class, 'index'])->name('hakakses.index')->middleware('superadmin');
-    Route::get('/hakakses/edit/{id}', [App\Http\Controllers\HakaksesController::class, 'edit'])->name('hakakses.edit')->middleware('superadmin');
-    Route::put('/hakakses/update/{id}', [App\Http\Controllers\HakaksesController::class, 'update'])->name('hakakses.update')->middleware('superadmin');
-    Route::delete('/hakakses/delete/{id}', [App\Http\Controllers\HakaksesController::class, 'destroy'])->name('hakakses.delete')->middleware('superadmin');
-
-    Route::get('/table-example', [App\Http\Controllers\ExampleController::class, 'table'])->name('table.example');
-    // Product resource routes (CRUD)
     Route::resource('products', ProductController::class);
+    Route::resource('supplierproduct', SupplierProductController::class);
 });
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');

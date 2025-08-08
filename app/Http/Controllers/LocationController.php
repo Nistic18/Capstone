@@ -15,11 +15,14 @@ public function store(Request $request)
     $request->validate([
         'latitude' => 'required|numeric',
         'longitude' => 'required|numeric',
+        'location_name' => 'required|string|max:255',
+        'type' => 'required|in:supply,store',
     ]);
 
     Location::create([
         'user_id' => Auth::id(),
-        'type' => 'supply', // or 'store', based on logic
+        'location_name' => $request->location_name,
+        'type' => $request->type,
         'latitude' => $request->latitude,
         'longitude' => $request->longitude,
     ]);

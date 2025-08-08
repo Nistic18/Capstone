@@ -8,13 +8,27 @@
         <div class="alert alert-info">You have no orders yet.</div>
     @else
         @foreach ($orders as $order)
+            @php
+                $statusColor = match($order->status) {
+                    'paid' => 'success',
+                    'shipped' => 'info',
+                    'cancelled' => 'danger',
+                    default => 'secondary',
+                };
+            @endphp
+
             <div class="card mb-4 shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <span class="float-end">Date: {{ $order->created_at->format('Y-m-d H:i') }}</span>
                 </div>
                 <div class="card-body">
                     <p><strong>Total Price:</strong> ${{ number_format($order->total_price, 2) }}</p>
-                    <p><strong>Status:</strong> {{ $order->status ?? 'Pending' }}</p>
+                    <p>
+                        <strong>Status:</strong>
+                        <span class="badge bg-{{ $statusColor }}">
+                            {{ ucfirst($order->status ?? 'pending') }}
+                        </span>
+                    </p>
 
                     <table class="table table-bordered mt-3">
                         <thead>
@@ -40,17 +54,5 @@
             </div>
         @endforeach
     @endif
-    @php
-    $statusColor = match($order->status) {
-        'paid' => 'success',
-        'shipped' => 'info',
-        'cancelled' => 'danger',
-        default => 'secondary',
-    };
-    @endphp
-
-    <span class="badge bg-{{ $statusColor }}">
-    {{ ucfirst($order->status) }}
-    </span>
 </div>
 @endsection

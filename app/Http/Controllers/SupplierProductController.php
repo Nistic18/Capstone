@@ -2,33 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
+use App\Models\SupplierProduct;
 use Illuminate\Http\Request;
 
-class ProductController extends Controller
+class SupplierProductController extends Controller
 {
     public function home()
     {
-        $products = Product::latest()->paginate(9); // you can change number per page
+        $products = SupplierProduct::latest()->paginate(9);
         return view('home', compact('products'));
     }
 
     public function index()
     {
         if (auth()->user()->role === 'admin') {
-            // Admin sees all products with user info
-            $products = Product::with('user')->get();
+            $products = SupplierProduct::with('user')->get();
         } else {
-            // Supplier sees only their products
-            $products = Product::with('user')->where('user_id', auth()->id())->get();
+            $products = SupplierProduct::with('user')->where('user_id', auth()->id())->get();
         }
-        return view('products.index', compact('products'));
+        return view('supplierproduct.index', compact('products'));
     }
-
 
     public function create()
     {
-        return view('products.create');
+        return view('supplierproduct.create');
     }
 
     public function store(Request $request)
@@ -47,26 +44,26 @@ class ProductController extends Controller
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
-        Product::create($data);
+        SupplierProduct::create($data);
 
-        return redirect()->route('products.index')->with('success', 'Product created!');
+        return redirect()->route('supplierproduct.index')->with('success', 'Product created!');
     }
 
-    public function show(Product $product)
+    public function show(SupplierProduct $supplierproduct)
     {
-        return view('products.show', compact('product'));
+        return view('supplierproduct.show', ['product' => $supplierproduct]);
     }
 
-    public function edit(Product $product)
+    public function edit(SupplierProduct $supplierproduct)
     {
         if (auth()->user()->role !== 'admin') {
             abort(403, 'Unauthorized access.');
         }
 
-        return view('products.create', compact('product'));
+        return view('supplierproduct.create', ['product' => $supplierproduct]);
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, SupplierProduct $supplierproduct)
     {
         $request->validate([
             'name' => 'required',
@@ -75,24 +72,24 @@ class ProductController extends Controller
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $data = $request->only('name', 'description', 'price');
+        $data = $request->only('name', 'description', 'price', 'quantity');
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
-        $product->update($data);
+        $supplierproduct->update($data);
 
-        return redirect()->route('products.index')->with('success', 'Product updated!');
+        return redirect()->route('supplierproduct.index')->with('success', 'Product updated!');
     }
 
-    public function destroy(Product $product)
+    public function destroy(SupplierProduct $supplierproduct)
     {
         if (auth()->user()->role !== 'admin') {
             abort(403, 'Unauthorized access.');
         }
 
-        $product->delete();
-        return redirect()->route('products.index')->with('success', 'Product deleted!');
+        $supplierproduct->delete();
+        return redirect()->route('supplierproduct.index')->with('success', 'Product deleted!');
     }
 }

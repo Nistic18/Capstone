@@ -9,10 +9,11 @@ class Location extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'type',
-        'latitude',
-        'longitude',
-    ];
+protected $fillable = [
+    'user_id',
+    'location_name',
+    'type',
+    'latitude',
+    'longitude',
+];
 }

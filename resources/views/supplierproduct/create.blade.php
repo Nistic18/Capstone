@@ -4,10 +4,11 @@
 <div class="card card-body mt-5">
     <h2>{{ isset($product) ? 'Edit Product' : 'Add Product' }}</h2>
 
-    <form action="{{ isset($product) ? route('products.update', $product) : route('products.store') }}"
-          method="POST" enctype="multipart/form-data">
-        @csrf
-        @if(isset($product)) @method('PUT') @endif
+<form action="{{ isset($product) ? route('supplierproduct.update', ['supplierproduct' => $product->id]) : route('supplierproduct.store') }}"
+      method="POST" enctype="multipart/form-data">
+    @csrf
+    @if(isset($product)) @method('PUT') @endif
+
 
         <div class="mb-3">
             <label>Name</label>
@@ -44,7 +45,7 @@
         <button type="submit" class="btn btn-primary">
             {{ isset($product) ? 'Update Product' : 'Create Product' }}
         </button>
-        <a href="{{ route('products.index') }}" class="btn btn-secondary">Cancel</a>
+        <a href="{{ route('supplierproduct.index') }}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 @endsection

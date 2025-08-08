@@ -10,7 +10,7 @@
         <ul class="sidebar-menu">
             <li class="menu-header">Home</li>
             <li class="{{ Request::is('home') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('home') }}"><i class="fas fa-home"></i><span>Home</span></a>
+                <a class="nav-link" href="{{ url('home') }}"><i class="fas fa-home"></i><span>Buyer Home</span></a>
             </li>
              <li class="{{ Request::is('orders') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('orders') }}"><i class="fas fa-box"></i><span>Orders</span></a>
@@ -20,15 +20,21 @@
             </li>
             <li class="menu-header">Manage</li>
             <li class="{{ Request::routeIs('users.index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('users.index') }}"><i class="far fa-user"></i> <span>User Manage</span></a>
+                <a class="nav-link" href="{{ route('users.index') }}"><i class="far fa-user"></i> <span>Admin User Manage</span></a>
             </li>
              <li class="{{ Request::is('products/index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('products/index') }}"><i class="fas fa-table"></i> <span>Manage Products</span></a>
+                <a class="nav-link" href="{{ url('products/index') }}"><i class="fas fa-table"></i> <span>Reseller Manage Products</span></a>
             </li>
             <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('supplier.orders') }}"><i class="fas fa-fire"></i><span>Reseller Orders</span></a>
+            </li>
+             <li class="{{ Request::is('supplierproduct/index') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('supplierproduct/index') }}"><i class="fas fa-table"></i> <span>Supplier Manage Products</span></a>
+            </li>
+             <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('supplier.orders') }}"><i class="fas fa-fire"></i><span>Supplier Orders</span></a>
             </li>
-            <li class="{{ Request::is('location-map') ? 'active' : '' }}">
+            <li class="{{ Request::is('location-map') ? 'active' :   '' }}">
                 <a class="nav-link" href="{{ route('map') }}"><i class="fas fa-map-marked-alt"></i><span>Map Location</span></a>
             </li>
             <li class="{{ Request::is('profile/change-password') ? 'active' : '' }}">
