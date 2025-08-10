@@ -75,7 +75,7 @@ class ProductController extends Controller
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $data = $request->only('name', 'description', 'price');
+        $data = $request->only('name', 'quantity', 'description', 'price');
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');

@@ -6,7 +6,7 @@ use App\Models\Order;
 use App\Models\Cart;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Product;
 class CartController extends Controller
 {
     public function index()
@@ -52,46 +52,91 @@ class CartController extends Controller
 
         return back()->with('success', 'Item removed from cart.');
     }
-public function checkout()
+public function update(Request $request, $productId)
 {
-    $userId = auth()->id();
-    $cartItems = Cart::with('product')->where('user_id', $userId)->get();
+    $request->validate([
+        'quantity' => 'required|integer|min:1'
+    ]);
 
-    if ($cartItems->isEmpty()) {
-        return back()->with('error', 'Your cart is empty.');
+    // Find the cart item for this user and product
+    $cartItem = Cart::where('user_id', Auth::id())
+                    ->where('product_id', $productId)
+                    ->with('product')
+                    ->first();
+
+    if (!$cartItem) {
+        return back()->with('error', 'Product not found in cart.');
     }
 
-    DB::transaction(function () use ($cartItems, $userId) {
-        $total = 0;
+    // Make sure quantity does not exceed stock
+    $maxStock = $cartItem->product->quantity;
+    if ($request->quantity > $maxStock) {
+        return back()->with('error', "Only $maxStock items available in stock.");
+    }
 
-        foreach ($cartItems as $item) {
-            if (!$item->product || $item->product->status === 'sold') {
-                throw new \Exception("Product {$item->product->name} is not available.");
-            }
+    // Update quantity
+    $cartItem->update(['quantity' => $request->quantity]);
 
-            $total += $item->product->price * $item->quantity;
+    return back()->with('success', 'Quantity updated successfully!');
+}
+
+public function checkout()
+{
+    DB::beginTransaction();
+
+    try {
+        $cartItems = Cart::where('user_id', Auth::id())->with('product')->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->back()->with('error', 'Your cart is empty.');
         }
 
+        $total = 0;
+
         $order = Order::create([
-            'user_id' => $userId,
-            'total_price' => $total,
-            'status' => 'Pending', // or "Processing"
+            'user_id' => Auth::id(),
+            'status' => 'Pending',
+            'total_price' => 0 // will update later
         ]);
 
         foreach ($cartItems as $item) {
-            $order->products()->attach($item->product->id, [
+            $product = $item->product;
+
+            if (!$product) {
+                throw new \Exception("One of the products in your cart no longer exists.");
+            }
+
+            // Validate stock
+            if ($item->quantity > $product->quantity) {
+                throw new \Exception("Not enough stock for {$product->name}. Available: {$product->quantity}");
+            }
+
+            // Calculate total
+            $total += $product->price * $item->quantity;
+
+            // Attach product to order with quantity and pending status
+            $order->products()->attach($product->id, [
                 'quantity' => $item->quantity,
                 'product_status' => 'Pending'
             ]);
 
-            // ✅ Mark product as sold
-            $item->product->update(['status' => 'sold']);
+            // Deduct quantity from product stock
+            $product->decrement('quantity', $item->quantity);
         }
 
-        // ✅ Clear the cart
-        Cart::where('user_id', $userId)->delete();
-    });
+        // Update total price in order
+        $order->update(['total_price' => $total]);
 
-    return redirect()->route('cart.index')->with('success', 'Checkout complete! Thank you for your purchase.');
+        // Clear user's cart
+        Cart::where('user_id', Auth::id())->delete();
+
+        DB::commit();
+
+        return redirect()->route('orders.index')->with('success', 'Checkout successful!');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->with('error', $e->getMessage());
+    }
 }
 }

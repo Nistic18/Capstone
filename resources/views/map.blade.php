@@ -30,14 +30,19 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: ''
     }).addTo(map);
-
+    var geocoder = L.Control.Geocoder.nominatim({
+    geocodingQueryParams: {
+        countrycodes: 'ph'
+    }
+    });
     // Add search control to the map
     L.Control.geocoder({
-        defaultMarkGeocode: false
+        defaultMarkGeocode: false,
+        geocoder: geocoder
     })
     .on('markgeocode', function(e) {
         const latlng = e.geocode.center;
-        map.setView(latlng, 15);
+        map.setView(latlng, 18);
     })
     .addTo(map);
 

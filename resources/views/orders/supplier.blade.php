@@ -13,6 +13,9 @@
         <div class="card my-3">
             <div class="card-header">
                 Order #{{ $order->id }} • {{ $order->created_at->format('Y-m-d H:i') }}
+                <span class="fw-bold text-primary">
+                    Total Price: ₱{{ number_format($order->total_price, 2) }}
+                </span>
             </div>
             <div class="card-body">
                 <form method="POST" action="{{ route('supplier.orders.status.bulk-update', $order->id) }}">
