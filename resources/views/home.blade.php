@@ -9,12 +9,93 @@
 
 @section('content')
 <div class="mt-5">
-    <div class="card card-body">
-        <h2 class="fw-bold mb-0 text-primary">Browse Products</h2>
+    {{-- Hero Section --}}
+    <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+        <div class="card-body text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-fish text-white" style="font-size: 3rem;"></i>
+            </div>
+            <h1 class="display-4 fw-bold text-white mb-3">🐠 FishMarket</h1>
+            <p class="lead text-white-50 mb-0">Discover the finest selection of fresh fish from trusted sellers</p>
+        </div>
     </div>
 
+    {{-- Enhanced Search & Filter Section --}}
+    <div class="card border-0 shadow-sm mb-5" style="border-radius: 15px;">
+        <div class="card-body p-4">
+            <form method="GET" action="{{ route('home') }}" class="row g-3">
+                {{-- Search Input with Icon --}}
+                <div class="col-lg-4 col-md-6">
+                    <div class="position-relative">
+                        <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" name="search" class="form-control ps-5" 
+                               style="border-radius: 25px; border: 2px solid #e9ecef;"
+                               placeholder="Search for fish species..."
+                               value="{{ request('search') }}">
+                    </div>
+                </div>
+
+                {{-- Price Range --}}
+                <div class="col-lg-2 col-md-3">
+                    <div class="position-relative">
+                        <i class="fas fa-dollar-sign position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="number" name="min_price" class="form-control ps-5" 
+                               style="border-radius: 25px; border: 2px solid #e9ecef;"
+                               placeholder="Min $"
+                               value="{{ request('min_price') }}">
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-3">
+                    <input type="number" name="max_price" class="form-control" 
+                           style="border-radius: 25px; border: 2px solid #e9ecef;"
+                           placeholder="Max $"
+                           value="{{ request('max_price') }}">
+                </div>
+
+                {{-- Sort Dropdown --}}
+                <div class="col-lg-3 col-md-6">
+                    <select name="sort" class="form-select" 
+                            style="border-radius: 25px; border: 2px solid #e9ecef;"
+                            onchange="this.form.submit()">
+                        <option value="">🔄 Sort by...</option>
+                        <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>💰 Price: Low to High</option>
+                        <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>💸 Price: High to Low</option>
+                        <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>🔤 Name: A to Z</option>
+                        <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>🔤 Name: Z to A</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-1 col-md-12">
+                    <button type="submit" class="btn btn-primary w-100" 
+                            style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
+                        <i class="fas fa-search me-1"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Results Count --}}
+    @if(!$products->isEmpty())
+    <div class="mb-4">
+        <p class="text-muted mb-0">
+            <i class="fas fa-fish me-2"></i>
+            Found {{ $products->total() }} fresh fish {{ $products->total() == 1 ? 'listing' : 'listings' }}
+        </p>
+    </div>
+    @endif
+
     @if($products->isEmpty())
-        <div class="alert alert-info text-center">No products available.</div>
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-fish text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+            </div>
+            <h3 class="text-muted mb-3">No Fish Found</h3>
+            <p class="text-muted">Try adjusting your search criteria or check back later for new listings!</p>
+            <a href="{{ route('home') }}" class="btn btn-primary" style="border-radius: 25px;">
+                <i class="fas fa-refresh me-2"></i>View All Fish
+            </a>
+        </div>
     @else
     <div class="row">
         @foreach($products as $product)
@@ -25,76 +106,214 @@
                                ->exists() : false;
         @endphp
 
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 border-0 shadow-sm position-relative">
-                {{-- Product Image --}}
-                @if($product->image)
-                    <img src="{{ asset('storage/' . $product->image) }}"
-                         class="card-img-top rounded-top"
-                         style="height: 200px; object-fit: cover;"
-                         alt="{{ $product->name }}">
-                @else
-                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center rounded-top"
-                         style="height: 200px;">
-                        <span class="text-muted">No Image</span>
-                    </div>
-                @endif
-
-                {{-- Product Details --}}
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{ $product->name }}</h5>
-                    <p class="card-text text-muted small mb-2">{{ Str::limit($product->description, 100) }}</p>
-                    <p class="fw-semibold text-primary fs-5 mb-3">${{ number_format($product->price, 2) }}</p>
-
-                    @if($product->user)
-                        <span class="badge bg-secondary mb-2 align-self-start">
-                            Supplier: {{ $product->user->name }}
+        <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm position-relative overflow-hidden" 
+                 style="border-radius: 20px; transition: all 0.3s ease; cursor: pointer;"
+                 onmouseover="this.style.transform='translateY(-5px)'; this.classList.add('shadow-lg')"
+                 onmouseout="this.style.transform='translateY(0)'; this.classList.remove('shadow-lg')">
+                
+                {{-- Product Image with Overlay --}}
+                <div class="position-relative overflow-hidden" style="height: 250px; border-radius: 20px 20px 0 0;">
+                    @if($product->image)
+                        <img src="{{ asset('storage/' . $product->image) }}"
+                             class="card-img-top w-100 h-100"
+                             style="object-fit: cover; transition: transform 0.3s ease;"
+                             alt="{{ $product->name }}"
+                             onmouseover="this.style.transform='scale(1.05)'"
+                             onmouseout="this.style.transform='scale(1)'">
+                    @else
+                        <div class="w-100 h-100 d-flex align-items-center justify-content-center"
+                             style="background: linear-gradient(45deg, #f8f9fa, #e9ecef);">
+                            <div class="text-center">
+                                <i class="fas fa-fish text-muted mb-2" style="font-size: 3rem;"></i>
+                                <p class="text-muted mb-0">No Image</p>
+                            </div>
+                        </div>
+                    @endif
+                    
+                    {{-- Stock Status Badge --}}
+                    @if($product->quantity > 0)
+                        <span class="badge position-absolute top-0 end-0 m-3" 
+                              style="background: rgba(40, 167, 69, 0.9); border-radius: 20px; padding: 8px 12px;">
+                            <i class="fas fa-check-circle me-1"></i>In Stock
+                        </span>
+                    @else
+                        <span class="badge position-absolute top-0 end-0 m-3" 
+                              style="background: rgba(220, 53, 69, 0.9); border-radius: 20px; padding: 8px 12px;">
+                            <i class="fas fa-times-circle me-1"></i>Out of Stock
                         </span>
                     @endif
+                </div>
 
-                    {{-- View Details always visible --}}
-                    <a href="{{ route('products.show', $product) }}" class="btn btn-outline-primary btn-sm w-100 mb-2 mt-auto">
-                        View Details
-                    </a>
+                {{-- Product Details --}}
+                <div class="card-body d-flex flex-column p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold mb-0" style="color: #2c3e50;">{{ $product->name }}</h5>
+                        <span class="badge" style="background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; color: #fff;">
+                            🐟 Fresh
+                        </span>
+                    </div>
+                    
+                    <p class="card-text text-muted small mb-3" style="line-height: 1.5;">
+                        {{ Str::limit($product->description, 80) }}
+                    </p>
 
-                    {{-- Add to Cart / Already in Cart / Availability --}}
-                    @if($product->quantity > 0)
-                        @if($inCart)
-                            <span class="badge bg-warning text-dark w-100 py-2">Already in Cart</span>
-                        @else
-                            <form action="{{ route('cart.add', $product->id) }}" method="POST">
-                                @csrf
-                                <div class="mb-2">
-                                    <label for="quantity-{{ $product->id }}" class="form-label small">Quantity</label>
-                                    <input type="number" id="quantity-{{ $product->id }}" name="quantity" value="1" min="1"
-                                           max="{{ $product->quantity }}"
-                                           class="form-control form-control-sm text-center mx-auto" style="max-width: 100px;">
+                    {{-- Price --}}
+                    <div class="mb-3">
+                        <span class="h4 fw-bold" style="color: #28a745;">
+                            ${{ number_format($product->price, 2) }}
+                        </span>
+                        <small class="text-muted">/ piece</small>
+                    </div>
+
+                    {{-- Rating --}}
+                    <div class="mb-3">
+                        @if($product->averageRating())
+                            <div class="d-flex align-items-center">
+                                <div class="me-2">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        @if($i <= round($product->averageRating()))
+                                            <i class="fas fa-star text-warning"></i>
+                                        @else
+                                            <i class="far fa-star text-warning"></i>
+                                        @endif
+                                    @endfor
                                 </div>
-                                <button type="submit" class="btn btn-outline-success btn-sm w-100 mb-2">
-                                    Add to Cart
-                                </button>
-                            </form>
+                                <small class="text-muted">
+                                    {{ number_format($product->averageRating(), 1) }} 
+                                    ({{ $product->reviews->count() }} {{ $product->reviews->count() == 1 ? 'review' : 'reviews' }})
+                                </small>
+                            </div>
+                        @else
+                            <small class="text-muted">
+                                <i class="far fa-star text-muted me-1"></i>No reviews yet
+                            </small>
                         @endif
+                    </div>
 
-                        {{-- Availability badge shown when stock > 0 --}}
-                        <div class="mt-2">
-                            <span class="badge bg-success w-100 py-2">Available</span>
+                    {{-- Seller Info --}}
+                    @if($product->user)
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center p-2 rounded" 
+                                 style="background-color: #f8f9fa; border-left: 3px solid #667eea;">
+                                <i class="fas fa-user-circle text-primary me-2"></i>
+                                <div>
+                                    <small class="text-muted d-block">Seller</small>
+                                    <a href="{{ route('profile.show', $product->user->id) }}" 
+                                       class="fw-semibold text-decoration-none" style="color: #667eea;">
+                                        {{ $product->user->name }}
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                    @else
-                        {{-- Out of Stock Badge --}}
-                        <span class="badge bg-danger w-100 py-2">Out of Stock</span>
                     @endif
 
+                    {{-- Action Buttons --}}
+                    <div class="mt-auto">
+                        {{-- View Details Button --}}
+                        <a href="{{ route('products.show', $product) }}" 
+                           class="btn btn-outline-primary w-100 mb-2" 
+                           style="border-radius: 15px; border-width: 2px;">
+                            <i class="fas fa-eye me-2"></i>View Details
+                        </a>
+
+                        {{-- Add to Cart / Cart Status --}}
+                        @if($product->quantity > 0)
+                            @if($inCart)
+                                <div class="alert alert-warning text-center mb-0 py-2" style="border-radius: 15px;">
+                                    <i class="fas fa-shopping-cart me-2"></i>Already in Cart
+                                </div>
+                            @else
+                                <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                    @csrf
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-4">
+                                            <label for="quantity-{{ $product->id }}" class="form-label small">Qty</label>
+                                            <input type="number" id="quantity-{{ $product->id }}" 
+                                                   name="quantity" value="1" min="1" max="{{ $product->quantity }}"
+                                                   class="form-control form-control-sm text-center" 
+                                                   style="border-radius: 10px;">
+                                        </div>
+                                        <div class="col-8 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-success w-100" 
+                                                    style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997);">
+                                                <i class="fas fa-cart-plus me-1"></i>Add to Cart
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            @endif
+                        @else
+                            <div class="alert alert-danger text-center mb-0 py-2" style="border-radius: 15px;">
+                                <i class="fas fa-times-circle me-2"></i>Currently Unavailable
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
         @endforeach
     </div>
 
-    {{-- Pagination --}}
-    <div class="d-flex justify-content-center mt-4">
-        {{ $products->links() }}
+    {{-- Enhanced Pagination --}}
+    <div class="d-flex justify-content-center mt-5">
+        <nav aria-label="Product pagination">
+            {{ $products->appends(request()->query())->links('pagination::bootstrap-4') }}
+        </nav>
     </div>
     @endif
 </div>
+
+{{-- Custom CSS --}}
+<style>
+    .card:hover {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #5a6fd8, #6a42a0);
+        transform: translateY(-1px);
+    }
+    
+    .pagination .page-link {
+        border-radius: 10px;
+        margin: 0 2px;
+        border: 2px solid #e9ecef;
+        color: #667eea;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border-color: #667eea;
+    }
+    
+    .alert {
+        border: none;
+    }
+    
+    @media (max-width: 768px) {
+        .display-4 {
+            font-size: 2rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+    }
+</style>
+
+{{-- Add Font Awesome if not already included --}}
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+@endpush
 @endsection

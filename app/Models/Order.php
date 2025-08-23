@@ -21,4 +21,9 @@ class Order extends Model
                 ->withPivot('quantity', 'product_status') // include status
                 ->withTimestamps();
     }
+    public function reviews()
+{
+    return $this->hasMany(Review::class);
+}
+
 }

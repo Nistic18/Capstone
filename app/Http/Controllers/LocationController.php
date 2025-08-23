@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Location;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,6 +13,9 @@ class LocationController extends Controller
 {
 public function store(Request $request)
 {
+    if (auth()->user()->role === 'buyer') {
+        abort(403, 'Buyers cannot add locations.');
+    }
     $request->validate([
         'latitude' => 'required|numeric',
         'longitude' => 'required|numeric',
@@ -31,9 +35,24 @@ public function store(Request $request)
 }
 public function showMap()
 {
-    // Get all locations, or filter by user if needed
-    $locations = Location::all(); // or Location::where('user_id', Auth::id())->get();
+    $locations = Location::with('user')->get();
+    $role = auth()->check() ? auth()->user()->role : null;
 
-    return view('map', compact('locations'));
+    // Fetch users with lat/lng
+    $users = User::whereNotNull('latitude')
+                 ->whereNotNull('longitude')
+                 ->get();
+
+    return view('map', compact('locations', 'role', 'users'));
 }
+public function index()
+{
+    $locations = Location::with('user')->get();
+    $users = User::whereNotNull('latitude')
+                 ->whereNotNull('longitude')
+                 ->get();
+
+    return view('map', compact('locations', 'users'));
+}
+
 }

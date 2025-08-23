@@ -14,7 +14,7 @@
 
 2. Navigate into the project directory:
     ```bash
-    cd laravel11-stisla
+    cd ../../xampp/htdocs/Capstone
     ```
 
 3. Install PHP dependencies:
@@ -44,7 +44,11 @@
     ```bash
     php artisan serve
     ```
-
+9. For Gemini API
+    ```bash
+    composer require guzzlehttp/guzzle
+    
+10. Edit .env folder for Gemini API Key
 ### Register a New User
 To register a new user, follow these steps:
 

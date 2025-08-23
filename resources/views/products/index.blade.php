@@ -2,10 +2,43 @@
 
 @section('content')
 <div class="container mt-5">
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Products</h2>
         <a class="btn btn-primary" href="{{ route('products.create') }}">+ Add Product</a>
     </div>
+
+    {{-- Search + Filter Form --}}
+    <form method="GET" action="{{ route('products.index') }}" class="mb-4">
+        <div class="row g-2">
+            {{-- Search Bar --}}
+            <div class="col-md-6">
+                <input type="text"
+                       name="search"
+                       class="form-control"
+                       placeholder="Search products..."
+                       value="{{ request('search') }}">
+            </div>
+
+            {{-- Filter Dropdown --}}
+        <div class="col-md-3">
+            <select name="sort" class="form-select" onchange="this.form.submit()">
+                <option value="">Sort by...</option>
+                <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Name: A to Z</option>
+                <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Name: Z to A</option>
+            </select>
+        </div>
+
+            {{-- Submit Button --}}
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-secondary w-100">
+                    <i class="fas fa-search"></i> Search & Filter
+                </button>
+            </div>
+        </div>
+    </form>
 
     @if($products->isEmpty())
         <div class="alert alert-info">No products found.</div>

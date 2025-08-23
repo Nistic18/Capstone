@@ -1,0 +1,37 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container mt-5">
+
+    {{-- Page Header --}}
+    <div class="card card-body mb-4">
+        <h2 class="fw-bold mb-0 text-primary">Create a New Post</h2>
+    </div>
+
+    {{-- Post Form --}}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="POST" action="{{ route('newsfeed.store') }}" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-3">
+                    <input type="text" name="title" class="form-control" placeholder="Title of your post" required>
+                </div>
+                <div class="mb-3">
+                    <textarea name="content" class="form-control" placeholder="Description..." required
+                        style="height: 400px; resize: vertical; overflow-y: auto;"></textarea>
+                </div>
+                <div class="mb-3">
+                    <input type="file" name="image" class="form-control">
+                </div>
+
+                {{-- Buttons --}}
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ route('newsfeed.index') }}" class="btn btn-secondary">Back</a>
+                    <button type="submit" class="btn btn-primary">Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+@endsection

@@ -9,7 +9,8 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SupplierProductController;
-
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\GeminiController;
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -80,6 +81,25 @@ Route::get('/location-map', function () {
 
 Route::get('/location-map', [LocationController::class, 'showMap'])->name('map');
 Route::post('/locations/store', [LocationController::class, 'store'])->name('locations.store');
+
+Route::post('/orders/{order}/products/{product}/review', [App\Http\Controllers\ReviewController::class, 'store'])
+    ->name('reviews.store')
+    ->middleware('auth');
+
+Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/newsfeed', [PostController::class, 'index'])->name('newsfeed.index');
+    Route::get('/newsfeed/create', [PostController::class, 'create'])->name('newsfeed.create');
+    Route::post('/newsfeed', [PostController::class, 'store'])->name('newsfeed.store');
+    Route::get('/newsfeed/{post}', [PostController::class, 'show'])->name('newsfeed.show');
+    Route::post('/newsfeed/{post}/react', [PostController::class, 'react'])->name('newsfeed.react');
+    Route::post('/newsfeed/{post}/comment', [PostController::class, 'comment'])->name('newsfeed.comment');
+});
+
+
+Route::post('/gemini/generate', [App\Http\Controllers\GeminiController::class, 'generate'])->name('gemini.generate');
+
 
 
 

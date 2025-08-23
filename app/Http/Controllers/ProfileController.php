@@ -1,6 +1,6 @@
 <?php
 namespace App\Http\Controllers;
-
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -48,4 +48,11 @@ class ProfileController extends Controller
             return back()->with('status', 'Password successfully changed');
         }
     }
+public function show($id)
+{
+    $user = User::with('products.reviews.user')->findOrFail($id);
+    return view('profile.show', compact('user'));
+}
+
+
 }

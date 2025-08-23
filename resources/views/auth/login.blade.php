@@ -8,7 +8,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header text-center d-flex justify-content-center">
-                <div class="card-header">{{ __('Login') }}</div>
+                <div class="card-header">{{ __('Fish Mart') }}</div>
                 </div>
 
                 <div class="card-body">

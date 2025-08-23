@@ -21,6 +21,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'latitude',
+        'longitude',
     ];
 
     /**
@@ -45,4 +47,17 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function products()
+{
+    return $this->hasMany(Product::class);
+}
+    public function reviews()
+{
+    return $this->hasMany(Review::class);
+}
+public function posts()
+{
+    return $this->hasMany(Post::class);
+}
+
 }

@@ -2,48 +2,159 @@
 <div class="main-sidebar sidebar-style-2">
     <aside id="sidebar-wrapper">
         <div class="sidebar-brand">
-        <a href="">FISH MARKET</a>
+            <a href="">FISH MARKET</a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
-        <a href="">FISH</a>
+            <a href="">FISH</a>
         </div>
+
         <ul class="sidebar-menu">
-            <li class="menu-header">Home</li>
-            <li class="{{ Request::is('home') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('home') }}"><i class="fas fa-home"></i><span>Buyer Home</span></a>
+
+            {{-- Buyer Sidebar --}}
+            @if(auth()->user()->role === 'buyer')
+            <li class="menu-header">Home</li> 
+            <li class="{{ Request::is('home') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ url('home') }}">
+                    <i class="fas fa-home"></i><span>Home</span>
+                </a> 
+                </li>
+                <li class="menu-header">Buyer Menu</li>
+                <li class="{{ Request::is('orders') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ url('orders') }}">
+                        <i class="fas fa-box"></i><span>Orders</span>
+                    </a>
+                </li>
+                <li class="{{ Request::is('profile/*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('profile.show', auth()->id()) }}">
+                        <i class="fas fa-user-circle"></i><span>My Profile</span>
+                    </a>
+                </li>
+                <li class="{{ Request::is('location-map') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('map') }}">
+                        <i class="fas fa-map-marked-alt"></i><span>Map Location</span>
+                    </a>
+                </li>
+                <li class="{{ Request::is('newsfeed') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('newsfeed.index') }}">
+                        <i class="fas fa-newspaper"></i><span>Newsfeed</span>
+                    </a>
+                </li>
+            @endif
+
+            {{-- Admin Sidebar --}}
+            @if(auth()->user()->role === 'admin')
+            <li class="menu-header">Home</li> <li class="{{ Request::is('home') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ url('home') }}">
+                    <i class="fas fa-home"></i><span>Buyer Home</span>
+                </a> 
             </li>
-             <li class="{{ Request::is('orders') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('orders') }}"><i class="fas fa-box"></i><span>Orders</span></a>
+            <li class="{{ Request::is('orders') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ url('orders') }}">
+                    <i class="fas fa-box"></i><span>Orders</span>
+                </a> 
             </li>
-            <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('dashboard') }}"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+            <li class="{{ Request::is('dashboard') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ url('dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+                </a> 
             </li>
-            <li class="menu-header">Manage</li>
-            <li class="{{ Request::routeIs('users.index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('users.index') }}"><i class="far fa-user"></i> <span>Admin User Manage</span></a>
+            <li class="menu-header">Account</li> <li class="{{ Request::is('profile/*') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ route('profile.show', auth()->id()) }}">
+                    <i class="fas fa-user-circle"></i><span>My Profile</span>
+                </a>
             </li>
-             <li class="{{ Request::is('products/index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('products/index') }}"><i class="fas fa-table"></i> <span>Reseller Manage Products</span></a>
+            <li class="menu-header">Manage</li> <li class="{{ Request::routeIs('users.index') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ route('users.index') }}">
+                    <i class="far fa-user"></i> <span>Admin User Manage</span>
+                </a> 
             </li>
-            <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('supplier.orders') }}"><i class="fas fa-fire"></i><span>Reseller Orders</span></a>
+            <li class="{{ Request::is('products/index') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ url('products/index') }}">
+                    <i class="fas fa-table"></i> <span>Reseller Manage Products</span>
+                </a> 
             </li>
-             <li class="{{ Request::is('supplierproduct/index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('supplierproduct/index') }}"><i class="fas fa-table"></i> <span>Supplier Manage Products</span></a>
+            <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ route('supplier.orders') }}">
+                    <i class="fas fa-fire"></i><span>Reseller Orders</span>
+                </a> 
             </li>
-             <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('supplier.orders') }}"><i class="fas fa-fire"></i><span>Supplier Orders</span></a>
+            <li class="{{ Request::is('supplierproduct/index') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ url('supplierproduct/index') }}">
+                    <i class="fas fa-table"></i> <span>Supplier Manage Products</span>
+                </a>
             </li>
-            <li class="{{ Request::is('location-map') ? 'active' :   '' }}">
-                <a class="nav-link" href="{{ route('map') }}"><i class="fas fa-map-marked-alt"></i><span>Map Location</span></a>
+            <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ route('supplier.orders') }}">
+                    <i class="fas fa-fire"></i><span>Supplier Orders</span>
+                </a>
+             </li>
+            <li class="{{ Request::is('location-map') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('map') }}">
+                    <i class="fas fa-map-marked-alt"></i><span>Map Location</span>
+            </a>
             </li>
-            <li class="{{ Request::is('profile/change-password') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('profile/change-password') }}"><i class="fas fa-key"></i> <span>Change Password</span></a>
+            <li class="{{ Request::is('newsfeed') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('newsfeed.index') }}">
+                    <i class="fas fa-newspaper"></i><span>Newsfeed</span>
+             </a>
             </li>
-            <li class="menu-header">Starter</li>
-            <li class="{{ Request::is('blank-page') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('blank-page') }}"><i class="far fa-square"></i> <span>Blank Page</span></a>
+            @endif
+
+            {{-- Reseller Sidebar --}}
+            @if(auth()->user()->role === 'reseller')
+                <li class="menu-header">Home</li> 
+                <li class="{{ Request::is('home') ? 'active' : '' }}"> 
+                    <a class="nav-link" href="{{ url('home') }}">
+                        <i class="fas fa-home"></i><span>Home</span>
+                    </a> 
+                </li>
+            <li class="{{ Request::is('products/index') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ url('products/index') }}">
+                    <i class="fas fa-table"></i> <span>Reseller Manage Products</span>
+                </a> 
             </li>
+            <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ route('supplier.orders') }}">
+                    <i class="fas fa-fire"></i><span>Reseller Orders</span>
+                </a> 
+            </li>
+            <li class="{{ Request::is('newsfeed') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('newsfeed.index') }}">
+                    <i class="fas fa-newspaper"></i><span>Newsfeed</span>
+             </a>
+            </li>
+            @endif
+
+            {{-- Supplier Sidebar --}}
+            @if(auth()->user()->role === 'supplier')
+                <li class="menu-header">Home</li> 
+                <li class="{{ Request::is('home') ? 'active' : '' }}"> 
+                    <a class="nav-link" href="{{ url('home') }}">
+                        <i class="fas fa-home"></i><span>Home</span>
+                    </a> 
+                </li>
+                <li class="menu-header">Supplier</li>
+                <li class="{{ Request::is('supplierproduct/index') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ url('supplierproduct/index') }}">
+                        <i class="fas fa-table"></i> <span>Manage Products</span>
+                    </a>
+                </li>
+                <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('supplier.orders') }}">
+                        <i class="fas fa-fire"></i><span>Orders</span>
+                    </a>
+                </li>
+                <li class="{{ Request::is('location-map') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('map') }}">
+                    <i class="fas fa-map-marked-alt"></i><span>Map Location</span>
+            </a>
+            </li>
+            <li class="{{ Request::is('newsfeed') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('newsfeed.index') }}">
+                    <i class="fas fa-newspaper"></i><span>Newsfeed</span>
+             </a>
+            </li>
+            @endif
         </ul>
     </aside>
 </div>

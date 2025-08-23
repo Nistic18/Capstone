@@ -7,23 +7,87 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function home()
-    {
-        $products = Product::latest()->paginate(9); // you can change number per page
-        return view('home', compact('products'));
+public function home(Request $request)
+{
+    $query = Product::query();
+
+    // Search
+    if ($request->filled('search')) {
+        $query->where('name', 'like', '%' . $request->search . '%');
     }
 
-    public function index()
-    {
-        if (auth()->user()->role === 'admin') {
-            // Admin sees all products with user info
-            $products = Product::with('user')->get();
-        } else {
-            // Supplier sees only their products
-            $products = Product::with('user')->where('user_id', auth()->id())->get();
-        }
-        return view('products.index', compact('products'));
+    // Price filter
+    if ($request->filled('min_price')) {
+        $query->where('price', '>=', $request->min_price);
     }
+    if ($request->filled('max_price')) {
+        $query->where('price', '<=', $request->max_price);
+    }
+
+    // Sorting
+    switch ($request->sort) {
+        case 'price_asc':
+            $query->orderBy('price', 'asc');
+            break;
+        case 'price_desc':
+            $query->orderBy('price', 'desc');
+            break;
+        case 'name_asc':
+            $query->orderBy('name', 'asc');
+            break;
+        case 'name_desc':
+            $query->orderBy('name', 'desc');
+            break;
+        default:
+            $query->latest();
+    }
+
+    $products = $query->paginate(9)->appends($request->query());
+
+    return view('home', compact('products'));
+}
+
+
+public function index(Request $request)
+{
+    $query = Product::query();
+
+    // Search
+    if ($request->filled('search')) {
+        $query->where('name', 'like', '%' . $request->search . '%');
+    }
+
+    // Price filter
+    if ($request->filled('min_price')) {
+        $query->where('price', '>=', $request->min_price);
+    }
+    if ($request->filled('max_price')) {
+        $query->where('price', '<=', $request->max_price);
+    }
+
+    // Sorting
+    switch ($request->sort) {
+        case 'price_asc':
+            $query->orderBy('price', 'asc');
+            break;
+        case 'price_desc':
+            $query->orderBy('price', 'desc');
+            break;
+        case 'name_asc':
+            $query->orderBy('name', 'asc');
+            break;
+        case 'name_desc':
+            $query->orderBy('name', 'desc');
+            break;
+        default:
+            $query->latest();
+    }
+
+    $products = $query->paginate(9)->appends($request->query());
+
+    return view('products.index', compact('products'));
+}
+
 
 
     public function create()
@@ -59,15 +123,18 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized access.');
-        }
+    if (auth()->id() !== $product->user_id && auth()->user()->role !== 'admin') {
+        abort(403, 'Unauthorized access.');
+    }
 
         return view('products.create', compact('product'));
     }
 
     public function update(Request $request, Product $product)
     {
+            if (auth()->id() !== $product->user_id && auth()->user()->role !== 'admin') {
+        abort(403, 'Unauthorized access.');
+    }
         $request->validate([
             'name' => 'required',
             'price' => 'required|numeric',
@@ -88,11 +155,13 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized access.');
-        }
+    if (auth()->id() !== $product->user_id && auth()->user()->role !== 'admin') {
+        abort(403, 'Unauthorized access.');
+    }
 
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted!');
     }
+    
+    
 }
