@@ -1,24 +1,32 @@
-FROM php:8.2-fpm
+# Use official PHP image with Apache
+FROM php:8.2-apache
+
+# Set working directory
+WORKDIR /var/www/html
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git curl unzip libpq-dev libonig-dev libzip-dev zip \
-    && docker-php-ext-install pdo pdo_mysql mbstring zip
+    git \
+    unzip \
+    libzip-dev \
+    libonig-dev \
+    libpng-dev \
+    && docker-php-ext-install pdo_mysql zip mbstring gd
 
-# Install Composer
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
+
+# Copy composer from official image
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www
-
-# Copy app files
+# Copy project files
 COPY . .
 
-# Install PHP dependencies
+# Install composer dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Laravel setup
-RUN php artisan config:clear && \
-    php artisan route:clear && \
-    php artisan view:clear
+# Expose port 80 for HTTP
+EXPOSE 80
 
-CMD ["php-fpm"]
+# Start Apache in the foreground
+CMD ["apache2-foreground"]
