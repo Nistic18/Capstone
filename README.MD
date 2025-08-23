@@ -49,6 +49,7 @@
     composer require guzzlehttp/guzzle
     
 10. Edit .env folder for Gemini API Key
+
 ### Register a New User
 To register a new user, follow these steps:
 
