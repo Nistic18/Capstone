@@ -10,7 +10,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SupplierProductController;
 use App\Http\Controllers\PostController;
-use App\Http\Controllers\GeminiController;
+use App\Http\Controllers\ChatController;
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -87,6 +87,7 @@ Route::post('/orders/{order}/products/{product}/review', [App\Http\Controllers\R
     ->middleware('auth');
 
 Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
+Route::get('/myprofile', [ProfileController::class, 'myprofile'])->name('profile.myprofile');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/newsfeed', [PostController::class, 'index'])->name('newsfeed.index');
@@ -99,7 +100,12 @@ Route::middleware(['auth'])->group(function () {
 
 
 Route::post('/gemini/generate', [App\Http\Controllers\GeminiController::class, 'generate'])->name('gemini.generate');
+Route::get('/gemini/history', [App\Http\Controllers\GeminiController::class, 'history'])->name('gemini.history');
 
+Route::middleware('auth')->group(function() {
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
+});
 
 
 

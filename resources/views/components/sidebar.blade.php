@@ -24,8 +24,8 @@
                         <i class="fas fa-box"></i><span>Orders</span>
                     </a>
                 </li>
-                <li class="{{ Request::is('profile/*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('profile.show', auth()->id()) }}">
+                <li class="{{ Request::is('myprofile') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('profile.myprofile', auth()->id()) }}">
                         <i class="fas fa-user-circle"></i><span>My Profile</span>
                     </a>
                 </li>
@@ -39,6 +39,11 @@
                         <i class="fas fa-newspaper"></i><span>Newsfeed</span>
                     </a>
                 </li>
+            <li class="{{ Request::is('chat') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('chat.index') }}">
+                    <i class="fas fa-comments"></i> <span>Chat</span>
+                </a>
+            </li>
             @endif
 
             {{-- Admin Sidebar --}}
@@ -58,8 +63,8 @@
                     <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
                 </a> 
             </li>
-            <li class="menu-header">Account</li> <li class="{{ Request::is('profile/*') ? 'active' : '' }}"> 
-                <a class="nav-link" href="{{ route('profile.show', auth()->id()) }}">
+            <li class="menu-header">Account</li> <li class="{{ Request::is('myprofile') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ route('profile.myprofile', auth()->id()) }}">
                     <i class="fas fa-user-circle"></i><span>My Profile</span>
                 </a>
             </li>
@@ -83,11 +88,11 @@
                     <i class="fas fa-table"></i> <span>Supplier Manage Products</span>
                 </a>
             </li>
-            <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}"> 
+            {{-- <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}"> 
                 <a class="nav-link" href="{{ route('supplier.orders') }}">
                     <i class="fas fa-fire"></i><span>Supplier Orders</span>
                 </a>
-             </li>
+             </li> --}}
             <li class="{{ Request::is('location-map') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('map') }}">
                     <i class="fas fa-map-marked-alt"></i><span>Map Location</span>
@@ -97,6 +102,11 @@
                 <a class="nav-link" href="{{ route('newsfeed.index') }}">
                     <i class="fas fa-newspaper"></i><span>Newsfeed</span>
              </a>
+            </li>
+            <li class="{{ Request::is('chat') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('chat.index') }}">
+                    <i class="fas fa-comments"></i> <span>Chat</span>
+                </a>
             </li>
             @endif
 
@@ -117,6 +127,11 @@
                 <a class="nav-link" href="{{ route('supplier.orders') }}">
                     <i class="fas fa-fire"></i><span>Reseller Orders</span>
                 </a> 
+            </li>
+            <li class="{{ Request::is('location-map') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('map') }}">
+                    <i class="fas fa-map-marked-alt"></i><span>Map Location</span>
+            </a>
             </li>
             <li class="{{ Request::is('newsfeed') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('newsfeed.index') }}">
@@ -144,6 +159,11 @@
                         <i class="fas fa-fire"></i><span>Orders</span>
                     </a>
                 </li>
+                <li class="menu-header">Account</li> <li class="{{ Request::is('myprofile') ? 'active' : '' }}"> 
+                    <a class="nav-link" href="{{ route('profile.myprofile', auth()->id()) }}">
+                        <i class="fas fa-user-circle"></i><span>My Profile</span>
+                </a>
+            </li>
                 <li class="{{ Request::is('location-map') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('map') }}">
                     <i class="fas fa-map-marked-alt"></i><span>Map Location</span>

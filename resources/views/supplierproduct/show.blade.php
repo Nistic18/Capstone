@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'Supplier Product')
 @section('content')
 <div class="row justify-content-center mt-5">
     <h2>Product Detail</h2>

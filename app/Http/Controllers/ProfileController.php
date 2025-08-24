@@ -4,7 +4,6 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-
 class ProfileController extends Controller
 {
     public function edit()
@@ -53,6 +52,14 @@ public function show($id)
     $user = User::with('products.reviews.user')->findOrFail($id);
     return view('profile.show', compact('user'));
 }
+public function myprofile()
+{
+    $user = auth()->user();
 
+    // For newsfeed
+    $newsfeedPosts = \App\Models\Post::latest()->take(10)->get();
+
+    return view('profile.myprofile', compact('user', 'newsfeedPosts'));
+}
 
 }

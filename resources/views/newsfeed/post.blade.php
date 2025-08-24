@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'NewsFeed')
 @section('content')
 <div class="container mt-5">
 
@@ -32,6 +32,25 @@
             </form>
         </div>
     </div>
+{{-- Success Message --}}
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
+{{-- Validation Errors --}}
+@if($errors->any())
+    <div class="alert alert-danger">
+        <strong>Oops! Something went wrong:</strong>
+        <ul class="mb-0 mt-1">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
 </div>
 @endsection

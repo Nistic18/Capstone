@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title') &mdash; Laravel - Stisla</title>
+    <title>@yield('title', config('app.name', 'Fish Market'))</title>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -48,12 +48,13 @@
 <script src="{{ asset('js/stisla.js') }}"></script>
 <script src="{{ asset('js/scripts.js') }}"></script>
 <script src="{{ asset('js/custom.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <!-- Modern Gemini Chat Widget -->
 <div id="gemini-chat-container" style="
     position: fixed;
     bottom: 20px;
-    left: 20px;
+    right: 20px;
     z-index: 9999;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 ">
@@ -110,7 +111,7 @@
     <div id="chat-window" style="
         position: absolute;
         bottom: 70px;
-        left: 0;
+        right: 0;
         width: 350px;
         height: 450px;
         background: white;
@@ -365,6 +366,7 @@ const notificationBadge = document.getElementById('notification-badge');
 let isOpen = false;
 let unreadCount = 0;
 
+
 // Toggle chat window
 function toggleChat() {
     isOpen = !isOpen;
@@ -412,17 +414,19 @@ function sendMessage() {
 function appendMessage(sender, text) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
-    
+
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
-    contentDiv.textContent = text;
-    
+
+    // ✅ Render Markdown properly
+    contentDiv.innerHTML = marked.parse(text);
+
     messageDiv.appendChild(contentDiv);
     chatMessages.appendChild(messageDiv);
-    
+
     // Scroll to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;
-    
+
     // Show notification if chat is closed
     if (!isOpen && sender === 'bot') {
         unreadCount++;
@@ -491,6 +495,7 @@ chatInput.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = (this.scrollHeight) + 'px';
 });
+
 </script>
 
 @stack('scripts')

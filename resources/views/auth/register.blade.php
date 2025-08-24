@@ -69,8 +69,17 @@
                             </div>
                         </div>
 
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-info" onclick="getCurrentLocation()" style="border-radius: 15px;">
+                                <i class="fas fa-location-arrow me-1"></i>My Location
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetMapView()" style="border-radius: 15px;">
+                                <i class="fas fa-search-location me-1"></i>Reset View
+                            </button>
+                        </div>
+
                         {{-- Submit --}}
-                        <div class="row mb-0">
+                        <div class="row mb-0 mt-3">
                             <div class="col-md-6 offset-md-4 text-center">
                                 <button type="submit" class="btn btn-primary">
                                     {{ __('Register') }}
@@ -90,7 +99,12 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    var map = L.map('map').setView([14.5995, 120.9842], 13); // Default: Manila
+    // Default: Manila
+    var defaultLat = 14.5995;
+    var defaultLng = 120.9842;
+    var defaultZoom = 13;
+
+    var map = L.map('map').setView([defaultLat, defaultLng], defaultZoom);
 
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -102,7 +116,11 @@
     // Click on map to set location
     map.on('click', function(e) {
         const { lat, lng } = e.latlng;
+        setMarker(lat, lng);
+    });
 
+    // Set marker and update hidden inputs
+    function setMarker(lat, lng) {
         if (marker) {
             marker.setLatLng([lat, lng]);
         } else {
@@ -111,6 +129,34 @@
 
         document.getElementById('latitude').value = lat;
         document.getElementById('longitude').value = lng;
-    });
+    }
+
+    // Get current location
+    function getCurrentLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+
+                setMarker(lat, lng);
+                map.setView([lat, lng], 16);
+            }, function() {
+                alert("Unable to retrieve your location.");
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    // Reset to default view
+    function resetMapView() {
+        map.setView([defaultLat, defaultLng], defaultZoom);
+        if (marker) {
+            map.removeLayer(marker);
+            marker = null;
+        }
+        document.getElementById('latitude').value = "";
+        document.getElementById('longitude').value = "";
+    }
 </script>
 @endsection

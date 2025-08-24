@@ -6,7 +6,7 @@
 @endphp
 
 @extends('layouts.app')
-
+@section('title', 'Fish Market')
 @section('content')
 <div class="mt-5">
     {{-- Hero Section --}}
@@ -131,20 +131,39 @@
                         </div>
                     @endif
                     
-                    {{-- Stock Status Badge --}}
-                    @if($product->quantity > 0)
-                        <span class="badge position-absolute top-0 end-0 m-3" 
-                              style="background: rgba(40, 167, 69, 0.9); border-radius: 20px; padding: 8px 12px;">
-                            <i class="fas fa-check-circle me-1"></i>In Stock
-                        </span>
-                    @else
-                        <span class="badge position-absolute top-0 end-0 m-3" 
-                              style="background: rgba(220, 53, 69, 0.9); border-radius: 20px; padding: 8px 12px;">
-                            <i class="fas fa-times-circle me-1"></i>Out of Stock
-                        </span>
-                    @endif
                 </div>
-
+                                        <div class="position-absolute stock-badge-container" 
+                             style="top: 12px; right: 12px; z-index: 1001;">
+                            @if($product->quantity > 0)
+                                <span class="badge stock-badge" 
+                                      style="background: rgba(40, 167, 69, 0.95) !important; 
+                                             border-radius: 20px; 
+                                             padding: 8px 12px; 
+                                             box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
+                                             border: 2px solid rgba(255,255,255,0.3); 
+                                             font-weight: 600; 
+                                             color: white !important;
+                                             font-size: 0.75rem;
+                                             white-space: nowrap;
+                                             display: inline-block;">
+                                    <i class="fas fa-check-circle me-1"></i>{{ $product->quantity }} in stock
+                                </span>
+                            @else
+                                <span class="badge stock-badge" 
+                                      style="background: rgba(220, 53, 69, 0.95) !important; 
+                                             border-radius: 20px; 
+                                             padding: 8px 12px; 
+                                             box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
+                                             border: 2px solid rgba(255,255,255,0.3); 
+                                             font-weight: 600; 
+                                             color: white !important;
+                                             font-size: 0.75rem;
+                                             white-space: nowrap;
+                                             display: inline-block;">
+                                    <i class="fas fa-times-circle me-1"></i>Out of Stock
+                                </span>
+                            @endif
+                        </div>
                 {{-- Product Details --}}
                 <div class="card-body d-flex flex-column p-4">
                     <div class="d-flex justify-content-between align-items-start mb-2">

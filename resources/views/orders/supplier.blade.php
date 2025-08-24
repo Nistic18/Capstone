@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'Reseller Order')
 @section('content')
 <div class="container mt-4">
     {{-- Breadcrumb Navigation --}}

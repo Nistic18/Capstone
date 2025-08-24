@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', 'Product')
 @section('content')
 <div class="card card-body mt-5">
     <h2>{{ isset($product) ? 'Edit Product' : 'Add Product' }}</h2>

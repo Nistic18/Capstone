@@ -12,6 +12,11 @@ class OrderController extends Controller
 {
     public function index()
     {
+        // Buyers can view their own orders
+        if (auth()->user()->role === 'seller') {
+            abort(403, 'Unauthorized access.');
+        }
+
         $orders = Order::with('products') // eager load products
             ->where('user_id', Auth::id())
             ->orderByDesc('created_at')
@@ -22,6 +27,11 @@ class OrderController extends Controller
 
     public function supplierOrders()
     {
+        // Only sellers or admins can access supplier orders
+        if (auth()->user()->role === 'buyer') {
+            abort(403, 'Unauthorized access.');
+        }
+
         $userId = auth()->id();
 
         $orders = Order::whereHas('products', function ($query) use ($userId) {
@@ -38,29 +48,32 @@ class OrderController extends Controller
 
     public function updateProductStatus(Request $request, $orderId, $productId)
     {
+        if (auth()->user()->role === 'buyer') {
+            abort(403, 'Unauthorized access.');
+        }
+
         $request->validate([
             'product_status' => 'required|string',
         ]);
 
         $userId = auth()->id();
 
-        // ✅ Ensure the authenticated supplier owns this product
+        // Ensure the authenticated supplier owns this product
         $product = Product::where('id', $productId)
             ->where('user_id', $userId)
             ->firstOrFail();
 
-        // ✅ Update product status in the pivot table
+        // Update product status in pivot table
         DB::table('order_product')
             ->where('order_id', $orderId)
             ->where('product_id', $productId)
             ->update(['product_status' => $request->product_status]);
 
-        // ✅ Get all statuses for the order
+        // Update order status based on all product statuses
         $statuses = DB::table('order_product')
             ->where('order_id', $orderId)
             ->pluck('product_status');
 
-        // ✅ Update order table status
         if ($statuses->every(fn($status) => $status === 'Delivered')) {
             Order::where('id', $orderId)->update(['status' => 'Delivered']);
         } else {
@@ -72,6 +85,10 @@ class OrderController extends Controller
 
     public function bulkUpdateProductStatus(Request $request, $orderId)
     {
+        if (auth()->user()->role === 'buyer') {
+            abort(403, 'Unauthorized access.');
+        }
+
         $request->validate([
             'product_status' => 'required|string',
             'product_ids' => 'required|array',
@@ -92,12 +109,11 @@ class OrderController extends Controller
             }
         }
 
-        // ✅ Get all statuses for the order
+        // Update order status
         $statuses = DB::table('order_product')
             ->where('order_id', $orderId)
             ->pluck('product_status');
 
-        // ✅ Update order table status
         if ($statuses->every(fn($status) => $status === 'Delivered')) {
             Order::where('id', $orderId)->update(['status' => 'Delivered']);
         } else {

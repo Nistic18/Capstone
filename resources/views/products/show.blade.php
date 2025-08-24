@@ -5,7 +5,7 @@
 @endphp
 
 @extends('layouts.app')
-
+@section('title', 'Product')
 @section('content')
 <div class="container mt-4">
     {{-- Breadcrumb Navigation --}}

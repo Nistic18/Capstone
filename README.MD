@@ -32,9 +32,12 @@
     php artisan key:generate
     ```
 
-6. Run database migrations:
+6. Run database migrations and seed:
     ```bash
     php artisan migrate
+    ```
+    ```bash
+    php artisan db:seed
     ```
 7. Run image link:
     ```bash
