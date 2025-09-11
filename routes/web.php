@@ -104,6 +104,7 @@ Route::get('/gemini/history', [App\Http\Controllers\GeminiController::class, 'hi
 
 Route::middleware('auth')->group(function() {
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/data/{id}', [ChatController::class, 'getChat'])->name('chat.index_data');
     Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
 });
 

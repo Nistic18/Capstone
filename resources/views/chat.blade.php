@@ -115,15 +115,13 @@
                                                         max-width: 70%; 
                                                         box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
                                                         word-wrap: break-word;
-                                                        overflow-wrap: break-word;
-                                                        hyphens: none;">
+                                                        overflow-wrap: break-word;">
                                                 <div style="line-height: 1.4;">{{ $message->content }}</div>
                                                 <div class="text-end mt-1">
                                                     <small style="opacity: 0.8; font-size: 0.75rem;">
                                                         {{ $message->created_at->format('H:i') }}
                                                     </small>
                                                 </div>
-                                                {{-- Message tail --}}
                                                 <div class="position-absolute top-50 translate-middle-y"
                                                      style="right: -8px; width: 0; height: 0; 
                                                             border-left: 8px solid #667eea; 
@@ -146,8 +144,7 @@
                                                             max-width: 70%; 
                                                             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
                                                             word-wrap: break-word;
-                                                            overflow-wrap: break-word;
-                                                            hyphens: none;">
+                                                            overflow-wrap: break-word;">
                                                     <div class="fw-semibold mb-1" style="font-size: 0.8rem; color: #667eea;">
                                                         {{ $message->user->name }}
                                                     </div>
@@ -157,7 +154,6 @@
                                                             {{ $message->created_at->format('H:i') }}
                                                         </small>
                                                     </div>
-                                                    {{-- Message tail --}}
                                                     <div class="position-absolute top-50 translate-middle-y"
                                                          style="left: -10px; width: 0; height: 0; 
                                                                 border-right: 8px solid #ffffff; 
@@ -196,7 +192,6 @@
                         </div>
                     </div>
                 @else
-                    {{-- No Chat Selected State --}}
                     <div class="card-body d-flex align-items-center justify-content-center" style="height: 500px;">
                         <div class="text-center">
                             <div class="mb-4">
@@ -221,199 +216,126 @@
 
 {{-- Custom CSS --}}
 <style>
-    /* User list styling */
-    .user-item {
-        border-bottom: 1px solid #e9ecef !important;
-    }
-    
-    .user-item:last-child {
-        border-bottom: none !important;
-    }
-    
+    .user-item { border-bottom: 1px solid #e9ecef !important; }
+    .user-item:last-child { border-bottom: none !important; }
     .user-item.active {
         background: rgba(102, 126, 234, 0.1) !important;
         border-left: 4px solid #667eea !important;
     }
-    
-    .user-item:hover {
-        background: #f8f9fa !important;
-    }
-    
-    .user-item.active:hover {
-        background: rgba(102, 126, 234, 0.15) !important;
-    }
-
-    /* Messages styling */
-    #messages {
-        scroll-behavior: smooth;
-    }
-
-    /* Remove message-bubble class styles as we're using inline styles now */
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Form styling */
+    .user-item:hover { background: #f8f9fa !important; }
+    .user-item.active:hover { background: rgba(102, 126, 234, 0.15) !important; }
+    #messages { scroll-behavior: smooth; }
     .form-control:focus {
         border-color: #667eea;
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
     }
-
     .btn-primary:hover {
         background: linear-gradient(45deg, #5a6fd8, #6a42a0) !important;
         transform: translateY(-1px);
     }
-
-    /* Scrollbar styling */
-    .user-list::-webkit-scrollbar,
-    #messages::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .user-list::-webkit-scrollbar-track,
-    #messages::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    .user-list::-webkit-scrollbar-thumb,
-    #messages::-webkit-scrollbar-thumb {
-        background: #ccc;
-        border-radius: 10px;
-    }
-
-    .user-list::-webkit-scrollbar-thumb:hover,
-    #messages::-webkit-scrollbar-thumb:hover {
-        background: #667eea;
-    }
-
-    /* Responsive design */
-    @media (max-width: 768px) {
-        .display-4 {
-            font-size: 2rem;
-        }
-        
-        .message-bubble {
-            max-width: 90% !important;
-        }
-        
-        .col-xl-4 {
-            margin-bottom: 1rem;
-        }
-        
-        .card-body {
-            height: 400px !important;
-        }
-    }
-
-    /* Animation for new messages */
-    .message-bubble:last-child {
-        animation: slideIn 0.4s ease-out;
-    }
-
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: scale(0.9) translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-    }
+    .user-list::-webkit-scrollbar, #messages::-webkit-scrollbar { width: 6px; }
+    .user-list::-webkit-scrollbar-thumb, #messages::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+    .user-list::-webkit-scrollbar-thumb:hover, #messages::-webkit-scrollbar-thumb:hover { background: #667eea; }
 </style>
 
-{{-- Auto-scroll and enhanced interactions --}}
+{{-- Scripts --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const messagesDiv = document.getElementById('messages');
-        
-        // Auto-scroll to bottom
-        function scrollToBottom() {
-            if(messagesDiv) {
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            }
-        }
-        
-        // Initial scroll
-        scrollToBottom();
-        
-        // Focus on message input when page loads
         const messageInput = document.querySelector('input[name="message"]');
-        if(messageInput) {
-            messageInput.focus();
+        const chatForm = document.querySelector('form[action="{{ route('chat.send') }}"]');
+
+        function scrollToBottom() {
+            if (messagesDiv) messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
-        
-        // Auto-submit on Enter key (without Shift)
-        if(messageInput) {
-            messageInput.addEventListener('keydown', function(e) {
-                if(e.key === 'Enter' && !e.shiftKey) {
+        scrollToBottom();
+
+        if (messageInput) {
+            messageInput.focus();
+            messageInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    this.closest('form').submit();
+                    chatForm.requestSubmit();
                 }
             });
         }
-        
-        // Enhanced form submission with loading state
-        const chatForm = document.querySelector('form[action="{{ route('chat.send') }}"]');
-        if(chatForm) {
-            chatForm.addEventListener('submit', function(e) {
+
+        if (chatForm) {
+            chatForm.addEventListener('submit', function (e) {
+                e.preventDefault();
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const input = this.querySelector('input[name="message"]');
-                
-                if(input.value.trim() === '') {
-                    e.preventDefault();
-                    return;
-                }
-                
-                // Show loading state
+                const message = input.value.trim();
+                if (message === '') return;
+
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                 submitBtn.disabled = true;
                 
-                // Reset after a short delay (form will reload page anyway)
-                setTimeout(() => {
+                fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message, receiver_id: {{ $receiver_id ?? 'null' }} })
+                })
+                .then(res => res.json())
+                .then(() => { input.value = ''; 
+                    input.focus(); 
+                })
+                .catch(err => console.error(err))
+                .finally(() => {
                     submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
                     submitBtn.disabled = false;
-                }, 1000);
+                });
             });
         }
-        
-        // Smooth hover effects for user items
-        document.querySelectorAll('.user-item').forEach(item => {
-            item.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateX(5px)';
-                this.style.transition = 'all 0.3s ease';
-            });
-            
-            item.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateX(0)';
-            });
-        });
+
+        // Laravel Echo real-time listener
+        const userId = document.head.querySelector('meta[name="user-id"]').content;
+        if (window.Echo) {
+            window.Echo.private(`chat.${userId}`)
+                .listen('MessageSent', (e) => {
+                    const isMe = parseInt(userId) === e.message.user_id;
+                    let bubbleHtml = "";
+                    if (isMe) {
+                        bubbleHtml = `
+                            <div class="d-flex justify-content-end mb-3">
+                                <div class="p-3 rounded-4 position-relative" 
+                                     style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; max-width: 70%; box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3); word-wrap: break-word;">
+                                    <div>${e.message.content}</div>
+                                    <div class="text-end mt-1">
+                                        <small style="opacity: 0.8; font-size: 0.75rem;">${e.message.created_at ?? ""}</small>
+                                    </div>
+                                    <div class="position-absolute top-50 translate-middle-y"
+                                         style="right: -8px; border-left: 8px solid #667eea; border-top: 8px solid transparent; border-bottom: 8px solid transparent;"></div>
+                                </div>
+                            </div>`;
+                    } else {
+                        bubbleHtml = `
+                            <div class="d-flex justify-content-start mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0"
+                                         style="width: 32px; height: 32px; background: linear-gradient(45deg, #28a745, #20c997); color: white; font-size: 0.8rem; font-weight: bold;">
+                                        ${e.message.user.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div class="p-3 rounded-4 position-relative" 
+                                         style="background: #ffffff; border: 2px solid #e9ecef; color: #2c3e50; max-width: 70%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); word-wrap: break-word;">
+                                        <div class="fw-semibold mb-1" style="font-size: 0.8rem; color: #667eea;">${e.message.user.name}</div>
+                                        <div>${e.message.content}</div>
+                                        <div class="mt-1">
+                                            <small class="text-muted" style="font-size: 0.75rem;">${e.message.created_at ?? ""}</small>
+                                        </div>
+                                        <div class="position-absolute top-50 translate-middle-y"
+                                             style="left: -10px; border-right: 8px solid #ffffff; border-top: 8px solid transparent; border-bottom: 8px solid transparent;"></div>
+                                    </div>
+                                </div>
+                            </div>`;
+                    }
+                    messagesDiv.insertAdjacentHTML("beforeend", bubbleHtml);
+                    scrollToBottom();
+                });
+        }
     });
-
-    // Optional: Auto-refresh messages every 30 seconds
-    setInterval(function() {
-        // Only refresh if we're in an active chat
-        if({{ $receiver_id ?? 'null' }}) {
-            // You can implement AJAX refresh here if needed
-            // For now, we'll just scroll to ensure new messages are visible
-            const messagesDiv = document.getElementById('messages');
-            if(messagesDiv) {
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            }
-        }
-    }, 30000);
 </script>
-
-@push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-@endpush
 @endsection
