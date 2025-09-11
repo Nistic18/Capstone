@@ -1,7 +1,46 @@
 @extends('layouts.app')
 @section('title', 'Community Newsfeed')
+
+{{-- Add Bootstrap 5 CSS --}}
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endpush
+
+{{-- Add Bootstrap 5 JavaScript --}}
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+@endpush
+
 @section('content')
 <div class="mt-5">
+    {{-- Success/Error Messages --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 15px; border: none;">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 15px; border: none;">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 15px; border: none;">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <ul class="mb-0">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     {{-- Header Section --}}
     <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
         <div class="card-body text-center py-5">
@@ -89,7 +128,7 @@
                             @if(auth()->id() == $post->user_id)
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item text-warning" href="#">
+                                    <a class="dropdown-item text-warning" href="{{ route('newsfeed.edit', $post) }}">
                                         <i class="fas fa-edit me-2"></i>Edit Post
                                     </a>
                                 </li>
@@ -145,34 +184,29 @@
                             {{ $post->comments->count() }} comments
                         </span>
                     </div>
-                    <span class="small text-muted">
-                        <i class="fas fa-eye me-1"></i>{{ rand(10, 500) }} views
-                    </span>
                 </div>
 
                 {{-- Reactions Bar --}}
-{{-- Reactions Bar --}}
-<div class="d-flex align-items-center gap-2 mb-4">
-    @php
-        $userReaction = $post->userReaction(auth()->id());
-    @endphp
-    @foreach(['love'=>'❤️','laugh'=>'😂','wow'=>'😮'] as $type => $emoji)
-        <form method="POST" action="{{ route('newsfeed.react', $post) }}" class="reaction-form">
-            @csrf
-            <input type="hidden" name="type" value="{{ $type }}">
-            <button type="submit"
-                    class="btn flex-fill reaction-btn {{ $userReaction && $userReaction->type == $type ? 'active' : '' }}"
-                    style="border-radius: 15px; 
-                           border: 2px solid {{ $userReaction && $userReaction->type == $type ? '#667eea' : '#e9ecef' }};
-                           background: {{ $userReaction && $userReaction->type == $type ? 'rgba(102, 126, 234, 0.1)' : 'white' }};
-                           color: {{ $userReaction && $userReaction->type == $type ? '#667eea' : '#6c757d' }};">
-                <span class="me-1" style="font-size: 1.1em;">{{ $emoji }}</span>
-                <span class="fw-semibold reaction-count">{{ $post->reactions->where('type',$type)->count() }}</span>
-            </button>
-        </form>
-    @endforeach
-</div>
-
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    @php
+                        $userReaction = $post->userReaction(auth()->id());
+                    @endphp
+                    @foreach(['love'=>'❤️','laugh'=>'😂','wow'=>'😮'] as $type => $emoji)
+                        <form method="POST" action="{{ route('newsfeed.react', $post) }}" class="reaction-form flex-fill">
+                            @csrf
+                            <input type="hidden" name="type" value="{{ $type }}">
+                            <button type="submit"
+                                    class="btn w-100 reaction-btn {{ $userReaction && $userReaction->type == $type ? 'active' : '' }}"
+                                    style="border-radius: 15px; 
+                                           border: 2px solid {{ $userReaction && $userReaction->type == $type ? '#667eea' : '#e9ecef' }};
+                                           background: {{ $userReaction && $userReaction->type == $type ? 'rgba(102, 126, 234, 0.1)' : 'white' }};
+                                           color: {{ $userReaction && $userReaction->type == $type ? '#667eea' : '#6c757d' }};">
+                                <span class="me-1" style="font-size: 1.1em;">{{ $emoji }}</span>
+                                <span class="fw-semibold reaction-count">{{ $post->reactions->where('type',$type)->count() }}</span>
+                            </button>
+                        </form>
+                    @endforeach
+                </div>
 
                 {{-- Comments Section --}}
                 <div class="comments-section">
@@ -268,18 +302,23 @@
 </div>
 
 {{-- Image Modal --}}
-<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0" style="border-radius: 20px;">
             <div class="modal-header border-0">
-                <h5 class="modal-title">Image Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center p-0">
-                <img id="modalImage" class="img-fluid w-100" style="border-radius: 0 0 20px 20px;">
+                <img id="modalImage" class="img-fluid w-100" style="border-radius: 0 0 20px 20px;" alt="Post image preview">
             </div>
         </div>
     </div>
+</div>
+
+{{-- Toast Container for notifications --}}
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+    <!-- Toasts will be dynamically inserted here -->
 </div>
 
 {{-- Custom CSS --}}
@@ -357,18 +396,28 @@
         color: #667eea;
     }
     
+    /* Bootstrap 5 Pagination Styles */
     .pagination .page-link {
         border-radius: 10px;
         margin: 0 2px;
         border: 2px solid #e9ecef;
         color: #667eea;
+        padding: 0.5rem 0.75rem;
     }
     
     .pagination .page-item.active .page-link {
         background: linear-gradient(45deg, #667eea, #764ba2);
         border-color: #667eea;
+        color: white;
     }
     
+    .pagination .page-link:hover {
+        background-color: rgba(102, 126, 234, 0.1);
+        border-color: #667eea;
+        color: #667eea;
+    }
+    
+    /* Responsive Design */
     @media (max-width: 768px) {
         .display-4 {
             font-size: 2rem;
@@ -386,32 +435,40 @@
         .comment-item {
             margin-bottom: 0.5rem;
         }
+        
+        .modal-dialog {
+            margin: 1rem;
+        }
+    }
+    
+    /* Loading animation */
+    .loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+    /* Toast notification styles */
+    .toast {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 </style>
 
 {{-- JavaScript --}}
 <script>
-// Image Modal
-function openImageModal(imageSrc) {
-    document.getElementById('modalImage').src = imageSrc;
-    var modal = new bootstrap.Modal(document.getElementById('imageModal'));
-    modal.show();
-}
-
-// Delete Post Confirmation
-function confirmDeletePost(postId) {
-    if(confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-        // Add your delete functionality here
-        console.log('Delete post:', postId);
-    }
-}
-
-// Auto-resize textarea for comments
+// Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tooltips
+    // Initialize Bootstrap tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Initialize Bootstrap popovers
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl);
     });
     
     // Add loading states to forms
@@ -420,12 +477,130 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function() {
             const submitBtn = form.querySelector('button[type="submit"]');
             if(submitBtn) {
+                const originalContent = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Loading...';
                 submitBtn.disabled = true;
+                
+                // Re-enable after 3 seconds in case of network issues
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalContent;
+                    submitBtn.disabled = false;
+                }, 3000);
             }
         });
     });
 });
+
+// Image Modal
+function openImageModal(imageSrc) {
+    const modalImage = document.getElementById('modalImage');
+    modalImage.src = imageSrc;
+    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+    modal.show();
+}
+
+// Delete Post Confirmation with Bootstrap Modal
+function confirmDeletePost(postId) {
+    // Create a Bootstrap modal for confirmation
+    const modalHtml = `
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-0">Are you sure you want to delete this post? This action cannot be undone.</p>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" onclick="deletePost(${postId})" data-bs-dismiss="modal">
+                            <i class="fas fa-trash me-1"></i>Delete Post
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if present
+    const existingModal = document.getElementById('deleteConfirmModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    modal.show();
+    
+    // Clean up after modal is hidden
+    modal._element.addEventListener('hidden.bs.modal', function() {
+        this.remove();
+    });
+}
+
+// Delete Post Function
+function deletePost(postId) {
+    // Create and submit delete form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/newsfeed/${postId}`;
+    form.style.display = 'none';
+    
+    // Add CSRF token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    // Add DELETE method
+    const methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'DELETE';
+    
+    form.appendChild(csrfInput);
+    form.appendChild(methodInput);
+    document.body.appendChild(form);
+    
+    form.submit();
+}
+
+// Toast notification function
+function showToast(message, type = 'info') {
+    const toastContainer = document.querySelector('.toast-container');
+    const toastId = 'toast-' + Date.now();
+    
+    const toastHtml = `
+        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas ${type === 'success' ? 'fa-check-circle text-success' : 'fa-info-circle text-info'} me-2"></i>
+                <strong class="me-auto">Notification</strong>
+                <small class="text-muted">now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                ${message}
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    
+    const toast = new bootstrap.Toast(document.getElementById(toastId));
+    toast.show();
+    
+    // Remove toast element after it's hidden
+    document.getElementById(toastId).addEventListener('hidden.bs.toast', function() {
+        this.remove();
+    });
+}
 
 // Reaction button animation
 document.addEventListener('click', function(e) {
@@ -438,11 +613,31 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// Auto-hide alerts after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
+});
 
+// Smooth scroll for anchor links
+document.addEventListener('click', function(e) {
+    const target = e.target.closest('a[href^="#"]');
+    if (target) {
+        e.preventDefault();
+        const targetId = target.getAttribute('href').substring(1);
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+            targetElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }
+});
 </script>
-
-{{-- Add Font Awesome if not already included --}}
-@push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-@endpush
 @endsection

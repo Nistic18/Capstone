@@ -83,11 +83,11 @@
                     <i class="fas fa-fire"></i><span>Reseller Orders</span>
                 </a> 
             </li>
-            <li class="{{ Request::is('supplierproduct/index') ? 'active' : '' }}">
+            {{-- <li class="{{ Request::is('supplierproduct/index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('supplierproduct/index') }}">
                     <i class="fas fa-table"></i> <span>Supplier Manage Products</span>
                 </a>
-            </li>
+            </li> --}}
             {{-- <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}"> 
                 <a class="nav-link" href="{{ route('supplier.orders') }}">
                     <i class="fas fa-fire"></i><span>Supplier Orders</span>
@@ -149,11 +149,11 @@
                     </a> 
                 </li>
                 <li class="menu-header">Supplier</li>
-                <li class="{{ Request::is('supplierproduct/index') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ url('supplierproduct/index') }}">
-                        <i class="fas fa-table"></i> <span>Manage Products</span>
-                    </a>
-                </li>
+            <li class="{{ Request::is('products/index') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ url('products/index') }}">
+                    <i class="fas fa-table"></i> <span>Reseller Manage Products</span>
+                </a> 
+            </li>
                 <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('supplier.orders') }}">
                         <i class="fas fa-fire"></i><span>Orders</span>

@@ -216,8 +216,8 @@
                                                     @foreach($order->products->take(3) as $product)
                                                         <div class="d-flex align-items-center mb-2 p-2 rounded" style="background: #f8f9fa;">
                                                             <div class="rounded me-3" style="width: 40px; height: 40px; overflow: hidden;">
-                                                                @if($product->image)
-                                                                    <img src="{{ asset('storage/' . $product->image) }}" 
+                                                                @if($product->images && $product->images->count() > 0)
+                                                                    <img src="{{ asset('storage/' . $product->images->first()->image) }}" 
                                                                          class="w-100 h-100" style="object-fit: cover;" 
                                                                          alt="{{ $product->name }}">
                                                                 @else

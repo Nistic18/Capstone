@@ -1,11 +1,21 @@
 @extends('layouts.app')
 
 @section('title', 'Chat')
+{{-- Add Bootstrap 5 CSS --}}
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endpush
 
+{{-- Add Bootstrap 5 JavaScript --}}
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+@endpush
 @section('content')
 <div class="mt-5">
     {{-- Hero Section --}}
-    <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
         <div class="card-body text-center py-5">
             <div class="mb-3">
                 <i class="fas fa-comments text-white" style="font-size: 3rem;"></i>
@@ -13,7 +23,7 @@
             <h1 class="display-4 fw-bold text-white mb-3">💬 Chat Center</h1>
             <p class="lead text-white-50 mb-0">Connect with buyers, sellers, and suppliers in real-time</p>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Chat Interface --}}
     <div class="row g-4">

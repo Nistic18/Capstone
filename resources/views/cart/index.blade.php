@@ -1,31 +1,30 @@
 @extends('layouts.app')
+{{-- Add Bootstrap 5 CSS --}}
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endpush
 
+{{-- Add Bootstrap 5 JavaScript --}}
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+@endpush
 @section('content')
 <div class="container mt-4">
     {{-- Breadcrumb Navigation --}}
     <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb" style="background: transparent; padding: 0;">
+        <ol class="breadcrumb" style="background: transparent; padding: 3%;">
             <li class="breadcrumb-item">
                 <a href="{{ route('home') }}" class="text-decoration-none" style="color: #667eea;">
                     <i class="fas fa-home me-1"></i>Home
                 </a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">
+            <li class="breadcrumb-item active " aria-current="page">
                 <i class="fas fa-shopping-cart me-1"></i>Your Cart
             </li>
         </ol>
     </nav>
-
-    {{-- Page Header --}}
-    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
-        <div class="card-body text-center py-4">
-            <div class="mb-3">
-                <i class="fas fa-shopping-cart text-white" style="font-size: 2.5rem;"></i>
-            </div>
-            <h1 class="text-white fw-bold mb-2">🛒 Your Fish Cart</h1>
-            <p class="text-white-50 mb-0">Review your fresh fish selection before checkout</p>
-        </div>
-    </div>
 
     {{-- Success/Error Messages --}}
     @if(session('success'))
@@ -48,7 +47,7 @@
 
     <div class="row g-4">
         {{-- Cart Items Section --}}
-        <div class="col-lg-8">
+        <div class="col-lg-8 mx-auto">
             <div class="card border-0 shadow-sm" style="border-radius: 20px;">
                 <div class="card-body p-4">
                     @if($cart->isEmpty())
@@ -67,8 +66,8 @@
                     @else
                         {{-- Cart Items Header --}}
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="fw-bold mb-0" style="color: #2c3e50;">
-                                <i class="fas fa-list-ul text-primary me-2"></i>Cart Items ({{ $cart->count() }})
+                            <h4 class="fw-bold mb-0 " style="color: #2c3e50;">
+                                Cart Items ({{ $cart->count() }})
                             </h4>
                             <span class="badge" style="background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; padding: 8px 15px; color: #fff;">
                                 🐟 Fresh Selection
@@ -91,19 +90,17 @@
                                         {{-- Product Image --}}
                                         <div class="col-md-2 col-3">
                                             <div class="position-relative">
-                                                @if($item->product->image)
-                                                    <img src="{{ asset('storage/' . $item->product->image) }}" 
-                                                         alt="{{ $item->product->name }}"
-                                                         class="img-fluid rounded"
-                                                         style="height: 80px; width: 80px; object-fit: cover;">
-                                                @else
-                                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" 
-                                                         style="height: 80px; width: 80px;">
-                                                        <i class="fas fa-fish text-muted"></i>
-                                                    </div>
-                                                @endif
-                                                <span class="badge bg-success position-absolute top-0 end-0" 
-                                                      style="transform: translate(50%, -50%); font-size: 0.7rem;">Fresh</span>
+@if($item->product->images && $item->product->images->count())
+    <img src="{{ asset('storage/' . $item->product->images->first()->image) }}" 
+         alt="{{ $item->product->name }}"
+         class="img-fluid rounded"
+         style="height: 80px; width: 80px; object-fit: cover;">
+@else
+    <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+         style="height: 80px; width: 80px;">
+        <i class="fas fa-fish text-muted"></i>
+    </div>
+@endif
                                             </div>
                                         </div>
 
@@ -155,16 +152,16 @@
                                                     ${{ number_format($subtotal, 2) }}
                                                 </span>
                                             </div>
-                                            <form action="{{ route('cart.remove', $item->product->id) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                <button type="submit" 
-                                                        class="btn btn-sm btn-outline-danger" 
-                                                        style="border-radius: 10px;"
-                                                        onclick="return confirm('Remove {{ $item->product->name }} from cart?')"
-                                                        title="Remove from cart">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-danger" 
+                                                    style="border-radius: 10px;"
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#removeFromCartModal"
+                                                    data-product-name="{{ $item->product->name }}"
+                                                    data-product-id="{{ $item->product->id }}"
+                                                    title="Remove from cart">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -262,6 +259,39 @@
     </div>
 </div>
 
+{{-- Remove from Cart Modal --}}
+<div class="modal fade" id="removeFromCartModal" tabindex="-1" aria-labelledby="removeFromCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="removeFromCartModalLabel" style="color: #2c3e50;">
+                    <i class="fas fa-shopping-cart text-danger me-2"></i>
+                    Remove from Cart
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <p class="mb-3">Are you sure you want to remove <strong id="cartProductName"></strong> from your cart?</p>
+                <div class="alert alert-warning border-0" style="background: rgba(255, 193, 7, 0.1); color: #856404;">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    This item will be removed from your shopping cart.
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <form id="removeFromCartForm" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-danger" style="border-radius: 10px;">
+                        <i class="fas fa-trash me-1"></i>Remove from Cart
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Custom CSS --}}
 <style>
     .form-control:focus {
@@ -310,7 +340,7 @@
     }
 </style>
 
-{{-- JavaScript for quantity controls --}}
+{{-- JavaScript for quantity controls and modal --}}
 <script>
     function decreaseQuantity(productId) {
         const input = document.getElementById('quantity-' + productId);
@@ -338,6 +368,26 @@
                 this.form.submit();
             }, 100);
         });
+    });
+    
+    // JavaScript to handle modal data
+    document.addEventListener('DOMContentLoaded', function() {
+        const removeFromCartModal = document.getElementById('removeFromCartModal');
+        
+        if (removeFromCartModal) {
+            removeFromCartModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const productName = button.getAttribute('data-product-name');
+                const productId = button.getAttribute('data-product-id');
+                
+                // Update modal content
+                document.getElementById('cartProductName').textContent = productName;
+                
+                // Update form action
+                const form = document.getElementById('removeFromCartForm');
+                form.action = '{{ route("cart.remove", ":id") }}'.replace(':id', productId);
+            });
+        }
     });
 </script>
 

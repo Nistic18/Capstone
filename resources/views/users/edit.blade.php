@@ -3,7 +3,7 @@
 @section('content')
 <div class="mt-5">
     {{-- Header Section --}}
-    <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
         <div class="card-body text-center py-4">
             <div class="mb-3">
                 <i class="fas fa-user-edit text-white" style="font-size: 2.5rem;"></i>
@@ -11,7 +11,7 @@
             <h1 class="h3 fw-bold text-white mb-2">Edit User Account</h1>
             <p class="text-white-50 mb-0">Manage user information and permissions</p>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Breadcrumb --}}
     <nav aria-label="breadcrumb" class="mb-4">

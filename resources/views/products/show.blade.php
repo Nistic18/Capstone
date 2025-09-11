@@ -6,6 +6,17 @@
 
 @extends('layouts.app')
 @section('title', 'Product')
+{{-- Add Bootstrap 5 CSS --}}
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endpush
+
+{{-- Add Bootstrap 5 JavaScript --}}
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+@endpush
 @section('content')
 <div class="container mt-4">
     {{-- Breadcrumb Navigation --}}
@@ -30,21 +41,38 @@
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm" style="border-radius: 20px; overflow: hidden;">
                 <div class="position-relative">
-                    @if($product->image)
-                        <img src="{{ asset('storage/' . $product->image) }}" 
-                             alt="{{ $product->name }}" 
-                             class="card-img-top w-100"
-                             style="height: 400px; object-fit: cover;">
-                    @else
-                        <div class="d-flex align-items-center justify-content-center" 
-                             style="height: 400px; background: linear-gradient(45deg, #f8f9fa, #e9ecef);">
-                            <div class="text-center">
-                                <i class="fas fa-fish text-muted mb-3" style="font-size: 4rem;"></i>
-                                <h5 class="text-muted">No Image Available</h5>
-                                <p class="text-muted mb-0">Product image coming soon</p>
-                            </div>
-                        </div>
-                    @endif
+@if($product->images && $product->images->count())
+    {{-- Main Image --}}
+    <img id="main-product-image"
+         src="{{ asset('storage/' . $product->images->first()->image) }}" 
+         alt="{{ $product->name }}" 
+         class="card-img-top w-100 mb-3"
+         style="height: 400px; object-fit: cover; border-radius: 10px;">
+
+    {{-- Thumbnails --}}
+    @if($product->images->count() > 1)
+        <div class="row g-2">
+            @foreach($product->images as $key => $image)
+                <div class="col-3">
+                    <img src="{{ asset('storage/' . $image->image) }}" 
+                         alt="Thumbnail {{ $key+1 }}" 
+                         class="img-fluid rounded shadow-sm thumbnail-image"
+                         style="height: 80px; width: 100%; object-fit: cover; cursor: pointer;"
+                         onclick="document.getElementById('main-product-image').src=this.src">
+                </div>
+            @endforeach
+        </div>
+    @endif
+@else
+    <div class="d-flex align-items-center justify-content-center" 
+         style="height: 400px; background: linear-gradient(45deg, #f8f9fa, #e9ecef); border-radius: 10px;">
+        <div class="text-center">
+            <i class="fas fa-fish text-muted mb-3" style="font-size: 4rem;"></i>
+            <h5 class="text-muted">No Image Available</h5>
+            <p class="text-muted mb-0">Product image coming soon</p>
+        </div>
+    </div>
+@endif
                     
                     {{-- Stock Status Badge --}}
                     @if($product->quantity > 0)
@@ -68,7 +96,7 @@
             </div>
 
             {{-- Additional Product Images (if you have multiple images in future) --}}
-            <div class="row g-2 mt-3">
+            {{-- <div class="row g-2 mt-3">
                 <div class="col-3">
                     <div class="card border-0 shadow-sm" style="border-radius: 10px; height: 80px; opacity: 0.7;">
                         <div class="card-body d-flex align-items-center justify-content-center p-2">
@@ -97,7 +125,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
 
         {{-- Product Details Section --}}
@@ -429,6 +457,7 @@
 
 {{-- Custom CSS --}}
 <style>
+    
     .nav-pills .nav-link {
         color: #6c757d;
         background: transparent;

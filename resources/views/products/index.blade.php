@@ -1,5 +1,16 @@
 @extends('layouts.app')
 @section('title', 'Manage Products')
+{{-- Add Bootstrap 5 CSS --}}
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endpush
+
+{{-- Add Bootstrap 5 JavaScript --}}
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+@endpush
 @section('content')
 <div class="mt-5">
     {{-- Header Section --}}
@@ -118,22 +129,24 @@
                     
                     {{-- Product Image with Status Badge - FIXED SECTION --}}
                     <div class="position-relative overflow-hidden" style="height: 220px; border-radius: 20px 20px 0 0;">
-                        @if($product->image)
-                            <img src="{{ asset('storage/' . $product->image) }}"
-                                 class="card-img-top w-100 h-100"
-                                 style="object-fit: cover; transition: transform 0.3s ease; position: relative; z-index: 1;"
-                                 alt="{{ $product->name }}"
-                                 onmouseover="this.style.transform='scale(1.05)'"
-                                 onmouseout="this.style.transform='scale(1)'">
-                        @else
-                            <div class="w-100 h-100 d-flex align-items-center justify-content-center"
-                                 style="background: linear-gradient(45deg, #f8f9fa, #e9ecef);">
-                                <div class="text-center">
-                                    <i class="fas fa-fish text-muted mb-2" style="font-size: 3rem;"></i>
-                                    <p class="text-muted mb-0">No Image</p>
-                                </div>
-                            </div>
-                        @endif
+@if($product->images && $product->images->count())
+    <img src="{{ asset('storage/' . $product->images->first()->image) }}"
+         class="card-img-top w-100 h-100"
+         style="object-fit: cover; transition: transform 0.3s ease; position: relative; z-index: 1; cursor: pointer;"
+         alt="{{ $product->name }}"
+         onmouseover="this.style.transform='scale(1.05)'"
+         onmouseout="this.style.transform='scale(1)'"
+         data-bs-toggle="modal" 
+         data-bs-target="#imageModal-{{ $product->id }}">
+@else
+    <div class="w-100 h-100 d-flex align-items-center justify-content-center"
+         style="background: linear-gradient(45deg, #f8f9fa, #e9ecef);">
+        <div class="text-center">
+            <i class="fas fa-fish text-muted mb-2" style="font-size: 3rem;"></i>
+            <p class="text-muted mb-0">No Image</p>
+        </div>
+    </div>
+@endif
                         
                         {{-- Stock Status Badge - FIXED --}}
                         <div class="position-absolute stock-badge-container" 
@@ -269,6 +282,36 @@
                     </div>
                 </div>
             </div>
+            {{-- Image Modal --}}
+<div class="modal fade" id="imageModal-{{ $product->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-body p-0">
+                @if($product->images && $product->images->count())
+                    <div id="carousel-{{ $product->id }}" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @foreach($product->images as $key => $image)
+                                <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                                    <img src="{{ asset('storage/' . $image->image) }}" 
+                                         class="d-block w-100" 
+                                         style="max-height: 600px; object-fit: contain;">
+                                </div>
+                            @endforeach
+                        </div>
+                        @if($product->images->count() > 1)
+                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ $product->id }}" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ $product->id }}" data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
+                        @endif
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
             @endforeach
         </div>
 
@@ -294,7 +337,7 @@
             </div>
             <div class="modal-body pt-2">
                 <p class="mb-3">Are you sure you want to delete <strong id="productName"></strong>?</p>
-                <div class="alert alert-warning border-0" style="background: rgba(255, 193, 7, 0.1);">
+                <div class="alert alert-warning border-0" style="background: rgba(255, 193, 7, 0.1) color:white;">
                     <i class="fas fa-exclamation-triangle text-warning me-2"></i>
                     This action cannot be undone and will permanently remove the product from your inventory.
                 </div>
@@ -317,6 +360,7 @@
 
 {{-- Custom CSS - UPDATED WITH FIXES --}}
 <style>
+    
     .card:hover {
         box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
     }

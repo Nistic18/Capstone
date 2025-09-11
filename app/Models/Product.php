@@ -28,5 +28,10 @@ public function averageRating()
     return $this->reviews()->avg('rating');
 }
 
+public function images()
+{
+    return $this->hasMany(ProductImage::class);
+}
 
 }
+

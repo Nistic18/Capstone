@@ -4,7 +4,7 @@
 <div class="container mt-4">
     {{-- Breadcrumb Navigation --}}
     <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb" style="background: transparent; padding: 0;">
+        <ol class="breadcrumb" style="background: transparent; padding: 2%;">
             <li class="breadcrumb-item">
                 <a href="{{ route('home') }}" class="text-decoration-none" style="color: #667eea;">
                     <i class="fas fa-home me-1"></i>Home
@@ -17,7 +17,7 @@
     </nav>
 
     {{-- Page Header --}}
-    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
         <div class="card-body text-center py-4">
             <div class="mb-3">
                 <i class="fas fa-shopping-bag text-white" style="font-size: 2.5rem;"></i>
@@ -25,7 +25,7 @@
             <h1 class="text-white fw-bold mb-2">📦 My Fish Orders</h1>
             <p class="text-white-50 mb-0">Track your fresh fish deliveries and order history</p>
         </div>
-    </div>
+    </div> --}}
 
     @if ($orders->isEmpty())
         {{-- Empty Orders State --}}
@@ -107,8 +107,8 @@
                                                 <td class="border-0 py-3">
                                                     <div class="d-flex align-items-center">
                                                         <div class="me-3">
-                                                            @if($product->image)
-                                                                <img src="{{ asset('storage/' . $product->image) }}" 
+                                                            @if($product->images && $product->images->count() > 0)
+                                                                <img src="{{ asset('storage/' . $product->images->first()->image) }}" 
                                                                      alt="{{ $product->name }}"
                                                                      class="rounded"
                                                                      style="width: 50px; height: 50px; object-fit: cover;">

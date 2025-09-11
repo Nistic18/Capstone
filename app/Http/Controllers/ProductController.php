@@ -92,26 +92,33 @@ public function index(Request $request)
         return view('products.create');
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required',
-            'price' => 'required|numeric',
-            'quantity' => 'required|integer|min:0',
-            'description' => 'nullable|string',
-        ]);
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required',
+        'price' => 'required|numeric',
+        'quantity' => 'required|integer|min:0',
+        'description' => 'nullable|string',
+        'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048', // validate multiple images
+    ]);
 
-        $data = $request->all();
-        $data['user_id'] = auth()->id();
+    $product = Product::create([
+        'name' => $request->name,
+        'price' => $request->price,
+        'quantity' => $request->quantity,
+        'description' => $request->description,
+        'user_id' => auth()->id(),
+    ]);
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('products', 'public');
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $image) {
+            $path = $image->store('products', 'public');
+            $product->images()->create(['image' => $path]);
         }
-
-        Product::create($data);
-
-        return redirect()->route('products.index')->with('success', 'Product created!');
     }
+
+    return redirect()->route('products.index')->with('success', 'Product created with images!');
+}
 
     public function show(Product $product)
     {
@@ -127,28 +134,37 @@ public function index(Request $request)
         return view('products.create', compact('product'));
     }
 
-    public function update(Request $request, Product $product)
-    {
-            if (auth()->id() !== $product->user_id && auth()->user()->role !== 'admin') {
+public function update(Request $request, Product $product)
+{
+    if (auth()->id() !== $product->user_id && auth()->user()->role !== 'admin') {
         abort(403, 'Unauthorized access.');
     }
-        $request->validate([
-            'name' => 'required',
-            'price' => 'required|numeric',
-            'quantity' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
 
-        $data = $request->only('name', 'quantity', 'description', 'price');
+    $request->validate([
+        'name' => 'required',
+        'price' => 'required|numeric',
+        'quantity' => 'required|integer|min:0',
+        'description' => 'nullable|string',
+        'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+    ]);
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('products', 'public');
+    $product->update([
+        'name' => $request->name,
+        'price' => $request->price,
+        'quantity' => $request->quantity,
+        'description' => $request->description,
+    ]);
+
+    // Handle new images if uploaded
+    if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $image) {
+            $path = $image->store('products', 'public');
+            $product->images()->create(['image' => $path]);
         }
-
-        $product->update($data);
-
-        return redirect()->route('products.index')->with('success', 'Product updated!');
     }
+
+    return redirect()->route('products.index')->with('success', 'Product updated with images!');
+}
 
     public function destroy(Product $product)
     {

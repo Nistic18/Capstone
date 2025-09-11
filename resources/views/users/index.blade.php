@@ -3,7 +3,7 @@
 @section('content')
 <div class="mt-5">
     {{-- Header Section --}}
-    <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
         <div class="card-body text-center py-5">
             <div class="mb-3">
                 <i class="fas fa-users-cog text-white" style="font-size: 3rem;"></i>
@@ -11,7 +11,7 @@
             <h1 class="display-4 fw-bold text-white mb-3">👥 User Management</h1>
             <p class="lead text-white-50 mb-0">Manage user accounts, roles, and permissions</p>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Success Alert --}}
     @if(session('success'))
@@ -89,15 +89,6 @@
                         User Directory
                     </h4>
                     <p class="text-muted mb-0">Showing {{ $users->count() }} of {{ $users->total() }} users</p>
-                </div>
-                <div class="d-flex gap-2">
-                    {{-- Search functionality can be added here --}}
-                    <button class="btn btn-outline-primary" style="border-radius: 15px;">
-                        <i class="fas fa-search me-1"></i>Search
-                    </button>
-                    <button class="btn btn-primary" style="border-radius: 15px; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
-                        <i class="fas fa-user-plus me-1"></i>Add User
-                    </button>
                 </div>
             </div>
         </div>

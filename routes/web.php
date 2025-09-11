@@ -78,9 +78,10 @@ Route::get('/location-map', function () {
     return view('map'); // make sure you have resources/views/map.blade.php
 })->middleware('auth')->name('map');
 
-
 Route::get('/location-map', [LocationController::class, 'showMap'])->name('map');
 Route::post('/locations/store', [LocationController::class, 'store'])->name('locations.store');
+Route::put('/locations/{location}', [LocationController::class, 'update'])->name('locations.update');
+Route::delete('/locations/{location}', [LocationController::class, 'destroy'])->name('locations.destroy');
 
 Route::post('/orders/{order}/products/{product}/review', [App\Http\Controllers\ReviewController::class, 'store'])
     ->name('reviews.store')
@@ -94,6 +95,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/newsfeed/create', [PostController::class, 'create'])->name('newsfeed.create');
     Route::post('/newsfeed', [PostController::class, 'store'])->name('newsfeed.store');
     Route::get('/newsfeed/{post}', [PostController::class, 'show'])->name('newsfeed.show');
+    Route::get('/newsfeed/{post}/edit', [PostController::class, 'edit'])->name('newsfeed.edit');
+    Route::put('/newsfeed/{post}', [PostController::class, 'update'])->name('newsfeed.update');
+    Route::delete('/newsfeed/{post}', [PostController::class, 'destroy'])->name('newsfeed.destroy');
     Route::post('/newsfeed/{post}/react', [PostController::class, 'react'])->name('newsfeed.react');
     Route::post('/newsfeed/{post}/comment', [PostController::class, 'comment'])->name('newsfeed.comment');
 });

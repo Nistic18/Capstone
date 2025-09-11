@@ -32,12 +32,21 @@
                    value="{{ old('quantity', $product->quantity ?? '') }}" min="0" required>
         </div>
 
+        {{-- MULTIPLE IMAGES --}}
         <div class="mb-3">
-            <label>Image</label>
-            <input type="file" name="image" class="form-control">
-            @if(isset($product) && $product->image)
-                <img src="{{ asset('storage/' . $product->image) }}"
-                     width="100" class="mt-2 img-thumbnail">
+            <label>Images</label>
+            <input type="file" name="images[]" class="form-control" multiple>
+
+            {{-- Show existing images when editing --}}
+            @if(isset($product) && $product->images->count())
+                <div class="d-flex flex-wrap mt-2 gap-2">
+                    @foreach($product->images as $image)
+                        <div class="position-relative" style="width: 100px;">
+                            <img src="{{ asset('storage/' . $image->image) }}" 
+                                 class="img-thumbnail w-100" style="height: 100px; object-fit: cover;">
+                        </div>
+                    @endforeach
+                </div>
             @endif
         </div>
 

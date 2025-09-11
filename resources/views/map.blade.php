@@ -4,6 +4,17 @@
 
 @extends('layouts.app')
 @section('title', 'Shop Location')
+{{-- Add Bootstrap 5 CSS --}}
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endpush
+
+{{-- Add Bootstrap 5 JavaScript --}}
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+@endpush
 @section('content')
 <div class="mt-5">
     {{-- Header Section --}}
@@ -49,7 +60,7 @@
         
         <div class="d-flex gap-2">
             <button class="btn btn-outline-info" onclick="getCurrentLocation()" 
-                    style="border-radius: 15px;">
+                    style="border-radius: 20px;">
                 <i class="fas fa-location-arrow me-1"></i>My Location
             </button>
             <button class="btn btn-outline-secondary" onclick="resetMapView()" 
@@ -158,6 +169,75 @@
                 </div>
             </div>
 
+            {{-- My Locations (for non-buyers) --}}
+            @if(auth()->check() && $role !== 'buyer')
+            <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+                <div class="card-header border-0 py-3" style="background: rgba(102, 126, 234, 0.05);">
+                    <h6 class="mb-0 fw-bold" style="color: #2c3e50;">
+                        <i class="fas fa-map-pin me-2" style="color: #667eea;"></i>
+                        My Locations
+                    </h6>
+                </div>
+                <div class="card-body py-2" style="max-height: 200px; overflow-y: auto;">
+                    @forelse($userLocations as $location)
+                        <div class="location-item d-flex align-items-center justify-content-between py-2 border-bottom">
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <div class="me-3">
+                                    @php
+                                        $roleColor = match($role) {
+                                            'supplier' => 'success',
+                                            'reseller' => 'danger',
+                                            default => 'info'
+                                        };
+                                    @endphp
+                                    <div class="bg-{{ $roleColor }} rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 25px; height: 25px;">
+                                        <i class="fas fa-store text-white" style="font-size: 0.6rem;"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 small fw-semibold">{{ $location->location_name }}</h6>
+                                    <p class="mb-0 text-muted" style="font-size: 0.7rem;">
+                                        {{ ucfirst($location->type) }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                        type="button" 
+                                        data-bs-toggle="dropdown" 
+                                        aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <button class="dropdown-item text-primary" 
+                                                onclick="editLocation({{ $location->id }}, '{{ $location->location_name }}', '{{ $location->type }}', {{ $location->latitude }}, {{ $location->longitude }})">
+                                            <i class="fas fa-edit me-2"></i>Edit
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item text-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteLocationModal"
+                                                data-location-id="{{ $location->id }}"
+                                                data-location-name="{{ $location->location_name }}">
+                                            <i class="fas fa-trash me-2"></i>Delete
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-3">
+                            <i class="fas fa-map text-muted mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
+                            <p class="text-muted small mb-0">No locations set yet</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+            @endif
+
             {{-- Location Stats --}}
             <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
                 <div class="card-header border-0 py-3" style="background: rgba(102, 126, 234, 0.05);">
@@ -199,7 +279,7 @@
                 </div>
             </div>
 
-            {{-- Nearby Locations --}}
+            {{-- Recent Locations --}}
             <div class="card border-0 shadow-sm" style="border-radius: 15px;">
                 <div class="card-header border-0 py-3" style="background: rgba(102, 126, 234, 0.05);">
                     <h6 class="mb-0 fw-bold" style="color: #2c3e50;">
@@ -241,8 +321,9 @@
         </div>
     </div>
 
-    {{-- Hidden Form --}}
+    {{-- Hidden Forms --}}
     @if($role !== 'buyer')
+    {{-- Add Location Form --}}
     <form id="location-form" method="POST" action="{{ route('locations.store') }}" style="display: none;">
         @csrf
         <input type="hidden" id="lat" name="latitude">
@@ -250,10 +331,20 @@
         <input type="hidden" id="name" name="location_name">
         <input type="hidden" name="type" value="store">
     </form>
+
+    {{-- Edit Location Form --}}
+    <form id="edit-location-form" method="POST" style="display: none;">
+        @csrf
+        @method('PUT')
+        <input type="hidden" id="edit-lat" name="latitude">
+        <input type="hidden" id="edit-lng" name="longitude">
+        <input type="hidden" id="edit-name" name="location_name">
+        <input type="hidden" id="edit-type" name="type">
+    </form>
     @endif
 </div>
 
-{{-- Location Name Modal --}}
+{{-- Add Location Name Modal --}}
 <div class="modal fade" id="locationModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
@@ -287,6 +378,82 @@
                 <button type="button" id="confirmLocation" class="btn btn-success" style="border-radius: 10px;">
                     <i class="fas fa-map-pin me-1"></i>Set Location
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Edit Location Modal --}}
+<div class="modal fade" id="editLocationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-2">
+                <h5 class="modal-title fw-bold" style="color: #2c3e50;">
+                    <i class="fas fa-edit text-warning me-2"></i>
+                    Edit Location
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body pt-0">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="color: #2c3e50;">Store/Business Name</label>
+                    <input type="text" id="editLocationNameInput" class="form-control form-control-lg" 
+                           style="border-radius: 15px; border: 2px solid #e9ecef;">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="color: #2c3e50;">Type</label>
+                    <select id="editLocationTypeInput" class="form-select form-select-lg" 
+                            style="border-radius: 15px; border: 2px solid #e9ecef;">
+                        <option value="store">Store</option>
+                        <option value="supply">Supply</option>
+                    </select>
+                </div>
+                <div class="alert alert-warning border-0" style="background: rgba(255, 193, 7, 0.1); border-radius: 10px; color: #856404;">
+                    <i class="fas fa-info-circle text-warning me-2"></i>
+                    Click on the map to update the location coordinates.
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" id="confirmEditLocation" class="btn btn-warning" style="border-radius: 10px;">
+                    <i class="fas fa-save me-1"></i>Update Location
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Delete Location Modal --}}
+<div class="modal fade" id="deleteLocationModal" tabindex="-1" aria-labelledby="deleteLocationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="deleteLocationModalLabel" style="color: #2c3e50;">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                    Confirm Location Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <p class="mb-3">Are you sure you want to delete <strong id="deleteLocationName"></strong>?</p>
+                <div class="alert alert-warning border-0" style="background: rgba(255, 193, 7, 0.1); color: #856404;">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                    This action cannot be undone and will permanently remove the location from the map.
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <form id="deleteLocationForm" method="POST" style="display: inline;">
+                    @csrf 
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger" style="border-radius: 10px;">
+                        <i class="fas fa-trash me-1"></i>Delete Location
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -357,6 +524,46 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     
+    .custom-marker {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        border: 3px solid white;
+    }
+    
+    .buyer-marker {
+        background: linear-gradient(45deg, #17a2b8, #138496);
+    }
+    
+    .reseller-marker {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+    }
+    
+    .supplier-marker {
+        background: linear-gradient(45deg, #28a745, #218838);
+    }
+    
+    .user-marker {
+        background: linear-gradient(45deg, #ffc107, #e0a800);
+        color: #212529 !important;
+    }
+    
+    .custom-popup .leaflet-popup-content {
+        margin: 0;
+        padding: 0;
+    }
+    
+    .popup-content {
+        padding: 10px;
+        min-width: 200px;
+    }
+    
     @media (max-width: 768px) {
         .display-4 {
             font-size: 2rem;
@@ -374,9 +581,12 @@
 </style>
 
 <script>
-    let map, tempMarker;
+    let map, tempMarker, editMarker;
     let currentLat, currentLng;
+    let editLat, editLng;
     let allMarkers = [];
+    let editingLocationId = null;
+    let isEditMode = false;
     
     // Initialize map
     function initializeMap() {
@@ -447,7 +657,7 @@
         return roleIcons[key] || roleIcons['buyer'];
     }
 
-    function safeAddMarker(lat, lng, role, popupHTML, type = 'location') {
+    function safeAddMarker(lat, lng, role, popupHTML, type = 'location', locationId = null) {
         try {
             if (!isValidLatLng(lat, lng)) {
                 console.warn('Skipped invalid lat/lng:', lat, lng, role);
@@ -467,6 +677,7 @@
             // Store marker with metadata for filtering
             marker.markerRole = role;
             marker.markerType = type;
+            marker.locationId = locationId;
             allMarkers.push(marker);
             
             return marker;
@@ -516,24 +727,95 @@
         });
     }
 
+    // Edit location function
+    function editLocation(id, name, type, lat, lng) {
+        editingLocationId = id;
+        isEditMode = true;
+        editLat = lat;
+        editLng = lng;
+        
+        // Pre-fill modal
+        document.getElementById('editLocationNameInput').value = name;
+        document.getElementById('editLocationTypeInput').value = type;
+        
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('editLocationModal'));
+        modal.show();
+        
+        // Center map on location
+        map.setView([lat, lng], 16);
+        
+        // Add edit marker
+        if (editMarker) {
+            map.removeLayer(editMarker);
+        }
+        editMarker = L.marker([lat, lng], { 
+            icon: getIconForRole('{{ $role }}') 
+        }).addTo(map);
+        editMarker.bindPopup('Editing: ' + name).openPopup();
+    }
+
+    // Confirm edit location
+    function confirmEditLocation() {
+        const locationName = document.getElementById('editLocationNameInput').value.trim();
+        const locationType = document.getElementById('editLocationTypeInput').value;
+        
+        if (!locationName) {
+            alert('Please enter a location name');
+            return;
+        }
+
+        // Update form and submit
+        document.getElementById('edit-lat').value = editLat;
+        document.getElementById('edit-lng').value = editLng;
+        document.getElementById('edit-name').value = locationName;
+        document.getElementById('edit-type').value = locationType;
+        
+        // Update form action
+        const form = document.getElementById('edit-location-form');
+        form.action = '{{ route("locations.update", ":id") }}'.replace(':id', editingLocationId);
+        
+        // Show loading state
+        document.getElementById('confirmEditLocation').innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
+        document.getElementById('confirmEditLocation').disabled = true;
+        
+        form.submit();
+    }
+
     @if($role !== 'buyer')
     // Handle map click for non-buyers
     function handleMapClick(e) {
-        currentLat = e.latlng.lat;
-        currentLng = e.latlng.lng;
-        
-        // Show modal instead of prompt
-        const modal = new bootstrap.Modal(document.getElementById('locationModal'));
-        modal.show();
-        
-        // Preview marker
-        if (tempMarker) {
-            map.removeLayer(tempMarker);
+        if (isEditMode) {
+            // Update edit coordinates
+            editLat = e.latlng.lat;
+            editLng = e.latlng.lng;
+            
+            // Update edit marker
+            if (editMarker) {
+                map.removeLayer(editMarker);
+            }
+            editMarker = L.marker([editLat, editLng], { 
+                icon: getIconForRole('{{ $role }}') 
+            }).addTo(map);
+            editMarker.bindPopup('New position - Click "Update Location" to confirm').openPopup();
+        } else {
+            // Regular add mode
+            currentLat = e.latlng.lat;
+            currentLng = e.latlng.lng;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('locationModal'));
+            modal.show();
+            
+            // Preview marker
+            if (tempMarker) {
+                map.removeLayer(tempMarker);
+            }
+            tempMarker = L.marker([currentLat, currentLng], { 
+                icon: getIconForRole('{{ $role }}') 
+            }).addTo(map);
+            tempMarker.bindPopup('Click "Set Location" to confirm').openPopup();
         }
-        tempMarker = L.marker([currentLat, currentLng], { 
-            icon: getIconForRole('{{ $role }}') 
-        }).addTo(map);
-        tempMarker.bindPopup('Click "Set Location" to confirm').openPopup();
     }
 
     // Confirm location setting
@@ -568,7 +850,36 @@
         
         // Add confirm location handler
         document.getElementById('confirmLocation').addEventListener('click', confirmLocationSetting);
+        
+        // Add confirm edit location handler
+        document.getElementById('confirmEditLocation').addEventListener('click', confirmEditLocation);
+        
+        // Reset edit mode when modals are closed
+        document.getElementById('editLocationModal').addEventListener('hidden.bs.modal', function() {
+            isEditMode = false;
+            editingLocationId = null;
+            if (editMarker) {
+                map.removeLayer(editMarker);
+            }
+        });
         @endif
+
+        // Delete location modal handler
+        const deleteLocationModal = document.getElementById('deleteLocationModal');
+        if (deleteLocationModal) {
+            deleteLocationModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const locationId = button.getAttribute('data-location-id');
+                const locationName = button.getAttribute('data-location-name');
+                
+                // Update modal content
+                document.getElementById('deleteLocationName').textContent = locationName;
+                
+                // Update form action
+                const form = document.getElementById('deleteLocationForm');
+                form.action = '{{ route("locations.destroy", ":id") }}'.replace(':id', locationId);
+            });
+        }
 
         // Add existing saved locations
         @foreach($locations as $location)
@@ -596,7 +907,7 @@
                         </div>
                     </div>
                 `;
-                safeAddMarker(lat, lng, role, html, 'location');
+                safeAddMarker(lat, lng, role, html, 'location', {{ $location->id }});
             })();
         @endforeach
 
@@ -627,49 +938,6 @@
         @endforeach
     });
 </script>
-
-{{-- Custom marker styles --}}
-<style>
-    .custom-marker {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 14px;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-        border: 3px solid white;
-    }
-    
-    .buyer-marker {
-        background: linear-gradient(45deg, #17a2b8, #138496);
-    }
-    
-    .reseller-marker {
-        background: linear-gradient(45deg, #dc3545, #c82333);
-    }
-    
-    .supplier-marker {
-        background: linear-gradient(45deg, #28a745, #218838);
-    }
-    
-    .user-marker {
-        background: linear-gradient(45deg, #ffc107, #e0a800);
-        color: #212529 !important;
-    }
-    
-    .custom-popup .leaflet-popup-content {
-        margin: 0;
-        padding: 0;
-    }
-    
-    .popup-content {
-        padding: 10px;
-        min-width: 200px;
-    }
-</style>
 
 {{-- Add Font Awesome if not already included --}}
 @push('styles')

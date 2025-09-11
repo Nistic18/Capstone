@@ -4,7 +4,7 @@
 <div class="container mt-4">
     {{-- Breadcrumb Navigation --}}
     <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb" style="background: transparent; padding: 0;">
+        <ol class="breadcrumb" style="background: transparent; padding: 2%;">
             <li class="breadcrumb-item">
                 <a href="{{ route('home') }}" class="text-decoration-none" style="color: #667eea;">
                     <i class="fas fa-home me-1"></i>Home
@@ -22,7 +22,7 @@
     </nav>
 
     {{-- Page Header --}}
-    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
         <div class="card-body text-center py-4">
             <div class="mb-3">
                 <i class="fas fa-clipboard-list text-white" style="font-size: 2.5rem;"></i>
@@ -30,7 +30,7 @@
             <h1 class="text-white fw-bold mb-2">📋 Your Product Orders</h1>
             <p class="text-white-50 mb-0">Manage and track orders for your fish products</p>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Quick Stats --}}
     @php
@@ -224,8 +224,8 @@
                                                    data-order="{{ $order->id }}">
                                             @endif
                                             <div class="me-3">
-                                                @if($product->image)
-                                                    <img src="{{ asset('storage/' . $product->image) }}" 
+                                                @if($product->images && $product->images->count() > 0)
+                                                    <img src="{{ asset('storage/' . $product->images->first()->image) }}" 
                                                          alt="{{ $product->name }}"
                                                          class="rounded"
                                                          style="width: 50px; height: 50px; object-fit: cover;">
@@ -333,6 +333,7 @@
                 </form>
             </div>
         </div>
+        
     @empty
         {{-- Empty State --}}
         <div class="card border-0 shadow-sm" style="border-radius: 20px;">
@@ -349,6 +350,7 @@
             </div>
         </div>
     @endforelse
+    
 </div>
 
 {{-- Custom CSS --}}

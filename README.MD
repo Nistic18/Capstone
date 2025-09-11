@@ -50,8 +50,14 @@
 9. For Gemini API
     ```bash
     composer require guzzlehttp/guzzle
+    ```
     
 10. Edit .env folder for Gemini API Key
+    ```bash
+    GOOGLE_GEMINI_API_KEY="Your API KEY"
+    GOOGLE_GEMINI_API_URL=https://generativelanguage.googleapis.com/v1beta
+    GEMINI_RATE_LIMIT=15 # Increased from 5 to 15 requests per minute per user
+    ```
 
 ### Register a New User
 To register a new user, follow these steps:

@@ -7,10 +7,22 @@
 
 @extends('layouts.app')
 @section('title', 'Fish Market')
+
+{{-- Add Bootstrap 5 CSS --}}
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endpush
+
+{{-- Add Bootstrap 5 JavaScript --}}
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+@endpush
 @section('content')
 <div class="mt-5">
     {{-- Hero Section --}}
-    <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
         <div class="card-body text-center py-5">
             <div class="mb-3">
                 <i class="fas fa-fish text-white" style="font-size: 3rem;"></i>
@@ -18,7 +30,7 @@
             <h1 class="display-4 fw-bold text-white mb-3">🐠 FishMarket</h1>
             <p class="lead text-white-50 mb-0">Discover the finest selection of fresh fish from trusted sellers</p>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Enhanced Search & Filter Section --}}
     <div class="card border-0 shadow-sm mb-5" style="border-radius: 15px;">
@@ -114,22 +126,36 @@
                 
                 {{-- Product Image with Overlay --}}
                 <div class="position-relative overflow-hidden" style="height: 250px; border-radius: 20px 20px 0 0;">
-                    @if($product->image)
-                        <img src="{{ asset('storage/' . $product->image) }}"
-                             class="card-img-top w-100 h-100"
-                             style="object-fit: cover; transition: transform 0.3s ease;"
-                             alt="{{ $product->name }}"
-                             onmouseover="this.style.transform='scale(1.05)'"
-                             onmouseout="this.style.transform='scale(1)'">
-                    @else
-                        <div class="w-100 h-100 d-flex align-items-center justify-content-center"
-                             style="background: linear-gradient(45deg, #f8f9fa, #e9ecef);">
-                            <div class="text-center">
-                                <i class="fas fa-fish text-muted mb-2" style="font-size: 3rem;"></i>
-                                <p class="text-muted mb-0">No Image</p>
-                            </div>
-                        </div>
-                    @endif
+@if($product->images->count() > 0)
+    <div id="carousel-{{ $product->id }}" class="carousel slide custom-carousel" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @foreach($product->images as $key => $image)
+                <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                    <img src="{{ asset('storage/' . $image->image) }}" 
+                         class="d-block w-100" 
+                         style="height:250px; object-fit:cover;" 
+                         alt="{{ $product->name }}">
+                </div>
+            @endforeach
+        </div>
+        @if($product->images->count() > 1)
+            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ $product->id }}" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ $product->id }}" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        @endif
+    </div>
+@else
+    <div class="w-100 h-100 d-flex align-items-center justify-content-center"
+         style="background: linear-gradient(45deg, #f8f9fa, #e9ecef); height:250px;">
+        <div class="text-center">
+            <i class="fas fa-fish text-muted mb-2" style="font-size: 3rem;"></i>
+            <p class="text-muted mb-0">No Image</p>
+        </div>
+    </div>
+@endif
                     
                 </div>
                                         <div class="position-absolute stock-badge-container" 
@@ -238,7 +264,11 @@
 
                         {{-- Add to Cart / Cart Status --}}
                         @if($product->quantity > 0)
-                            @if($inCart)
+                            @if($product->user_id == $userId)
+                                <div class="alert alert-info text-center mb-0 py-2" style="border-radius: 15px;">
+                                    <i class="fas fa-ban me-2"></i>You cannot order your own product
+                                </div>
+                            @elseif($inCart)
                                 <div class="alert alert-warning text-center mb-0 py-2" style="border-radius: 15px;">
                                     <i class="fas fa-shopping-cart me-2"></i>Already in Cart
                                 </div>
@@ -285,6 +315,32 @@
 
 {{-- Custom CSS --}}
 <style>
+/* Hide next/prev buttons by default */
+.custom-carousel .carousel-control-prev,
+.custom-carousel .carousel-control-next {
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    transform: translateX(0); /* default reset */
+}
+
+/* On hover, fade in with slight slide */
+.custom-carousel:hover .carousel-control-prev {
+    opacity: 0.5;
+    transform: translateX(10px); /* slide in from left */
+}
+
+.custom-carousel:hover .carousel-control-next {
+    opacity: 0.5;
+    transform: translateX(-10px); /* slide in from right */
+}
+
+/* When hovering directly on the button, make it brighter */
+.custom-carousel .carousel-control-prev:hover,
+.custom-carousel .carousel-control-next:hover {
+    opacity: 0.9;
+    transform: translateX(0); /* reset to center */
+}
+
     .card:hover {
         box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
     }
