@@ -15,6 +15,32 @@ class ChatController extends Controller
     {
         return view('chat');
     }
+    
+    public function getChatList(Request $request)
+    {
+        $messages = User::leftJoin('messages as m', 'users.id', '=', 'm.user_id')
+    ->where('users.id', '!=', 1)
+    ->orderBy('m.created_at', 'desc')
+    ->select(
+        'users.id as user_id',
+        'users.name',
+        'users.email',
+        'users.email_verified_at',
+        'users.role',
+        'users.created_at',
+        'users.updated_at',
+        'users.latitude',
+        'users.longitude',
+        'm.id as message_id',
+        'm.user_id as message_user_id',
+        'm.receiver_id',
+        'm.content',
+        'm.created_at as message_created_at'
+    )
+    ->get();
+
+        return response()->json(['data' => $messages], 200);
+    }
 
     public function getChat(Request $request, $id)
     {
