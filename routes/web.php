@@ -11,6 +11,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SupplierProductController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\DashboardController;
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -111,6 +112,11 @@ Route::middleware('auth')->group(function() {
     Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
 });
 
+Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
 
-
-
+// Add this route to your routes/web.php file
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Supplier Dashboard Route
+    Route::get('/supplier/dashboard', [DashboardController::class, 'dashboard'])->name('supplier.dashboard');
+});

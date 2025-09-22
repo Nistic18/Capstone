@@ -108,6 +108,17 @@
                     <i class="fas fa-comments"></i> <span>Chat</span>
                 </a>
             </li>
+            <li class="{{ Request::is('notifications') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('notifications.index') }}">
+                    <i class="fas fa-bell"></i><span>Notifications</span>
+            @php
+            $unread = auth()->user()->unreadNotifications()->count();
+            @endphp
+            @if($unread > 0)
+            <span class="badge bg-danger">{{ $unread }}</span>
+            @endif
+                </a>
+            </li>
             @endif
 
             {{-- Reseller Sidebar --}}
@@ -133,10 +144,26 @@
                     <i class="fas fa-map-marked-alt"></i><span>Map Location</span>
             </a>
             </li>
+            <li class="{{ Request::is('chat') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('chat.index') }}">
+                    <i class="fas fa-comments"></i> <span>Chat</span>
+                </a>
+            </li>
             <li class="{{ Request::is('newsfeed') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('newsfeed.index') }}">
                     <i class="fas fa-newspaper"></i><span>Newsfeed</span>
              </a>
+            </li>
+            <li class="{{ Request::is('notifications') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('notifications.index') }}">
+                    <i class="fas fa-bell"></i><span>Notifications</span>
+            @php
+            $unread = auth()->user()->unreadNotifications()->count();
+            @endphp
+            @if($unread > 0)
+            <span class="badge bg-danger">{{ $unread }}</span>
+            @endif
+                </a>
             </li>
             @endif
 
@@ -169,10 +196,31 @@
                     <i class="fas fa-map-marked-alt"></i><span>Map Location</span>
             </a>
             </li>
+            <li class="{{ Request::is('chat') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('chat.index') }}">
+                    <i class="fas fa-comments"></i> <span>Chat</span>
+                </a>
+            </li>
             <li class="{{ Request::is('newsfeed') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('newsfeed.index') }}">
                     <i class="fas fa-newspaper"></i><span>Newsfeed</span>
              </a>
+            </li>
+            <li class="{{ Request::is('notifications') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('notifications.index') }}">
+                    <i class="fas fa-bell"></i><span>Notifications</span>
+            @php
+            $unread = auth()->user()->unreadNotifications()->count();
+            @endphp
+            @if($unread > 0)
+            <span class="badge bg-danger">{{ $unread }}</span>
+            @endif
+                </a>
+            </li>
+            <li class="{{ Request::is('supplier/dashboard') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('supplier.dashboard') }}">
+                <i class="fas fa-tachometer-alt"></i><span>Analytics Dashboard</span>
+                </a>
             </li>
             @endif
         </ul>

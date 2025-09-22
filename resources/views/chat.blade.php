@@ -127,11 +127,18 @@
                                                         word-wrap: break-word;
                                                         overflow-wrap: break-word;
                                                         hyphens: none;">
-                                                <div style="line-height: 1.4;">{{ $message->content }}</div>
-                                                <div class="text-end mt-1">
-                                                    <small style="opacity: 0.8; font-size: 0.75rem;">
-                                                        {{ $message->created_at->format('H:i') }}
-                                                    </small>
+                                                <div style="line-height: 1.4;">
+                                                    @if($message->content)
+                                                        <div>{{ $message->content }}</div>
+                                                    @endif
+
+                                                    @if($message->image)
+                                                        <div class="mt-2">
+                                                            <img src="{{ asset('storage/'.$message->image) }}" 
+                                                                style="max-width: 200px; border-radius: 10px;" 
+                                                                alt="Image">
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 {{-- Message tail --}}
                                                 <div class="position-absolute top-50 translate-middle-y"
@@ -153,7 +160,7 @@
                                                      style="background: #ffffff; 
                                                             border: 2px solid #e9ecef; 
                                                             color: #2c3e50; 
-                                                            max-width: 70%; 
+                                                            max-width: 90%; 
                                                             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
                                                             word-wrap: break-word;
                                                             overflow-wrap: break-word;
@@ -161,12 +168,19 @@
                                                     <div class="fw-semibold mb-1" style="font-size: 0.8rem; color: #667eea;">
                                                         {{ $message->user->name }}
                                                     </div>
-                                                    <div style="line-height: 1.4;">{{ $message->content }}</div>
-                                                    <div class="mt-1">
-                                                        <small class="text-muted" style="font-size: 0.75rem;">
-                                                            {{ $message->created_at->format('H:i') }}
-                                                        </small>
-                                                    </div>
+                                                    <div style="line-height: 1.4;">
+                                                    @if($message->content)
+                                                        <div>{{ $message->content }}</div>
+                                                    @endif
+
+                                                    @if($message->image)
+                                                        <div class="mt-1">
+                                                            <img src="{{ asset('storage/'.$message->image) }}" 
+                                                                style="max-width: 200px; border-radius: 10px;" 
+                                                                alt="Image">
+                                                        </div>
+                                                    @endif
+                                                </div>
                                                     {{-- Message tail --}}
                                                     <div class="position-absolute top-50 translate-middle-y"
                                                          style="left: -10px; width: 0; height: 0; 
@@ -190,19 +204,21 @@
 
                         {{-- Message Input --}}
                         <div class="border-top p-3" style="background: #f8f9fa;">
-                            <form method="POST" action="{{ route('chat.send') }}" class="d-flex gap-2">
-                                @csrf
-                                <input type="hidden" name="receiver_id" value="{{ $receiver_id }}">
-                                <div class="flex-grow-1">
-                                    <input type="text" name="message" class="form-control" 
-                                           style="border-radius: 25px; border: 2px solid #e9ecef; padding: 12px 20px;"
-                                           placeholder="Type your message..." required>
-                                </div>
-                                <button type="submit" class="btn btn-primary px-4" 
-                                        style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </form>
+<form method="POST" action="{{ route('chat.send') }}" class="d-flex gap-2" enctype="multipart/form-data">
+    @csrf
+    <input type="hidden" name="receiver_id" value="{{ $receiver_id }}">
+    
+    <div class="flex-grow-1 d-flex gap-2">
+        <input type="text" name="message" class="form-control" 
+               placeholder="Type your message...">
+        <input type="file" name="image" accept="image/*" class="form-control">
+    </div>
+    
+    <button type="submit" class="btn btn-primary px-4">
+        <i class="fas fa-paper-plane"></i>
+    </button>
+</form>
+                            
                         </div>
                     </div>
                 @else

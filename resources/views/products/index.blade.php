@@ -14,16 +14,16 @@
 @section('content')
 <div class="mt-5">
     {{-- Header Section --}}
-    <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
         <div class="card-body text-center py-5">
             <div class="mb-3">
                 <i class="fas fa-fish text-white" style="font-size: 3rem;"></i>
             </div>
             <h1 class="display-4 fw-bold text-white mb-3">🐟 Product Management</h1>
-            <p class="lead text-white-50 mb-4">Manage your fish market inventory and listings</p>
+            <p class="lead text-white-50 mb-4">Manage your fish market inventory and listings</p> --}}
             
             {{-- Quick Stats --}}
-            <div class="d-flex justify-content-center gap-4 flex-wrap">
+            {{-- <div class="d-flex justify-content-center gap-4 flex-wrap">
                 <div class="d-flex align-items-center px-3 py-2 rounded-pill" 
                      style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
                     <i class="fas fa-boxes text-white me-2"></i>
@@ -38,7 +38,7 @@
                 @endif
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Action Bar --}}
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">

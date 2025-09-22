@@ -7,6 +7,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Product;
+use App\Notifications\OrderStatusUpdated; // ✅ Added
 
 class OrderController extends Controller
 {
@@ -80,6 +81,10 @@ class OrderController extends Controller
             Order::where('id', $orderId)->update(['status' => $request->product_status]);
         }
 
+        // ✅ Notify buyer
+        $order = Order::findOrFail($orderId);
+        $order->user->notify(new OrderStatusUpdated($order));
+
         return back()->with('success', 'Product and order status updated.');
     }
 
@@ -119,6 +124,10 @@ class OrderController extends Controller
         } else {
             Order::where('id', $orderId)->update(['status' => $request->product_status]);
         }
+
+        // ✅ Notify buyer
+        $order = Order::findOrFail($orderId);
+        $order->user->notify(new OrderStatusUpdated($order));
 
         return back()->with('success', 'Statuses updated for selected products and order.');
     }

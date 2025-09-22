@@ -34,21 +34,29 @@ class ChatController extends Controller
         return view('chat', compact('users', 'messages', 'receiver_id'));
     }
 
-    public function send(Request $request)
-    {
-        $request->validate([
-            'message' => 'required|string|max:1000',
-            'receiver_id' => 'required|exists:users,id',
-        ]);
+public function send(Request $request)
+{
+    $request->validate([
+        'message' => 'nullable|string|max:1000',
+        'image' => 'nullable|image|max:2048', // max 2MB
+        'receiver_id' => 'required|exists:users,id',
+    ]);
 
-        Message::create([
-            'user_id' => auth()->id(),
-            'receiver_id' => $request->receiver_id,
-            'content' => $request->message,
-        ]);
-
-        return back()->withInput(); // reload page to see message
+    $imagePath = null;
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('chat_images', 'public');
     }
+
+    Message::create([
+        'user_id' => auth()->id(),
+        'receiver_id' => $request->receiver_id,
+        'content' => $request->message,
+        'image' => $imagePath,
+    ]);
+
+    return back()->withInput();
+}
+
 public function history()
 {
     return response()->json(session()->get('gemini_chat', []));

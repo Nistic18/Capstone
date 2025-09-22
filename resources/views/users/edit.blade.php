@@ -156,7 +156,26 @@
                                 </div>
                             </div>
                         </div>
-
+{{-- Reset Password Field --}}
+<div class="mb-4">
+    <label for="password" class="form-label fw-semibold" style="color: #2c3e50;">
+        <i class="fas fa-key me-2" style="color: #667eea;"></i>New Password
+    </label>
+    <div class="position-relative">
+        <input type="password" id="password" name="password"
+               class="form-control @error('password') is-invalid @enderror"
+               style="border-radius: 15px; border: 2px solid #e9ecef; padding-left: 45px;">
+        <i class="fas fa-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+        @error('password')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+        <div class="valid-feedback">Strong password!</div>
+    </div>
+    <small class="text-muted">
+        <i class="fas fa-info-circle me-1"></i>
+        Leave blank if you don’t want to change the password.
+    </small>
+</div>
                         {{-- Action Buttons --}}
                         <div class="d-flex gap-3 justify-content-end">
                             <a href="{{ route('users.index') }}" 
