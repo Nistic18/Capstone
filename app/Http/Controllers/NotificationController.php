@@ -19,4 +19,10 @@ class NotificationController extends Controller
 
         return back();
     }
+    public function reseller()
+    {
+        $notifications = auth()->user()->notifications()->latest()->get();
+        return view('notifications.reseller', compact('notifications'));
+    }
+
 }

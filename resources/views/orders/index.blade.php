@@ -77,7 +77,7 @@
                                             <i class="{{ $statusConfig['icon'] }} me-1"></i>{{ $statusConfig['text'] }}
                                         </span>
                                         <h4 class="mb-0 fw-bold" style="color: #28a745;">
-                                            ${{ number_format($order->total_price, 2) }}
+                                            ₱{{ number_format($order->total_price, 2) }}
                                         </h4>
                                     </div>
                                 </div>
@@ -96,7 +96,7 @@
                                     <thead style="background-color: #f8f9fa;">
                                         <tr>
                                             <th class="border-0 fw-semibold" style="color: #495057;">Product</th>
-                                            <th class="border-0 fw-semibold text-center" style="color: #495057;">Qty</th>
+                                            <th class="border-0 fw-semibold text-center" style="color: #495057;">Quantity</th>
                                             <th class="border-0 fw-semibold text-end" style="color: #495057;">Price</th>
                                             <th class="border-0 fw-semibold text-end" style="color: #495057;">Subtotal</th>
                                         </tr>
@@ -131,10 +131,10 @@
                                                     </span>
                                                 </td>
                                                 <td class="border-0 py-3 text-end fw-semibold">
-                                                    ${{ number_format($product->price, 2) }}
+                                                    ₱{{ number_format($product->price, 2) }}
                                                 </td>
                                                 <td class="border-0 py-3 text-end fw-bold" style="color: #28a745;">
-                                                    ${{ number_format($product->price * $product->pivot->quantity, 2) }}
+                                                    ₱{{ number_format($product->price * $product->pivot->quantity, 2) }}
                                                 </td>
                                             </tr>
 
@@ -226,30 +226,43 @@
                                     </tbody>
                                 </table>
                             </div>
-
                             {{-- Order Actions --}}
-                            <div class="row g-2 mt-3">
-                                @if($order->status === 'Delivered')
-                                @elseif(in_array($order->status, ['paid', 'shipped']))
-                                    <div class="col-md-6">
-                                        <button class="btn btn-outline-info w-100" style="border-radius: 15px;">
-                                            <i class="fas fa-truck me-2"></i>Track Order
-                                        </button>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <button class="btn btn-outline-danger w-100" style="border-radius: 15px;">
-                                            <i class="fas fa-times me-2"></i>Cancel Order
-                                        </button>
-                                    </div>
-                                @else
-                                    <div class="col-12">
-                                        <div class="alert alert-info border-0" style="border-radius: 15px;">
-                                            <i class="fas fa-info-circle me-2"></i>
-                                            Your order is being processed. We'll notify you once it's confirmed!
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
+<div class="row g-2 mt-3">
+    @if($order->status === 'Delivered' && $order->refund_status === 'None')
+        <div class="col-md-6">
+            <form action="{{ route('orders.refund', $order->id) }}" method="POST">
+                @csrf
+                <div class="mb-2">
+                    <textarea name="refund_reason" class="form-control" placeholder="Why are you asking for a refund?" required style="border-radius: 10px;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-outline-danger w-100" style="border-radius: 15px;">
+                    <i class="fas fa-undo me-2"></i>Request Refund
+                </button>
+            </form>
+        </div>
+    @elseif($order->refund_status === 'Pending')
+        <div class="col-12">
+            <div class="alert alert-warning border-0" style="border-radius: 15px;">
+                <i class="fas fa-hourglass-half me-2"></i>
+                Refund request pending. Reason: <strong>{{ $order->refund_reason }}</strong>
+            </div>
+        </div>
+    @elseif($order->refund_status === 'Approved')
+        <div class="col-12">
+            <div class="alert alert-success border-0" style="border-radius: 15px;">
+                <i class="fas fa-check-circle me-2"></i>
+                Refund approved.
+            </div>
+        </div>
+    @elseif($order->refund_status === 'Rejected')
+        <div class="col-12">
+            <div class="alert alert-danger border-0" style="border-radius: 15px;">
+                <i class="fas fa-times-circle me-2"></i>
+                Refund request rejected. Reason: <strong>{{ $order->refund_reason }}</strong>
+            </div>
+        </div>
+    @endif
+</div>
                         </div>
                     </div>
                 </div>

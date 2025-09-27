@@ -28,36 +28,37 @@ class GeminiController extends Controller
         return true;
     }
 
-    public function generate(Request $request)
-    {
-        $request->validate([
-            'prompt' => 'required|string|max:2000',
-        ]);
+public function generate(Request $request)
+{
+    $request->validate([
+        'prompt' => 'required|string|max:2000',
+        'model' => 'nullable|string'
+    ]);
 
-        $key = 'gemini_' . $request->ip();
-        if (!$this->checkRateLimit($key)) {
-            return response()->json(['error' => 'Rate limit exceeded. Please try again later.'], 429);
-        }
-
-        $result = $this->gemini->generateText($request->prompt);
-
-        // Handle different response formats
-        $reply = 'No response available';
-        
-        if (isset($result['output_text'])) {
-            $reply = $result['output_text'];
-        } elseif (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
-            $reply = $result['candidates'][0]['content']['parts'][0]['text'];
-        } elseif (isset($result['error'])) {
-            $reply = 'Error: ' . $result['error'];
-            if (isset($result['details'])) {
-                Log::error('Gemini API Error Details', ['details' => $result['details']]);
-            }
-        }
-
-        return response()->json([
-            'output_text' => $reply,
-            'success' => !isset($result['error'])
-        ]);
+    $key = 'gemini_' . $request->ip();
+    if (!$this->checkRateLimit($key)) {
+        return response()->json(['error' => 'Rate limit exceeded. Please try again later.'], 429);
     }
+
+    $model = $request->input('model', 'gemini-2.0-flash'); // default to flash
+    $result = $this->gemini->generateText($request->prompt, $model);
+
+    $reply = 'No response available';
+    if (isset($result['output_text'])) {
+        $reply = $result['output_text'];
+    } elseif (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
+        $reply = $result['candidates'][0]['content']['parts'][0]['text'];
+    } elseif (isset($result['error'])) {
+        $reply = 'Error: ' . $result['error'];
+        if (isset($result['details'])) {
+            Log::error('Gemini API Error Details', ['details' => $result['details']]);
+        }
+    }
+
+    return response()->json([
+        'output_text' => $reply,
+        'success' => !isset($result['error'])
+    ]);
+}
+
 }

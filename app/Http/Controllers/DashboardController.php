@@ -64,6 +64,12 @@ class DashboardController extends Controller
         // 10. PRODUCT PERFORMANCE METRICS
         $productPerformance = $this->getProductPerformanceMetrics($userId);
 
+        $totalRefunds = $this->getTotalRefunds($userId);
+        $monthlyRefunds = $this->getMonthlyRefunds($userId, $currentMonth);
+        $refundRate = $this->getRefundRate($userId);
+        $monthlyRefundData = $this->getMonthlyRefundData($userId);
+
+
         return view('dashboard.supplier', compact(
             'totalRevenue',
             'monthlyRevenue', 
@@ -81,7 +87,11 @@ class DashboardController extends Controller
             'dailySalesData',
             'averageOrderValue',
             'monthlyAOV',
-            'productPerformance'
+            'productPerformance',
+            'totalRefunds',
+            'monthlyRefunds',
+            'refundRate',
+            'monthlyRefundData'
         ));
     }
 
@@ -92,6 +102,10 @@ class DashboardController extends Controller
             ->join('orders', 'order_product.order_id', '=', 'orders.id')
             ->where('products.user_id', $userId)
             ->whereIn('orders.status', ['Delivered', 'Completed'])
+            ->where(function ($query) {
+            $query->whereNull('orders.refund_status')
+                  ->orWhere('orders.refund_status', '!=', 'Approved');
+            })
             ->sum(DB::raw('order_product.quantity * products.price'));
     }
 
@@ -104,6 +118,10 @@ class DashboardController extends Controller
             ->whereIn('orders.status', ['Delivered', 'Completed'])
             ->whereYear('orders.created_at', $month->year)
             ->whereMonth('orders.created_at', $month->month)
+            ->where(function ($query) {
+            $query->whereNull('orders.refund_status')
+                  ->orWhere('orders.refund_status', '!=', 'Approved');
+            })
             ->sum(DB::raw('order_product.quantity * products.price'));
     }
 
@@ -111,7 +129,8 @@ class DashboardController extends Controller
     {
         return Order::whereHas('products', function ($query) use ($userId) {
             $query->where('user_id', $userId);
-        })->count();
+        })
+        ->count();
     }
 
     private function getMonthlyOrders($userId, $month)
@@ -121,25 +140,51 @@ class DashboardController extends Controller
         })
         ->whereYear('created_at', $month->year)
         ->whereMonth('created_at', $month->month)
+        ->where(function ($query) {
+            $query->whereNull('refund_status')
+                  ->orWhere('refund_status', '!=', 'Approved');
+        })
         ->count();
     }
 
     private function getMonthlySalesData($userId)
-    {
-        $data = [];
-        for ($i = 11; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            $revenue = $this->getMonthlyRevenue($userId, $date);
-            $orders = $this->getMonthlyOrders($userId, $date);
-            
-            $data[] = [
-                'month' => $date->format('M Y'),
-                'revenue' => (float) $revenue,
-                'orders' => $orders
-            ];
-        }
-        return $data;
+{
+    $data = [];
+    for ($i = 11; $i >= 0; $i--) {
+        $date = Carbon::now()->subMonths($i);
+        
+        $revenue = DB::table('order_product')
+            ->join('products', 'order_product.product_id', '=', 'products.id')
+            ->join('orders', 'order_product.order_id', '=', 'orders.id')
+            ->where('products.user_id', $userId)
+            ->whereIn('orders.status', ['Delivered', 'Completed'])
+            ->whereYear('orders.created_at', $date->year)
+            ->whereMonth('orders.created_at', $date->month)
+            ->where(function ($query) {
+                $query->whereNull('orders.refund_status')
+                      ->orWhere('orders.refund_status', '!=', 'Approved');
+            })
+            ->sum(DB::raw('order_product.quantity * products.price'));
+
+        $orders = Order::whereHas('products', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->where(function ($query) {
+                $query->whereNull('refund_status')
+                      ->orWhere('refund_status', '!=', 'Approved');
+            })
+            ->count();
+
+        $data[] = [
+            'month' => $date->format('M Y'),
+            'revenue' => (float) $revenue,
+            'orders' => $orders
+        ];
     }
+    return $data;
+}
 
     private function getTopSellingProducts($userId, $days = 30)
     {
@@ -148,6 +193,10 @@ class DashboardController extends Controller
             ->join('orders', 'order_product.order_id', '=', 'orders.id')
             ->where('products.user_id', $userId)
             ->where('orders.created_at', '>=', Carbon::now()->subDays($days))
+            ->where(function ($query) {
+            $query->whereNull('orders.refund_status')
+                  ->orWhere('orders.refund_status', '!=', 'Approved');
+            })
             ->select(
                 'products.name',
                 'products.price',
@@ -181,6 +230,10 @@ class DashboardController extends Controller
         })
         ->select('status', DB::raw('count(*) as count'))
         ->groupBy('status')
+        ->where(function ($query) {
+                $query->whereNull('refund_status')
+                      ->orWhere('refund_status', '!=', 'Approved');
+            })
         ->get()
         ->mapWithKeys(function ($item) {
             return [$item->status => $item->count];
@@ -188,32 +241,42 @@ class DashboardController extends Controller
     }
 
     private function getDailySalesData($userId, $days = 30)
-    {
-        $data = [];
-        for ($i = $days - 1; $i >= 0; $i--) {
-            $date = Carbon::now()->subDays($i);
-            
-            $revenue = DB::table('order_product')
-                ->join('products', 'order_product.product_id', '=', 'products.id')
-                ->join('orders', 'order_product.order_id', '=', 'orders.id')
-                ->where('products.user_id', $userId)
-                ->whereDate('orders.created_at', $date->toDateString())
-                ->sum(DB::raw('order_product.quantity * products.price'));
+{
+    $data = [];
+    for ($i = $days - 1; $i >= 0; $i--) {
+        $date = Carbon::now()->subDays($i);
+        
+        $revenue = DB::table('order_product')
+            ->join('products', 'order_product.product_id', '=', 'products.id')
+            ->join('orders', 'order_product.order_id', '=', 'orders.id')
+            ->where('products.user_id', $userId)
+            ->whereIn('orders.status', ['Delivered', 'Completed'])
+            ->whereDate('orders.created_at', $date->toDateString())
+            ->where(function ($query) {
+                $query->whereNull('orders.refund_status')
+                      ->orWhere('orders.refund_status', '!=', 'Approved');
+            })
+            ->sum(DB::raw('order_product.quantity * products.price'));
 
-            $orders = Order::whereHas('products', function ($query) use ($userId) {
+        $orders = Order::whereHas('products', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
             ->whereDate('created_at', $date->toDateString())
+            ->where(function ($query) {
+                $query->whereNull('refund_status')
+                      ->orWhere('refund_status', '!=', 'Approved');
+            })
             ->count();
 
-            $data[] = [
-                'date' => $date->format('M j'),
-                'revenue' => (float) $revenue,
-                'orders' => $orders
-            ];
-        }
-        return $data;
+        $data[] = [
+            'date' => $date->format('M j'),
+            'revenue' => (float) $revenue,
+            'orders' => $orders
+        ];
     }
+    return $data;
+}
+
 
     private function getAverageOrderValue($userId)
     {
@@ -457,5 +520,55 @@ class DashboardController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+// Total Refunds
+private function getTotalRefunds($userId)
+{
+    return Order::whereHas('products', function($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->where('refund_status', 'Approved')
+        ->sum('total_price');
+}
+
+// Monthly Refunds
+private function getMonthlyRefunds($userId, $month)
+{
+    return Order::whereHas('products', function($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->whereYear('created_at', $month->year)
+        ->whereMonth('created_at', $month->month)
+        ->where('refund_status', 'Approved')
+        ->sum('total_price');
+}
+
+// Refund Rate (%)
+private function getRefundRate($userId)
+{
+    $totalOrders = $this->getTotalOrders($userId);
+    $refundedOrders = Order::whereHas('products', function($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->where('refund_status', 'Approved')
+        ->count();
+
+    return $totalOrders > 0 ? round(($refundedOrders / $totalOrders) * 100, 1) : 0;
+}
+
+// Refund trend (last 12 months)
+private function getMonthlyRefundData($userId)
+{
+    $data = [];
+    for ($i = 11; $i >= 0; $i--) {
+        $date = Carbon::now()->subMonths($i);
+        $monthlyRefund = $this->getMonthlyRefunds($userId, $date);
+
+        $data[] = [
+            'month' => $date->format('M Y'),
+            'refund' => (float) $monthlyRefund
+        ];
+    }
+    return $data;
+}
 
 }

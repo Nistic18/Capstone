@@ -28,7 +28,7 @@ async function generateText() {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         },
         body: JSON.stringify({
-            model: 'gemini-1.5',
+            model: 'gemini-2.0-flash',
             prompt: document.getElementById('prompt').value
         })
     });

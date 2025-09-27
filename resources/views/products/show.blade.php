@@ -21,7 +21,7 @@
 <div class="container mt-4">
     {{-- Breadcrumb Navigation --}}
     <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb" style="background: transparent; padding: 0;">
+        <ol class="breadcrumb" style="background: transparent; padding: 20px;">
             <li class="breadcrumb-item">
                 <a href="{{ route('home') }}" class="text-decoration-none" style="color: #667eea;">
                     <i class="fas fa-home me-1"></i>Home
@@ -162,7 +162,7 @@
                     {{-- Price --}}
                     <div class="mb-4">
                         <div class="d-flex align-items-baseline gap-2">
-                            <span class="display-5 fw-bold" style="color: #28a745;">${{ number_format($product->price, 2) }}</span>
+                            <span class="display-5 fw-bold" style="color: #28a745;">₱{{ number_format($product->price, 2) }}</span>
                             <span class="h6 text-muted">per piece</span>
                         </div>
                         <small class="text-muted">💰 Competitive market price</small>
@@ -328,7 +328,7 @@
                                         </tr>
                                         <tr>
                                             <td class="fw-semibold">Price:</td>
-                                            <td class="text-success fw-bold">${{ number_format($product->price, 2) }}</td>
+                                            <td class="text-success fw-bold">₱{{ number_format($product->price, 2) }}</td>
                                         </tr>
                                         <tr>
                                             <td class="fw-semibold">Stock:</td>

@@ -108,7 +108,7 @@
                                         <div class="col-md-4 col-9">
                                             <h6 class="fw-bold mb-1" style="color: #2c3e50;">{{ $item->product->name }}</h6>
                                             <p class="text-muted small mb-1">
-                                                <i class="fas fa-dollar-sign me-1"></i>${{ number_format($item->product->price, 2) }} per piece
+                                                <i class="me-1"></i>₱{{ number_format($item->product->price, 2) }} per piece
                                             </p>
                                             <small class="text-muted">
                                                 <i class="fas fa-boxes me-1"></i>Stock: {{ $item->product->quantity }} available
@@ -149,7 +149,7 @@
                                         <div class="col-md-2 col-6 text-end">
                                             <div class="mb-2">
                                                 <span class="fw-bold h6" style="color: #28a745;">
-                                                    ${{ number_format($subtotal, 2) }}
+                                                    ₱{{ number_format($subtotal, 2) }}
                                                 </span>
                                             </div>
                                             <button type="button" 
@@ -185,7 +185,7 @@
                     <div class="mb-4">
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">Items ({{ $cart->count() }})</span>
-                            <span class="fw-semibold">${{ number_format($total, 2) }}</span>
+                            <span class="fw-semibold">₱{{ number_format($total, 2) }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">Delivery Fee</span>
@@ -198,7 +198,7 @@
                         <hr class="my-3">
                         <div class="d-flex justify-content-between">
                             <span class="h6 fw-bold">Total Amount</span>
-                            <span class="h5 fw-bold" style="color: #28a745;">${{ number_format($total, 2) }}</span>
+                            <span class="h5 fw-bold" style="color: #28a745;">₱{{ number_format($total, 2) }}</span>
                         </div>
                     </div>
 

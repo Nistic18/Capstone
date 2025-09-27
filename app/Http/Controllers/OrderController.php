@@ -131,4 +131,87 @@ class OrderController extends Controller
 
         return back()->with('success', 'Statuses updated for selected products and order.');
     }
+
+public function show(Order $order)
+{
+    // Allow buyers to view only their orders
+    if (auth()->user()->role === 'buyer' && $order->user_id !== auth()->id()) {
+        abort(403, 'Unauthorized access.');
+    }
+
+    // Allow sellers to view only if they own one of the products
+    if (auth()->user()->role === 'seller') {
+        $ownsProduct = $order->products()->where('user_id', auth()->id())->exists();
+        if (! $ownsProduct) {
+            abort(403, 'Unauthorized access.');
+        }
+    }
+    $order->load('products.images', 'user'); // eager load relations
+    return view('orders.show', compact('order'));
+}
+public function requestRefund(Request $request, $orderId)
+{
+    $order = Order::where('id', $orderId)
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+
+    $request->validate([
+        'refund_reason' => 'required|string|max:500',
+    ]);
+
+    // Only allow refund if delivered or paid
+    if (!in_array($order->status, ['Delivered', 'paid'])) {
+        return back()->with('error', 'Refunds can only be requested for delivered or paid orders.');
+    }
+
+    $order->update([
+        'refund_status' => 'Pending',
+        'refund_reason' => $request->refund_reason,
+    ]);
+
+    return back()->with('success', 'Refund request submitted successfully.');
+}
+public function approveRefund($orderId)
+{
+    $order = Order::findOrFail($orderId);
+
+    
+    if (!in_array(auth()->user()->role, ['supplier', 'reseller'])) {
+        abort(403, 'Unauthorized access.');
+    }
+
+    $order->update([
+        'refund_status' => 'Approved',
+    ]);
+
+    // Notify buyer
+    $order->user->notify(new OrderStatusUpdated($order));
+
+    return back()->with('success', 'Refund approved successfully.');
+}
+
+public function declineRefund(Request $request, $orderId)
+{
+    $order = Order::findOrFail($orderId);
+
+    if (!in_array(auth()->user()->role, ['supplier', 'reseller'])) {
+        abort(403, 'Unauthorized access.');
+    }
+
+    $request->validate([
+        'decline_reason' => 'nullable|string|max:500',
+    ]);
+
+    $order->update([
+        'refund_status' => 'Rejected',
+        'refund_reason' => 'Seller/Reseller: ' . $request->decline_reason,
+    ]);
+
+    // Notify buyer
+    $order->user->notify(new OrderStatusUpdated($order));
+
+    return back()->with('success', 'Refund declined successfully.');
+}
+
+
 }

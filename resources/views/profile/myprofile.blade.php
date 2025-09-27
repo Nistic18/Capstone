@@ -204,7 +204,7 @@
                                                 
                                                 <div class="mb-3">
                                                     <h5 class="fw-bold mb-0" style="color: #28a745;">
-                                                        ${{ number_format($order->total_price, 2) }}
+                                                        ₱{{ number_format($order->total_price, 2) }}
                                                     </h5>
                                                     <small class="text-muted">
                                                         {{ $order->products->count() }} {{ $order->products->count() == 1 ? 'item' : 'items' }}
@@ -325,7 +325,7 @@
                                                 
                                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <span class="h6 fw-bold text-success mb-0">
-                                                        ${{ number_format($product->price, 2) }}
+                                                        ₱{{ number_format($product->price, 2) }}
                                                     </span>
                                                     <small class="text-muted">Stock: {{ $product->quantity }}</small>
                                                 </div>

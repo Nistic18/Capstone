@@ -50,17 +50,17 @@
                 {{-- Price Range --}}
                 <div class="col-lg-2 col-md-3">
                     <div class="position-relative">
-                        <i class="fas fa-dollar-sign position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <i class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
                         <input type="number" name="min_price" class="form-control ps-5" 
                                style="border-radius: 25px; border: 2px solid #e9ecef;"
-                               placeholder="Min $"
+                               placeholder="Min ₱"
                                value="{{ request('min_price') }}">
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-3">
                     <input type="number" name="max_price" class="form-control" 
                            style="border-radius: 25px; border: 2px solid #e9ecef;"
-                           placeholder="Max $"
+                           placeholder="Max ₱"
                            value="{{ request('max_price') }}">
                 </div>
 
@@ -206,7 +206,7 @@
                     {{-- Price --}}
                     <div class="mb-3">
                         <span class="h4 fw-bold" style="color: #28a745;">
-                            ${{ number_format($product->price, 2) }}
+                            ₱{{ number_format($product->price, 2) }}
                         </span>
                         <small class="text-muted">/ piece</small>
                     </div>
@@ -277,7 +277,7 @@
                                     @csrf
                                     <div class="row g-2 mb-2">
                                         <div class="col-4">
-                                            <label for="quantity-{{ $product->id }}" class="form-label small">Qty</label>
+                                            <label for="quantity-{{ $product->id }}" class="form-label small">Quantity</label>
                                             <input type="number" id="quantity-{{ $product->id }}" 
                                                    name="quantity" value="1" min="1" max="{{ $product->quantity }}"
                                                    class="form-control form-control-sm text-center" 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -10,9 +11,10 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::latest()->paginate(10);
+        $users = User::with('latestResellerApplication')->latest()->paginate(10);
         return view('users.index', compact('users'));
     }
+
 
     public function edit(User $user)
     {
@@ -48,4 +50,36 @@ class UserController extends Controller
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
+    
+public function approveReseller($id)
+{
+    $user = User::findOrFail($id);
+
+    if ($user->latestResellerApplication) {
+        $user->latestResellerApplication->update(['status' => 'approved']);
+        $user->update(['role' => 'reseller']);
+    }
+
+    return back()->with('success', 'Reseller application approved.');
+}
+
+public function rejectReseller(Request $request, $id)
+{
+    $request->validate([
+        'rejection_reason' => 'required|string|max:1000',
+    ]);
+
+    $user = User::findOrFail($id);
+
+    if ($user->latestResellerApplication) {
+        $user->latestResellerApplication->update([
+            'status' => 'rejected',
+            'rejection_reason' => $request->rejection_reason,
+        ]);
+    }
+
+    return back()->with('error', 'Reseller application rejected with reason.');
+}
+
+
 }

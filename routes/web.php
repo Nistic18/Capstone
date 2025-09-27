@@ -12,6 +12,7 @@ use App\Http\Controllers\SupplierProductController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ResellerApplicationController;
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -114,9 +115,29 @@ Route::middleware('auth')->group(function() {
 
 Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
 Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+Route::get('/reseller/notifications', [App\Http\Controllers\NotificationController::class, 'reseller'])->name('reseller.notifications');
 
 // Add this route to your routes/web.php file
 Route::middleware(['auth', 'verified'])->group(function () {
     // Supplier Dashboard Route
     Route::get('/supplier/dashboard', [DashboardController::class, 'dashboard'])->name('supplier.dashboard');
 });
+Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/reseller/apply', [ResellerApplicationController::class, 'create'])->name('reseller.apply');
+    Route::post('/reseller/apply', [ResellerApplicationController::class, 'store'])->name('reseller.store');
+});
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::post('/users/{id}/approve-reseller', [UserController::class, 'approveReseller'])->name('users.approveReseller');
+    Route::post('/users/{id}/reject-reseller', [UserController::class, 'rejectReseller'])->name('users.rejectReseller');
+});
+Route::post('/orders/{order}/refund', [OrderController::class, 'requestRefund'])->name('orders.refund');
+Route::post('/orders/{order}/refund/approve', [OrderController::class, 'approveRefund'])
+    ->name('orders.refund.approve');
+
+Route::post('/orders/{order}/refund/decline', [OrderController::class, 'declineRefund'])
+    ->name('orders.refund.decline');
+
+

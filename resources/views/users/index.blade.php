@@ -119,6 +119,9 @@
                                 <th class="border-0 py-3 px-4" style="color: #2c3e50; font-weight: 600;">
                                     <i class="fas fa-calendar me-2" style="color: #667eea;"></i>Joined
                                 </th>
+                                <th class="border-0 py-3 px-4" style="color: #2c3e50; font-weight: 600;">
+                                    <i class="fas fa-store me-2" style="color: #667eea;"></i>Reseller Status
+                                </th>
                                 <th class="border-0 py-3 px-4 text-center" style="color: #2c3e50; font-weight: 600;">
                                     <i class="fas fa-cogs me-2" style="color: #667eea;"></i>Actions
                                 </th>
@@ -194,34 +197,88 @@
                                         </div>
                                     </div>
                                 </td>
-
+                                {{-- Reseller Status --}}
+<td class="px-4 py-4">
+    @if($user->latestResellerApplication)
+        @if($user->latestResellerApplication->status == 'pending')
+            <span class="badge bg-warning">Pending</span>
+        @elseif($user->latestResellerApplication->status == 'approved')
+            <span class="badge bg-success">Approved</span>
+        @else
+            <span class="badge bg-danger">Rejected</span>
+        @endif
+    @else
+        <span class="badge bg-secondary">No Application</span>
+    @endif
+</td>
                                 {{-- Actions --}}
-                                <td class="px-4 py-4 text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        {{-- Edit Button --}}
-                                        <a href="{{ route('users.edit', $user) }}" 
-                                           class="btn btn-sm btn-outline-warning" 
-                                           style="border-radius: 10px; border-width: 2px;"
-                                           data-bs-toggle="tooltip" 
-                                           title="Edit User">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
+<td class="px-4 py-4 text-center">
+    <div class="d-flex justify-content-center gap-2 flex-wrap">
+        {{-- Edit Button --}}
+        <a href="{{ route('users.edit', $user) }}" 
+           class="btn btn-sm btn-outline-warning" 
+           style="border-radius: 10px; border-width: 2px;"
+           data-bs-toggle="tooltip" 
+           title="Edit User">
+            <i class="fas fa-edit"></i>
+        </a>
 
-                                        {{-- Delete Button --}}
-                                        <form action="{{ route('users.destroy', $user) }}" 
-                                              method="POST" 
-                                              style="display:inline;"
-                                              onsubmit="return confirmDelete('{{ $user->name }}')">
-                                            @csrf 
-                                            @method('DELETE')
-                                            <button type="submit" 
-                                                    class="btn btn-sm btn-outline-danger" 
-                                                    style="border-radius: 10px; border-width: 2px;"
-                                                    data-bs-toggle="tooltip" 
-                                                    title="Delete User">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
+        {{-- Delete Button --}}
+        <form action="{{ route('users.destroy', $user) }}" 
+              method="POST" 
+              style="display:inline;"
+              onsubmit="return confirmDelete('{{ $user->name }}')">
+            @csrf 
+            @method('DELETE')
+            <button type="submit" 
+                    class="btn btn-sm btn-outline-danger" 
+                    style="border-radius: 10px; border-width: 2px;"
+                    data-bs-toggle="tooltip" 
+                    title="Delete User">
+                <i class="fas fa-trash"></i>
+            </button>
+        </form>
+
+        {{-- ✅ View Document Button - MOVED UP AND IMPROVED --}}
+        @if($user->latestResellerApplication)
+    <a href="{{ asset('storage/' . $user->latestResellerApplication->valid_id_path) }}" target="_blank" 
+       class="btn btn-sm btn-outline-info">
+        <i class="fas fa-id-card"></i> Valid ID
+    </a>
+    <a href="{{ asset('storage/' . $user->latestResellerApplication->business_path) }}" target="_blank" 
+       class="btn btn-sm btn-outline-info">
+        <i class="fas fa-briefcase"></i> Permit
+    </a>
+    <a href="{{ asset('storage/' . $user->latestResellerApplication->other_doc_path) }}" target="_blank" 
+       class="btn btn-sm btn-outline-info">
+        <i class="fas fa-file-alt"></i> Other
+    </a>
+@endif
+
+
+        {{-- Approval/Rejection Buttons --}}
+@if($user->latestResellerApplication && $user->latestResellerApplication->status == 'pending')
+    <form action="{{ route('users.approveReseller', $user->id) }}" method="POST" class="d-inline">
+        @csrf
+        <button type="submit" class="btn btn-sm btn-outline-success">
+            <i class="fas fa-check"></i>
+        </button>
+    </form>
+
+    <!-- Reject with reason -->
+    <form action="{{ route('users.rejectReseller', $user->id) }}" method="POST" class="d-inline">
+        @csrf
+        <input type="text" name="rejection_reason" placeholder="Reason for rejection"
+               class="form-control form-control-sm d-inline-block" style="width: 200px;" required>
+        <button type="submit" class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-times"></i>
+        </button>
+    </form>
+@endif
+
+
+    </div>
+</td>
                                     </div>
                                 </td>
                             </tr>

@@ -83,7 +83,7 @@
             <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
-                        <i class="fas fa-dollar-sign text-success" style="font-size: 2rem;"></i>
+                        <i class="fas fa-money-bill text-success" style="font-size: 2rem;"></i>
                     </div>
                     <h4 class="fw-bold mb-1" style="color: #28a745;">₱{{ number_format($totalRevenue, 2) }}</h4>
                     <small class="text-muted">Total Revenue</small>
@@ -185,7 +185,14 @@
                     </div>
                 </div>
                 @endif
-
+                    {{-- Footer with button --}}
+    <div class="card-footer border-0 bg-light d-flex justify-content-end p-3">
+        <a href="{{ route('orders.show', $order->id) }}" 
+           class="btn btn-sm btn-outline-primary" 
+           style="border-radius: 10px;">
+            <i class="fas fa-eye me-1"></i> View Details
+        </a>
+    </div>
                 <form method="POST" action="{{ route('supplier.orders.status.bulk-update', $order->id) }}" 
                       id="orderForm{{ $order->id }}">
                     @csrf
@@ -285,7 +292,6 @@
                             </tbody>
                         </table>
                     </div>
-
                     {{-- Bulk Actions --}}
                     @if (!$hasDeliveredAll)
                         <div class="card border-0 mt-4" style="background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%); border-radius: 15px;">
@@ -331,9 +337,40 @@
                         </div>
                     @endif
                 </form>
+@php
+    $refundLabel = match($order->refund_status) {
+        'Pending' => 'Pending Refund',
+        'Approved' => 'Approved Refund',
+        'Rejected' => 'Rejected Refund',
+        default => '', // <- nothing for null or unknown values
+    };
+
+    $refundClass = match($order->refund_status) {
+        'Pending' => 'bg-warning',
+        'Approved' => 'bg-success',
+        'Rejected' => 'bg-danger',
+        default => '', // <- empty string, no badge shown
+    };
+
+    $refundIcon = match($order->refund_status) {
+        'Pending' => 'fas fa-exclamation-circle',
+        'Approved' => 'fas fa-check-circle',
+        'Rejected' => 'fas fa-times-circle',
+        default => '', // <- no icon for null
+    };
+@endphp
+
+@if($refundLabel)
+<div class="mt-3">
+    <span class="badge {{ $refundClass }}" style="padding: 8px 12px; border-radius: 15px;">
+        <i class="{{ $refundIcon }} me-1"></i>{{ $refundLabel }}
+    </span>
+</div>
+@endif
+
             </div>
         </div>
-        
+      
     @empty
         {{-- Empty State --}}
         <div class="card border-0 shadow-sm" style="border-radius: 20px;">

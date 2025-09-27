@@ -31,7 +31,7 @@
                         <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="flex-grow-1">
-                        <div class="metric-value">${{ number_format($totalRevenue, 2) }}</div>
+                        <div class="metric-value">₱{{ number_format($totalRevenue, 2) }}</div>
                         <div class="metric-label">Total Revenue</div>
                         <div class="metric-change positive">
                             <i class="fas fa-arrow-up"></i>
@@ -50,7 +50,7 @@
                         <i class="fas fa-calendar-alt"></i>
                     </div>
                     <div class="flex-grow-1">
-                        <div class="metric-value">${{ number_format($monthlyRevenue, 2) }}</div>
+                        <div class="metric-value">₱{{ number_format($monthlyRevenue, 2) }}</div>
                         <div class="metric-label">This Month</div>
                         <div class="metric-change {{ $revenueGrowth >= 0 ? 'positive' : 'negative' }}">
                             <i class="fas fa-arrow-{{ $revenueGrowth >= 0 ? 'up' : 'down' }}"></i>
@@ -168,7 +168,7 @@
                                     <h6 class="product-name mb-1">{{ $product->name }}</h6>
                                     <div class="product-stats">
                                         <span class="badge bg-success me-2">{{ $product->total_sold }} sold</span>
-                                        <span class="text-success fw-bold">${{ number_format($product->total_revenue, 2) }}</span>
+                                        <span class="text-success fw-bold">₱{{ number_format($product->total_revenue, 2) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -225,7 +225,7 @@
                                                 {{ $order->products->count() }} item(s)
                                             </span>
                                         </td>
-                                        <td class="fw-bold text-success">${{ number_format($order->total_price, 2) }}</td>
+                                        <td class="fw-bold text-success">₱{{ number_format($order->total_price, 2) }}</td>
                                         <td>
                                             <span class="badge status-badge status-{{ strtolower($order->status) }}">
                                                 {{ $order->status }}
@@ -255,16 +255,16 @@
                     <div class="metric-icon-large aov-icon mb-3">
                         <i class="fas fa-calculator"></i>
                     </div>
-                    <h3 class="fw-bold text-primary mb-2">${{ number_format($averageOrderValue, 2) }}</h3>
+                    <h3 class="fw-bold text-primary mb-2">₱{{ number_format($averageOrderValue, 2) }}</h3>
                     <p class="text-muted mb-0">Average Order Value</p>
                     <small class="text-success">
-                        This month: ${{ number_format($monthlyAOV, 2) }}
+                        This month: ₱{{ number_format($monthlyAOV, 2) }}
                     </small>
                 </div>
             </div>
 
             {{-- Quick Actions --}}
-            <div class="card border-0 shadow-sm">
+            {{-- <div class="card border-0 shadow-sm">
                 <div class="card-header bg-transparent border-0">
                     <h6 class="fw-bold mb-0">Quick Actions</h6>
                 </div>
@@ -275,13 +275,26 @@
                         </a>
                         <a href="{{ route('products.index') }}" class="btn btn-outline-primary">
                             <i class="fas fa-fish me-2"></i>Manage Products
-                        </a>
+                        </a> --}}
                         {{-- <a href="{{ route('orders.supplier') }}" class="btn btn-outline-info">
                             <i class="fas fa-shopping-cart me-2"></i>View Orders
                         </a> --}}
-                    </div>
+                    {{-- </div>
+                </div>
+            </div> --}}
+            <div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent border-0" style="height:119px;">
+        <div class="card-body text-center">
+            <div class="flex-grow-1">
+                <div class="metric-value">₱{{ number_format($totalRefunds, 2) }}</div>
+                <div class="metric-label">Total Refunds</div>
+                <div class="metric-change negative">
+                    Refund Rate: {{ $refundRate }}%
                 </div>
             </div>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 </div>
@@ -289,7 +302,7 @@
 {{-- Custom Styles --}}
 <style>
     .dashboard-container {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        
         min-height: 100vh;
         padding: 2rem 0;
         margin-top: 50px;
@@ -490,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: monthlySalesData.map(item => item.month),
             datasets: [
                 {
-                    label: 'Revenue ($)',
+                    label: 'Revenue (₱)',
                     data: monthlySalesData.map(item => item.revenue),
                     borderColor: '#667eea',
                     backgroundColor: 'rgba(102, 126, 234, 0.1)',

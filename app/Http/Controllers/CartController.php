@@ -7,6 +7,8 @@ use App\Models\Cart;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Product;
+use App\Notifications\ProductCheckedOut;
+
 class CartController extends Controller
 {
     public function index()
@@ -119,7 +121,10 @@ public function checkout()
                 'quantity' => $item->quantity,
                 'product_status' => 'Pending'
             ]);
-
+            // 🔔 Notify the seller (reseller) about checkout
+            if ($product->user) {
+                $product->user->notify(new ProductCheckedOut($order, $product));
+            }
             // Deduct quantity from product stock
             $product->decrement('quantity', $item->quantity);
         }

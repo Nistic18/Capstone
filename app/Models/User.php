@@ -63,5 +63,15 @@ public function orders()
 {
     return $this->hasMany(Order::class);
 }
+public function resellerApplications()
+{
+    return $this->hasMany(\App\Models\ResellerApplication::class, 'user_id');
+}
+
+public function latestResellerApplication()
+{
+    return $this->hasOne(\App\Models\ResellerApplication::class, 'user_id')->latestOfMany();
+}
+
 
 }

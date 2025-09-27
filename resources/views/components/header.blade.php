@@ -3,30 +3,65 @@
 <nav class="navbar navbar-expand-lg main-navbar">
     <!-- Sidebar Toggle Button on the Left -->
     <form class="form-inline mr-auto">
-          <ul class="navbar-nav mr-3">
+        <ul class="navbar-nav mr-3">
             <a href="#" data-toggle="sidebar" class="nav-link nav-link-lg">
-        <i class="fas fa-bars"></i></a>
-          </ul>
-        </form>
+                <i class="fas fa-bars"></i>
+            </a>
+        </ul>
+    </form>
+
     <!-- Right Side Navbar Items -->
     <ul class="navbar-nav ml-auto">
-          <ul class="navbar-nav ml-auto">
-            @php
+        @php
             $cart = session()->get('cart', []);
             $cartCount = \App\Models\Cart::where('user_id', auth()->id())->sum('quantity');
-            @endphp
-          <li class="nav-item">
-            <a href="{{ route('cart.index') }}" class="nav-link nav-link-lg beep beep-sidebar position-relative">
-            <i class="fas fa-shopping-cart fa-lg"></i>
-            @if($cartCount > 0)
-              <span class="badge badge-danger position-absolute top-0 start-100 translate-middle rounded-circle"
-                style="font-size: 0.6rem; padding: 5px 7px;">
-                {{ $cartCount }}
-              </span>
-            @endif
+            $unread = auth()->user()->unreadNotifications()->count();
+        @endphp
+
+        <!-- Cart -->
+        <li class="nav-item">
+            <a href="{{ route('cart.index') }}" class="nav-link nav-link-lg position-relative">
+                <i class="fas fa-shopping-cart fa-lg"></i>
+                @if($cartCount > 0)
+                    <span class="badge badge-danger position-absolute top-0 start-100 translate-middle rounded-circle"
+                          style="font-size: 0.6rem; padding: 5px 7px;">
+                        {{ $cartCount }}
+                    </span>
+                @endif
             </a>
-          </li>
-          <li class="dropdown">
+        </li>
+
+        <!-- Notifications -->
+        <li class="dropdown">
+            <a href="#" data-toggle="dropdown" class="nav-link nav-link-lg notification-toggle">
+                <i class="fas fa-bell fa-lg"></i>
+                @if($unread > 0)
+                    <span class="badge badge-danger position-absolute top-0 start-100 translate-middle rounded-circle"
+                          style="font-size: 0.6rem; padding: 5px 7px;">
+                        {{ $unread }}
+                    </span>
+                @endif
+            </a>
+            <div class="dropdown-menu dropdown-menu-right notification-dropdown">
+                <div class="dropdown-header">Notifications</div>
+                @forelse(auth()->user()->notifications()->latest()->take(5)->get() as $notification)
+                    <a href="{{ route('notifications.index') }}" class="dropdown-item {{ $notification->read_at ? '' : 'font-weight-bold' }}">
+                        <i class="fas fa-info-circle mr-2 text-primary"></i>
+                        {{ $notification->data['message'] ?? 'New notification' }}
+                        <br>
+                        <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                    </a>
+                @empty
+                    <div class="dropdown-item text-center text-muted">No notifications</div>
+                @endforelse
+                <div class="dropdown-footer text-center">
+                    <a href="{{ route('notifications.index') }}">View All</a>
+                </div>
+            </div>
+        </li>
+
+        <!-- User Menu -->
+        <li class="dropdown">
             <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
                 <img alt="image" src="{{ asset('img/avatar/avatar-1.png') }}" class="rounded-circle mr-1">
                 <div class="d-sm-none d-lg-inline-block">
@@ -37,10 +72,10 @@
                 <div class="dropdown-title">
                     Welcome, {{ substr(auth()->user()->name, 0, 10) }}
                 </div>
-                <a class="dropdown-item has-icon edit-profile" href="{{ route('profile.edit') }}">
+                <a class="dropdown-item has-icon" href="{{ route('profile.edit') }}">
                     <i class="fa fa-user"></i> Edit Profile
                 </a>
-                <a class="dropdown-item has-icon edit-profile" href="{{ route('profile.change-password') }}">
+                <a class="dropdown-item has-icon" href="{{ route('profile.change-password') }}">
                     <i class="fa fa-key"></i> Change Password
                 </a>
                 <div class="dropdown-divider"></div>
@@ -48,11 +83,31 @@
                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
+                @auth
+                @if(Auth::user()->role === 'buyer')
+                  <a class="dropdown-item has-icon" href="{{ route('reseller.apply') }}">
+                    <i class="fa fa-store"></i> Apply as Reseller
+                  </a>
+                @endif
+                @endauth
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                     @csrf
                 </form>
             </div>
-          </li>
+        </li>
     </ul>
 </nav>
+<style>
+.notification-dropdown {
+    min-width: 400px;   /* adjust size */
+    max-width: 400px;   /* don’t let it get too wide */
+    white-space: normal; /* wrap long messages */
+    padding: 10px;      /* add breathing space */
+}
+.notification-dropdown {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+</style>
 @endauth

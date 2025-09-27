@@ -50,8 +50,8 @@
 <script src="{{ asset('js/custom.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<!-- Modern Gemini Chat Widget -->
-<div id="gemini-chat-container" style="
+<!-- Modern Fish AI Chat Widget -->
+<div id="fish-ai-chat-container" style="
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -68,25 +68,17 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 20px rgba(144, 8, 178, 0.4);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
     ">
-        <!-- Gemini Logo/Icon -->
+        <!-- Fish Icon -->
         <div style="
-            width: 28px;
-            height: 28px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            font-weight: bold;
-            color: #667eea;
+            color: white;
+            font-size: 24px;
             transition: transform 0.3s ease;
-        ">G</div>
+        ">🐟</div>
         
         <!-- Notification Badge -->
         <div id="notification-badge" style="
@@ -140,10 +132,10 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-weight: bold;
-                ">G</div>
+                    font-size: 18px;
+                ">🐟</div>
                 <div>
-                    <div style="font-weight: 600; font-size: 16px;">Gemini Assistant</div>
+                    <div style="font-weight: 600; font-size: 16px;">Fish AI Assistant</div>
                     <div id="status-indicator" style="font-size: 12px; opacity: 0.8;">Online</div>
                 </div>
             </div>
@@ -178,7 +170,7 @@
             <!-- Welcome Message -->
             <div class="message bot-message">
                 <div class="message-content">
-                    Hello! I'm Gemini, your AI assistant. How can I help you today?
+                    Hello! I'm Fish AI, your intelligent fishing and aquaculture assistant. How can I help you today? 🐟
                 </div>
             </div>
         </div>
@@ -197,7 +189,7 @@
                 gap: 8px;
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             ">
-                <span style="font-size: 14px; color: #667eea;">Gemini is typing</span>
+                <span style="font-size: 14px; color: #764ba2;">Fish AI is typing</span>
                 <div class="typing-dots">
                     <div class="dot"></div>
                     <div class="dot"></div>
@@ -220,7 +212,7 @@
                 padding: 8px;
                 align-items: center;
             ">
-                <input type="text" id="chat-input" placeholder="Type your message..." style="
+                <input type="text" id="chat-input" placeholder="Ask about fish, fishing, or aquaculture..." style="
                     flex: 1;
                     border: none;
                     background: transparent;
@@ -294,7 +286,7 @@
 .dot {
     width: 4px;
     height: 4px;
-    background: #667eea;
+    background: #764ba2;
     border-radius: 50%;
     animation: typing 1.4s infinite ease-in-out;
 }
@@ -321,7 +313,7 @@
 /* Hover Effects */
 #chat-head:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 6px 25px rgba(8, 145, 178, 0.5);
 }
 
 #send-button:hover {
@@ -366,7 +358,6 @@ const notificationBadge = document.getElementById('notification-badge');
 let isOpen = false;
 let unreadCount = 0;
 
-
 // Toggle chat window
 function toggleChat() {
     isOpen = !isOpen;
@@ -407,7 +398,7 @@ function sendMessage() {
     showTypingIndicator();
 
     // Send to API
-    sendToGemini(message);
+    sendToFishAI(message);
 }
 
 // Append message to chat
@@ -448,8 +439,8 @@ function hideTypingIndicator() {
     statusIndicator.textContent = 'Online';
 }
 
-// Send to Gemini API
-async function sendToGemini(message) {
+// Send to Fish AI API
+async function sendToFishAI(message) {
     try {
         const response = await fetch('{{ route("gemini.generate") }}', {
             method: 'POST',

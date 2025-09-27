@@ -127,7 +127,7 @@
                         {{-- Price --}}
                         <div class="mb-3">
                             <span class="h4 fw-bold" style="color: #28a745;">
-                                ${{ number_format($product->price, 2) }}
+                                ₱{{ number_format($product->price, 2) }}
                             </span>
                             <small class="text-muted">/ piece</small>
                         </div>

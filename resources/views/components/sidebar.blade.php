@@ -2,10 +2,10 @@
 <div class="main-sidebar sidebar-style-2">
     <aside id="sidebar-wrapper">
         <div class="sidebar-brand">
-            <a href="">FISH MARKET</a>
+            <a href="{{ url('home') }}">FISH MARKET</a>
         </div>
         <div class="sidebar-brand sidebar-brand-sm">
-            <a href="">FISH</a>
+            <a href="{{ url('home') }}">FISH</a>
         </div>
 
         <ul class="sidebar-menu">
@@ -58,11 +58,6 @@
                     <i class="fas fa-box"></i><span>Orders</span>
                 </a> 
             </li>
-            <li class="{{ Request::is('dashboard') ? 'active' : '' }}"> 
-                <a class="nav-link" href="{{ url('dashboard') }}">
-                    <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
-                </a> 
-            </li>
             <li class="menu-header">Account</li> <li class="{{ Request::is('myprofile') ? 'active' : '' }}"> 
                 <a class="nav-link" href="{{ route('profile.myprofile', auth()->id()) }}">
                     <i class="fas fa-user-circle"></i><span>My Profile</span>
@@ -108,7 +103,7 @@
                     <i class="fas fa-comments"></i> <span>Chat</span>
                 </a>
             </li>
-            <li class="{{ Request::is('notifications') ? 'active' : '' }}">
+            {{-- <li class="{{ Request::is('notifications') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('notifications.index') }}">
                     <i class="fas fa-bell"></i><span>Notifications</span>
             @php
@@ -117,6 +112,11 @@
             @if($unread > 0)
             <span class="badge bg-danger">{{ $unread }}</span>
             @endif
+                </a>
+            </li> --}}
+            <li class="{{ Request::is('supplier/dashboard') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('supplier.dashboard') }}">
+                <i class="fas fa-tachometer-alt"></i><span>Analytics Dashboard</span>
                 </a>
             </li>
             @endif
@@ -154,7 +154,7 @@
                     <i class="fas fa-newspaper"></i><span>Newsfeed</span>
              </a>
             </li>
-            <li class="{{ Request::is('notifications') ? 'active' : '' }}">
+            {{-- <li class="{{ Request::is('notifications') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('notifications.index') }}">
                     <i class="fas fa-bell"></i><span>Notifications</span>
             @php
@@ -164,7 +164,7 @@
             <span class="badge bg-danger">{{ $unread }}</span>
             @endif
                 </a>
-            </li>
+            </li> --}}
             @endif
 
             {{-- Supplier Sidebar --}}
@@ -206,7 +206,7 @@
                     <i class="fas fa-newspaper"></i><span>Newsfeed</span>
              </a>
             </li>
-            <li class="{{ Request::is('notifications') ? 'active' : '' }}">
+            {{-- <li class="{{ Request::is('notifications') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('notifications.index') }}">
                     <i class="fas fa-bell"></i><span>Notifications</span>
             @php
@@ -216,7 +216,7 @@
             <span class="badge bg-danger">{{ $unread }}</span>
             @endif
                 </a>
-            </li>
+            </li> --}}
             <li class="{{ Request::is('supplier/dashboard') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('supplier.dashboard') }}">
                 <i class="fas fa-tachometer-alt"></i><span>Analytics Dashboard</span>
