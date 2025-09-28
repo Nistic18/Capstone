@@ -129,6 +129,12 @@
                         <i class="fas fa-home"></i><span>Home</span>
                     </a> 
                 </li>
+            <li class="{{ Request::is('orders') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ url('orders') }}">
+                    <i class="fas fa-box"></i><span>Orders</span>
+                </a> 
+            </li>
+            <li class="menu-header">Supplier</li>
             <li class="{{ Request::is('products/index') ? 'active' : '' }}"> 
                 <a class="nav-link" href="{{ url('products/index') }}">
                     <i class="fas fa-table"></i> <span>Reseller Manage Products</span>
@@ -138,6 +144,12 @@
                 <a class="nav-link" href="{{ route('supplier.orders') }}">
                     <i class="fas fa-fire"></i><span>Reseller Orders</span>
                 </a> 
+            </li>
+            <li class="menu-header">Account</li>
+            <li class="{{ Request::is('myprofile') ? 'active' : '' }}"> 
+                    <a class="nav-link" href="{{ route('profile.myprofile', auth()->id()) }}">
+                        <i class="fas fa-user-circle"></i><span>My Profile</span>
+                </a>
             </li>
             <li class="{{ Request::is('location-map') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('map') }}">
@@ -153,6 +165,11 @@
                 <a class="nav-link" href="{{ route('newsfeed.index') }}">
                     <i class="fas fa-newspaper"></i><span>Newsfeed</span>
              </a>
+            </li>
+            <li class="{{ Request::is('supplier/dashboard') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('supplier.dashboard') }}">
+                <i class="fas fa-tachometer-alt"></i><span>Analytics Dashboard</span>
+                </a>
             </li>
             {{-- <li class="{{ Request::is('notifications') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('notifications.index') }}">
@@ -178,7 +195,7 @@
                 <li class="menu-header">Supplier</li>
             <li class="{{ Request::is('products/index') ? 'active' : '' }}"> 
                 <a class="nav-link" href="{{ url('products/index') }}">
-                    <i class="fas fa-table"></i> <span>Reseller Manage Products</span>
+                    <i class="fas fa-table"></i> <span>Manage Products</span>
                 </a> 
             </li>
                 <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}">
@@ -186,7 +203,8 @@
                         <i class="fas fa-fire"></i><span>Orders</span>
                     </a>
                 </li>
-                <li class="menu-header">Account</li> <li class="{{ Request::is('myprofile') ? 'active' : '' }}"> 
+                <li class="menu-header">Account</li> 
+            <li class="{{ Request::is('myprofile') ? 'active' : '' }}"> 
                     <a class="nav-link" href="{{ route('profile.myprofile', auth()->id()) }}">
                         <i class="fas fa-user-circle"></i><span>My Profile</span>
                 </a>

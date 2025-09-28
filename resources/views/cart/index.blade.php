@@ -11,6 +11,10 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 @endpush
 @section('content')
+@php
+    $userAddress = auth()->user()->address ?? null;
+@endphp
+
 <div class="container mt-4">
     {{-- Breadcrumb Navigation --}}
     <nav aria-label="breadcrumb" class="mb-4">
@@ -189,16 +193,16 @@
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">Delivery Fee</span>
-                            <span class="fw-semibold text-success">FREE</span>
+                            <span class="fw-semibold text-success">₱{{ number_format($deliveryFee, 2) }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">Handling Fee</span>
                             <span class="fw-semibold text-success">FREE</span>
                         </div>
                         <hr class="my-3">
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mb-2">
                             <span class="h6 fw-bold">Total Amount</span>
-                            <span class="h5 fw-bold" style="color: #28a745;">₱{{ number_format($total, 2) }}</span>
+                            <span class="h5 fw-bold" style="color: #28a745;">₱{{ number_format($total + $deliveryFee, 2) }}</span>
                         </div>
                     </div>
 
@@ -215,14 +219,24 @@
                     </div>
 
                     {{-- Checkout Button --}}
-                    <form action="{{ route('cart.checkout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-lg w-100 mb-3" 
-                                style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997); border: none; color: white; padding: 12px;">
-                            <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
-                        </button>
-                    </form>
-
+@if($userAddress)
+    <form action="{{ route('cart.checkout') }}" method="POST">
+        @csrf
+        <button type="submit" class="btn btn-lg w-100 mb-3" 
+                style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997); border: none; color: white; padding: 12px;">
+            <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+        </button>
+    </form>
+@else
+    <div class="alert alert-warning text-center mb-3" style="border-radius: 10px;">
+        <i class="fas fa-exclamation-triangle me-1"></i>
+        Please add your delivery address before checkout.
+    </div>
+    <button type="button" class="btn btn-lg w-100 mb-3" 
+            style="border-radius: 15px; background: #ccc; border: none; color: #666; padding: 12px;" disabled>
+        <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+    </button>
+@endif
                     {{-- Continue Shopping --}}
                     <a href="{{ route('home') }}" class="btn btn-outline-primary w-100" 
                        style="border-radius: 15px; border-width: 2px;">

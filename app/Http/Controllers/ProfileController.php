@@ -13,9 +13,15 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
+        $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'address' => 'nullable|string|max:255',
+    ]);
         $user = Auth::user();
         $user->name = $request->input('name');
         $user->email = $request->input('email');
+        $user->address = $request->input('address');
         $user->save();
 
         return redirect()->route('profile.edit')->with('status', 'Profile successfully updated!');

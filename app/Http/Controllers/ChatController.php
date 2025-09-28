@@ -5,25 +5,38 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::where('id', '!=', auth()->id())->get(); // all users except self
+        $userId = auth()->id();
+        $receiver_id = $request->query('user'); // selected user
 
-        $receiver_id = $request->query('user'); // get selected user from query param
+        $users = User::whereIn('id', function ($query) use ($userId) {
+            $query->select('user_id')
+                  ->from('messages')
+                  ->where('receiver_id', $userId)
+                  ->union(
+                      DB::table('messages')
+                        ->select('receiver_id')
+                        ->where('user_id', $userId)
+                  );
+        })->where('id', '!=', $userId)
+          ->get();
+
         $messages = collect();
 
         if ($receiver_id) {
             $messages = Message::with('user')
-                ->where(function($q) use ($receiver_id) {
-                    $q->where('user_id', auth()->id())
+                ->where(function ($q) use ($receiver_id, $userId) {
+                    $q->where('user_id', $userId)
                       ->where('receiver_id', $receiver_id);
                 })
-                ->orWhere(function($q) use ($receiver_id) {
+                ->orWhere(function ($q) use ($receiver_id, $userId) {
                     $q->where('user_id', $receiver_id)
-                      ->where('receiver_id', auth()->id());
+                      ->where('receiver_id', $userId);
                 })
                 ->latest()
                 ->take(50)
@@ -34,33 +47,31 @@ class ChatController extends Controller
         return view('chat', compact('users', 'messages', 'receiver_id'));
     }
 
-public function send(Request $request)
-{
-    $request->validate([
-        'message' => 'nullable|string|max:1000',
-        'image' => 'nullable|image|max:2048', // max 2MB
-        'receiver_id' => 'required|exists:users,id',
-    ]);
+    public function send(Request $request)
+    {
+        $request->validate([
+            'message' => 'nullable|string|max:1000',
+            'image' => 'nullable|image|max:2048',
+            'receiver_id' => 'required|exists:users,id',
+        ]);
 
-    $imagePath = null;
-    if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('chat_images', 'public');
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('chat_images', 'public');
+        }
+
+        Message::create([
+            'user_id' => auth()->id(),
+            'receiver_id' => $request->receiver_id,
+            'content' => $request->message,
+            'image' => $imagePath,
+        ]);
+
+        return back()->withInput();
     }
 
-    Message::create([
-        'user_id' => auth()->id(),
-        'receiver_id' => $request->receiver_id,
-        'content' => $request->message,
-        'image' => $imagePath,
-    ]);
-
-    return back()->withInput();
-}
-
-public function history()
-{
-    return response()->json(session()->get('gemini_chat', []));
-}
-
-
+    public function history()
+    {
+        return response()->json(session()->get('gemini_chat', []));
+    }
 }

@@ -119,13 +119,18 @@
                             <i class="fas fa-receipt text-primary me-2"></i>
                             Order #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
                         </h5>
+                        <div class="d-flex flex-column mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i> Buyer: {{ $order->user->name }}
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-map-marker-alt me-1"></i> Address: {{ $order->user->address ?? 'N/A' }}
+                            </small>
+                        </div>
                         <div class="d-flex align-items-center gap-3">
                             <small class="text-muted">
                                 <i class="fas fa-calendar-alt me-1"></i>
                                 {{ $order->created_at->format('M d, Y') }} at {{ $order->created_at->format('h:i A') }}
-                            </small>
-                            <small class="text-muted">
-                                <i class="fas fa-fish me-1"></i>{{ $products->count() }} product{{ $products->count() !== 1 ? 's' : '' }}
                             </small>
                         </div>
                     </div>
@@ -142,7 +147,7 @@
                                 @endif
                             </span>
                             <h4 class="mb-0 fw-bold" style="color: #28a745;">
-                                ₱{{ number_format($order->total_price, 2) }}
+                                Total: ₱{{ number_format($order->total_price, 2) }}
                             </h4>
                         </div>
                     </div>

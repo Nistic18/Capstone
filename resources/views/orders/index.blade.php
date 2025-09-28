@@ -77,7 +77,7 @@
                                             <i class="{{ $statusConfig['icon'] }} me-1"></i>{{ $statusConfig['text'] }}
                                         </span>
                                         <h4 class="mb-0 fw-bold" style="color: #28a745;">
-                                            ₱{{ number_format($order->total_price, 2) }}
+                                            Total: ₱{{ number_format($order->total_price, 2) }}
                                         </h4>
                                     </div>
                                 </div>

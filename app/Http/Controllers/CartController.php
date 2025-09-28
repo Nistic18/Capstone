@@ -12,13 +12,24 @@ use App\Notifications\ProductCheckedOut;
 class CartController extends Controller
 {
     public function index()
-    {
-        $cart = Cart::with('product')
-            ->where('user_id', Auth::id())
-            ->get();
+{
+    $cart = Cart::with('product')
+        ->where('user_id', Auth::id())
+        ->get();
 
-        return view('cart.index', compact('cart'));
-    }
+    // Calculate total quantity
+    $totalQuantity = $cart->sum('quantity');
+
+    // Determine delivery fee
+    $deliveryFee = $totalQuantity >= 10 ? 100 : 50;
+
+    // Calculate total price
+    $total = $cart->sum(function($item) {
+        return $item->product->price * $item->quantity;
+    });
+
+    return view('cart.index', compact('cart', 'total', 'deliveryFee'));
+}
 
 
     public function add(Request $request, $productId)
@@ -93,12 +104,18 @@ public function checkout()
             return redirect()->back()->with('error', 'Your cart is empty.');
         }
 
-        $total = 0;
+        // Calculate total quantity and delivery fee
+        $totalQuantity = $cartItems->sum('quantity');
+        $deliveryFee = $totalQuantity >= 10 ? 100 : 50;
 
+        $totalProducts = 0;
+
+        // Create order with delivery fee
         $order = Order::create([
             'user_id' => Auth::id(),
             'status' => 'Pending',
-            'total_price' => 0 // will update later
+            'total_price' => 0, // temporary, will update after calculating total
+            'delivery_fee' => $deliveryFee
         ]);
 
         foreach ($cartItems as $item) {
@@ -108,31 +125,28 @@ public function checkout()
                 throw new \Exception("One of the products in your cart no longer exists.");
             }
 
-            // Validate stock
             if ($item->quantity > $product->quantity) {
                 throw new \Exception("Not enough stock for {$product->name}. Available: {$product->quantity}");
             }
 
-            // Calculate total
-            $total += $product->price * $item->quantity;
+            $totalProducts += $product->price * $item->quantity;
 
-            // Attach product to order with quantity and pending status
             $order->products()->attach($product->id, [
                 'quantity' => $item->quantity,
                 'product_status' => 'Pending'
             ]);
-            // 🔔 Notify the seller (reseller) about checkout
+
             if ($product->user) {
                 $product->user->notify(new ProductCheckedOut($order, $product));
             }
-            // Deduct quantity from product stock
+
             $product->decrement('quantity', $item->quantity);
         }
 
-        // Update total price in order
-        $order->update(['total_price' => $total]);
+        // Update order total including delivery fee
+        $order->update(['total_price' => $totalProducts + $deliveryFee]);
 
-        // Clear user's cart
+        // Clear cart
         Cart::where('user_id', Auth::id())->delete();
 
         DB::commit();

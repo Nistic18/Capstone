@@ -16,7 +16,14 @@
                 <i class="fas fa-calendar-alt me-2"></i>
                 Member since {{ $user->created_at->format('F Y') }}
             </p>
-
+            {{-- Chat Here Button --}}
+<div class="text-center mt-4">
+    <a href="{{ route('chat.index', ['user' => $user->id]) }}" 
+       class="btn btn-primary btn-lg" 
+       style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #764ba2);">
+        <i class="fas fa-comments me-2"></i> Chat Here
+    </a>
+</div>
             {{-- Overall Average Rating --}}
             @php
                 $allReviews = $user->products->flatMap->reviews; 

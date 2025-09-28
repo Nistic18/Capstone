@@ -230,39 +230,47 @@
                     @endif
 
                     {{-- Action Buttons --}}
-                    <div class="mt-auto">
-                        @if($product->quantity > 0)
-                            @if($inCart)
-                                <div class="alert alert-warning d-flex align-items-center" style="border-radius: 15px;">
-                                    <i class="fas fa-shopping-cart me-2"></i>
-                                    <span>This item is already in your cart!</span>
-                                </div>
-                            @else
-                                <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mb-3">
-                                    @csrf
-                                    <div class="row g-3">
-                                        <div class="col-4">
-                                            <label for="quantity" class="form-label fw-semibold">Quantity</label>
-                                            <input type="number" id="quantity" name="quantity" value="1" 
-                                                   min="1" max="{{ $product->quantity }}"
-                                                   class="form-control form-control-lg text-center" 
-                                                   style="border-radius: 15px; border: 2px solid #e9ecef;">
-                                        </div>
-                                        <div class="col-8 d-flex align-items-end">
-                                            <button type="submit" class="btn btn-lg w-100" 
-                                                    style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997); border: none; color: white;">
-                                                <i class="fas fa-cart-plus me-2"></i>Add to Cart
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            @endif
-                        @else
-                            <div class="alert alert-danger d-flex align-items-center" style="border-radius: 15px;">
-                                <i class="fas fa-times-circle me-2"></i>
-                                <span>Currently out of stock. Check back later!</span>
-                            </div>
-                        @endif
+                    {{-- Action Buttons --}}
+<div class="mt-auto">
+    @if($product->quantity > 0)
+        @if(auth()->id() === $product->user_id)
+            <div class="alert alert-warning d-flex align-items-center" style="border-radius: 15px;">
+                <i class="fas fa-ban me-2"></i>
+                <span>You cannot purchase your own product.</span>
+            </div>
+        @elseif($inCart)
+            <div class="alert alert-warning d-flex align-items-center" style="border-radius: 15px;">
+                <i class="fas fa-shopping-cart me-2"></i>
+                <span>This item is already in your cart!</span>
+            </div>
+        @else
+            <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mb-3">
+                @csrf
+                <div class="row g-3">
+                    <div class="col-4">
+                        <label for="quantity" class="form-label fw-semibold">Quantity</label>
+                        <input type="number" id="quantity" name="quantity" value="1" 
+                               min="1" max="{{ $product->quantity }}"
+                               class="form-control form-control-lg text-center" 
+                               style="border-radius: 15px; border: 2px solid #e9ecef;">
+                    </div>
+                    <div class="col-8 d-flex align-items-end">
+                        <button type="submit" class="btn btn-lg w-100" 
+                                style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997); border: none; color: white;">
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </form>
+        @endif
+    @else
+        <div class="alert alert-danger d-flex align-items-center" style="border-radius: 15px;">
+            <i class="fas fa-times-circle me-2"></i>
+            <span>Currently out of stock. Check back later!</span>
+        </div>
+    @endif
+</div>
+
 
                         {{-- Navigation Buttons --}}
                         <div class="row g-2 mt-3">

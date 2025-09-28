@@ -40,6 +40,10 @@
                         <i class="fas fa-user me-1"></i>
                         Ordered by: {{ $order->user->name }}
                     </small>
+                    <small class="text-muted d-block">
+                        <i class="fas fa-map-marker-alt me-1"></i>
+                        Address: {{ $order->user->address ?? 'N/A' }}
+                    </small>
                 </div>
                 <div class="col-md-6 text-md-end mt-2 mt-md-0">
                     @php

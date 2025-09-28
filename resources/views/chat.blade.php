@@ -84,31 +84,31 @@
         </div>
 
         {{-- Chat Area --}}
-        <div class="col-xl-8 col-lg-7">
-            <div class="card border-0 shadow-lg h-100" style="border-radius: 20px;">
-                @if($receiver_id)
-                    {{-- Chat Header --}}
-                    <div class="card-header border-0 py-3" style="background: linear-gradient(45deg, #f8f9fa, #e9ecef); border-radius: 20px 20px 0 0;">
-                        <div class="d-flex align-items-center">
-                            @php
-                                $receiver = $users->find($receiver_id);
-                            @endphp
-                            
-                            @if($receiver)
-                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-                                     style="width: 40px; height: 40px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; font-weight: bold;">
-                                    {{ strtoupper(substr($receiver->name, 0, 1)) }}
-                                </div>
-                                <div>
-                                    <h5 class="mb-0 fw-bold" style="color: #2c3e50;">{{ $receiver->name }}</h5>
-                                    <small class="text-muted">
-                                        <i class="fas fa-circle me-1" style="color: #28a745; font-size: 0.5rem;"></i>
-                                        Online • {{ ucfirst($receiver->role ?? 'User') }}
-                                    </small>
-                                </div>
-                            @endif
+<div class="col-xl-8 col-lg-7">
+    <div class="card border-0 shadow-lg h-100" style="border-radius: 20px;">
+        @if($receiver_id)
+            {{-- Chat Header --}}
+            <div class="card-header border-0 py-3" style="background: linear-gradient(45deg, #f8f9fa, #e9ecef); border-radius: 20px 20px 0 0;">
+                <div class="d-flex align-items-center">
+                    @php
+                        $receiver = \App\Models\User::find($receiver_id);
+                    @endphp
+
+                    @if($receiver)
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                             style="width: 40px; height: 40px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; font-weight: bold;">
+                            {{ strtoupper(substr($receiver->name, 0, 1)) }}
                         </div>
-                    </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold" style="color: #2c3e50;">{{ $receiver->name }}</h5>
+                            <small class="text-muted">
+                                <i class="fas fa-circle me-1" style="color: #28a745; font-size: 0.5rem;"></i>
+                                Online • {{ ucfirst($receiver->role ?? 'User') }}
+                            </small>
+                        </div>
+                    @endif
+                </div>
+            </div>
 
                     {{-- Chat Messages --}}
                     <div class="card-body p-0 d-flex flex-column" style="height: 500px;">
