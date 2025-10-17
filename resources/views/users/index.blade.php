@@ -122,9 +122,9 @@
                                 <th class="border-0 py-3 px-4" style="color: #2c3e50; font-weight: 600;">
                                     <i class="fas fa-store me-2" style="color: #667eea;"></i>Reseller Status
                                 </th>
-                                <th class="border-0 py-3 px-4 text-center" style="color: #2c3e50; font-weight: 600;">
+                                {{-- <th class="border-0 py-3 px-4 text-center" style="color: #2c3e50; font-weight: 600;">
                                     <i class="fas fa-cogs me-2" style="color: #667eea;"></i>Actions
-                                </th>
+                                </th> --}}
                             </tr>
                         </thead>
                         <tbody>
@@ -197,7 +197,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                {{-- Reseller Status --}}
+                                {{-- Reseller Status
 <td class="px-4 py-4">
     @if($user->latestResellerApplication)
         @if($user->latestResellerApplication->status == 'pending')
@@ -210,7 +210,7 @@
     @else
         <span class="badge bg-secondary">No Application</span>
     @endif
-</td>
+</td> --}}
                                 {{-- Actions --}}
 <td class="px-4 py-4 text-center">
     <div class="d-flex justify-content-center gap-2 flex-wrap">
@@ -240,7 +240,7 @@
         </form>
 
         {{-- ✅ View Document Button - MOVED UP AND IMPROVED --}}
-        @if($user->latestResellerApplication)
+        {{-- @if($user->latestResellerApplication)
     <a href="{{ asset('storage/' . $user->latestResellerApplication->valid_id_path) }}" target="_blank" 
        class="btn btn-sm btn-outline-info">
         <i class="fas fa-id-card"></i> Valid ID
@@ -253,10 +253,10 @@
        class="btn btn-sm btn-outline-info">
         <i class="fas fa-file-alt"></i> Other
     </a>
-@endif
+@endif --}}
 
 
-        {{-- Approval/Rejection Buttons --}}
+        {{-- Approval/Rejection Buttons
 @if($user->latestResellerApplication && $user->latestResellerApplication->status == 'pending')
     <form action="{{ route('users.approveReseller', $user->id) }}" method="POST" class="d-inline">
         @csrf
@@ -274,7 +274,7 @@
             <i class="fas fa-times"></i>
         </button>
     </form>
-@endif
+@endif --}}
 
 
     </div>

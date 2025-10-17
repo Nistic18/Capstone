@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('reseller_applications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('valid_id_path');
-            $table->string('business_path');
-            $table->string('other_doc_path');
+            $table->string('email_address');
+            $table->string('business_name');
+            $table->string('address');
+            $table->string('country');
+            $table->string('province');
+            $table->string('zip_code');
+            $table->string('business_license_id');
+            $table->string('phone_number');
+            $table->string('pdf_file'); // path or filename of uploaded PDF
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
         });

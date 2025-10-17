@@ -9,10 +9,15 @@ class ResellerApplication extends Model
     use HasFactory;
 
     protected $fillable = [
-    'user_id',
-    'valid_id_path',
-    'business_path',
-    'other_doc_path',
+    'email_address',
+    'business_name',
+    'address',
+    'country',
+    'province',
+    'zip_code',
+    'business_license_id',
+    'phone_number',
+    'pdf_file',
     'status',
     'rejection_reason',
 ];

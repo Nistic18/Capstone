@@ -39,11 +39,6 @@
                         <i class="fas fa-newspaper"></i><span>Newsfeed</span>
                     </a>
                 </li>
-            <li class="{{ Request::is('chat') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('chat.index') }}">
-                    <i class="fas fa-comments"></i> <span>Chat</span>
-                </a>
-            </li>
             @endif
 
             {{-- Admin Sidebar --}}
@@ -98,11 +93,6 @@
                     <i class="fas fa-newspaper"></i><span>Newsfeed</span>
              </a>
             </li>
-            <li class="{{ Request::is('chat') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('chat.index') }}">
-                    <i class="fas fa-comments"></i> <span>Chat</span>
-                </a>
-            </li>
             {{-- <li class="{{ Request::is('notifications') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('notifications.index') }}">
                     <i class="fas fa-bell"></i><span>Notifications</span>
@@ -156,11 +146,6 @@
                     <i class="fas fa-map-marked-alt"></i><span>Map Location</span>
             </a>
             </li>
-            <li class="{{ Request::is('chat') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('chat.index') }}">
-                    <i class="fas fa-comments"></i> <span>Chat</span>
-                </a>
-            </li>
             <li class="{{ Request::is('newsfeed') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('newsfeed.index') }}">
                     <i class="fas fa-newspaper"></i><span>Newsfeed</span>
@@ -213,11 +198,6 @@
                 <a class="nav-link" href="{{ route('map') }}">
                     <i class="fas fa-map-marked-alt"></i><span>Map Location</span>
             </a>
-            </li>
-            <li class="{{ Request::is('chat') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('chat.index') }}">
-                    <i class="fas fa-comments"></i> <span>Chat</span>
-                </a>
             </li>
             <li class="{{ Request::is('newsfeed') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('newsfeed.index') }}">

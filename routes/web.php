@@ -13,13 +13,21 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ResellerApplicationController;
+use App\Http\Controllers\Admin\AdminResellerController;
 Route::get('/', function () {
-    return view('auth.login');
-});
+    if (Auth::check()) {
+        return redirect()->route('home');
+    }
+    return view('landing');
+})->name('landing');
+// Keep Auth::routes() but add explicit login route
 Auth::routes();
 
+// Explicitly define login route (in case Auth::routes() doesn't work)
+Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
+
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', [ProductController::class, 'home'])->name('home');
     Route::get('/home', [App\Http\Controllers\ProductController::class, 'home'])->name('home');
     Route::view('/dashboard', 'dashboard')->name('dashboard');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -125,10 +133,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
 
-Route::middleware('auth')->group(function () {
-    Route::get('/reseller/apply', [ResellerApplicationController::class, 'create'])->name('reseller.apply');
-    Route::post('/reseller/apply', [ResellerApplicationController::class, 'store'])->name('reseller.store');
-});
+
+Route::post('/reseller/apply', [ResellerApplicationController::class, 'store'])->name('reseller.store');
+Route::get('/reseller/apply', [ResellerApplicationController::class, 'create'])->name('reseller.create');
+Route::post('/reseller/apply', [ResellerApplicationController::class, 'store'])->name('reseller.store');
+
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/users/{id}/approve-reseller', [UserController::class, 'approveReseller'])->name('users.approveReseller');
     Route::post('/users/{id}/reject-reseller', [UserController::class, 'rejectReseller'])->name('users.rejectReseller');
@@ -140,4 +149,12 @@ Route::post('/orders/{order}/refund/approve', [OrderController::class, 'approveR
 Route::post('/orders/{order}/refund/decline', [OrderController::class, 'declineRefund'])
     ->name('orders.refund.decline');
 
+
+// Admin Routes (add middleware for admin authentication)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/reseller-applications', [AdminResellerController::class, 'index'])->name('reseller.index');
+    Route::get('/reseller-applications/{id}', [AdminResellerController::class, 'show'])->name('reseller.show');
+    Route::post('/reseller-applications/{id}/approve', [AdminResellerController::class, 'approve'])->name('reseller.approve');
+    Route::post('/reseller-applications/{id}/reject', [AdminResellerController::class, 'reject'])->name('reseller.reject');
+});
 

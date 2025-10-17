@@ -31,6 +31,13 @@
             </a>
         </li>
 
+        <!-- Chat Icon Only (No Text) -->
+        <li class="nav-item {{ Request::is('chat') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('chat.index') }}">
+                <i class="fas fa-comments fa-lg"></i> <!-- Added fa-lg for consistent icon size -->
+            </a>
+        </li>
+
         <!-- Notifications -->
         <li class="dropdown">
             <a href="#" data-toggle="dropdown" class="nav-link nav-link-lg notification-toggle">
@@ -97,6 +104,7 @@
         </li>
     </ul>
 </nav>
+
 <style>
 .notification-dropdown {
     min-width: 400px;   /* adjust size */
@@ -108,6 +116,6 @@
     max-height: 400px;
     overflow-y: auto;
 }
-
 </style>
+
 @endauth
