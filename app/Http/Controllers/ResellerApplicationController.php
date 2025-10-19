@@ -6,6 +6,7 @@ use App\Models\ResellerApplication;
 use App\Mail\ResellerApplicationSubmitted;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class ResellerApplicationController extends Controller
 {
@@ -81,9 +82,9 @@ class ResellerApplicationController extends Controller
                 ->send(new ResellerApplicationSubmitted($application));
         } catch (\Exception $e) {
             // Log the error but don't stop the application process
-            \Log::error('Failed to send reseller application email: ' . $e->getMessage());
+            Log::error('Failed to send reseller application email: ' . $e->getMessage());
         }
 
-        return redirect()->route('reseller.create')->with('success', 'Your reseller application has been submitted successfully. Please check your email for confirmation.');
+        return redirect()->route('reseller.create')->with('success', 'Your Supplier application has been submitted successfully. Please check your email for confirmation.');
     }
 }

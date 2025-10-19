@@ -43,27 +43,28 @@
 
             {{-- Admin Sidebar --}}
             @if(auth()->user()->role === 'admin')
-            <li class="menu-header">Home</li> <li class="{{ Request::is('home') ? 'active' : '' }}"> 
-                <a class="nav-link" href="{{ url('home') }}">
-                    <i class="fas fa-home"></i><span>Buyer Home</span>
-                </a> 
-            </li>
-            <li class="{{ Request::is('orders') ? 'active' : '' }}"> 
-                <a class="nav-link" href="{{ url('orders') }}">
-                    <i class="fas fa-box"></i><span>Orders</span>
-                </a> 
-            </li>
-            <li class="menu-header">Account</li> <li class="{{ Request::is('myprofile') ? 'active' : '' }}"> 
-                <a class="nav-link" href="{{ route('profile.myprofile', auth()->id()) }}">
-                    <i class="fas fa-user-circle"></i><span>My Profile</span>
-                </a>
-            </li>
-            <li class="menu-header">Manage</li> <li class="{{ Request::routeIs('users.index') ? 'active' : '' }}"> 
+            <li class="menu-header">Manage</li> 
+            <li class="{{ Request::routeIs('users.index') ? 'active' : '' }}"> 
                 <a class="nav-link" href="{{ route('users.index') }}">
                     <i class="far fa-user"></i> <span>Admin User Manage</span>
                 </a> 
             </li>
-            <li class="{{ Request::is('products/index') ? 'active' : '' }}"> 
+                <li class="{{ Request::is('admin/landing*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('admin.landing.index') }}">
+                        <i class="fas fa-globe"></i><span>Landing Page Content</span>
+                    </a>
+                </li>
+            {{-- <li class="{{ Request::is('orders') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ url('orders') }}">
+                    <i class="fas fa-box"></i><span>Orders</span>
+                </a> 
+            </li> --}}
+            {{-- <li class="menu-header">Account</li> <li class="{{ Request::is('myprofile') ? 'active' : '' }}"> 
+                <a class="nav-link" href="{{ route('profile.myprofile', auth()->id()) }}">
+                    <i class="fas fa-user-circle"></i><span>My Profile</span>
+                </a>
+            </li> --}}
+            {{-- <li class="{{ Request::is('products/index') ? 'active' : '' }}"> 
                 <a class="nav-link" href="{{ url('products/index') }}">
                     <i class="fas fa-table"></i> <span>Reseller Manage Products</span>
                 </a> 
@@ -72,7 +73,7 @@
                 <a class="nav-link" href="{{ route('supplier.orders') }}">
                     <i class="fas fa-fire"></i><span>Reseller Orders</span>
                 </a> 
-            </li>
+            </li> --}}
             {{-- <li class="{{ Request::is('supplierproduct/index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ url('supplierproduct/index') }}">
                     <i class="fas fa-table"></i> <span>Supplier Manage Products</span>
@@ -88,9 +89,20 @@
                     <i class="fas fa-map-marked-alt"></i><span>Map Location</span>
             </a>
             </li>
+            <li class="menu-header">Community Management</li>
+            <li class="{{ Request::is('admin/posts/review') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('admin.posts.review') }}">
+                    <i class="fas fa-users"></i> <span>Review Posts</span>
+                </a>
+            </li>
             <li class="{{ Request::is('newsfeed') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('newsfeed.index') }}">
-                    <i class="fas fa-newspaper"></i><span>Newsfeed</span>
+                    <i class="fas fa-newspaper"></i><span>Community Newsfeed</span>
+             </a>
+            </li>
+            <li class="{{ Request::is('newsfeedsupplier') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('newsfeedsupplier.index') }}">
+                    <i class="fas fa-newspaper"></i><span>Supplier Community Newsfeed</span>
              </a>
             </li>
             {{-- <li class="{{ Request::is('notifications') ? 'active' : '' }}">
@@ -172,21 +184,27 @@
             {{-- Supplier Sidebar --}}
             @if(auth()->user()->role === 'supplier')
                 <li class="menu-header">Home</li> 
-                <li class="{{ Request::is('home') ? 'active' : '' }}"> 
-                    <a class="nav-link" href="{{ url('home') }}">
-                        <i class="fas fa-home"></i><span>Home</span>
-                    </a> 
+                <li class="{{ Request::is('supplier/dashboard') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('supplier.dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i><span>Home Dashboard</span>
+                    </a>
                 </li>
-                <li class="menu-header">Supplier</li>
+                <li class="menu-header">Products</li>
             <li class="{{ Request::is('products/index') ? 'active' : '' }}"> 
                 <a class="nav-link" href="{{ url('products/index') }}">
                     <i class="fas fa-table"></i> <span>Manage Products</span>
                 </a> 
             </li>
-                <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}">
+            <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('supplier.orders') }}">
                         <i class="fas fa-fire"></i><span>Orders</span>
                     </a>
+                </li>
+                <li class="menu-header">Inventory</li>
+                    <li class="{{ Request::is('inventory*') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('inventory.index') }}">
+                        <i class="fas fa-boxes"></i><span>Inventory Management</span>
+                     </a>
                 </li>
                 <li class="menu-header">Account</li> 
             <li class="{{ Request::is('myprofile') ? 'active' : '' }}"> 
@@ -194,14 +212,25 @@
                         <i class="fas fa-user-circle"></i><span>My Profile</span>
                 </a>
             </li>
+            <li class="{{ Request::is('profile/reviews') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('profile.reviews') }}">
+                    <i class="fas fa-user-circle"></i><span>Reviews</span>
+                </a>
+            </li>
                 <li class="{{ Request::is('location-map') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('map') }}">
                     <i class="fas fa-map-marked-alt"></i><span>Map Location</span>
             </a>
             </li>
+            <li class="menu-header">Community</li>
             <li class="{{ Request::is('newsfeed') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('newsfeed.index') }}">
-                    <i class="fas fa-newspaper"></i><span>Newsfeed</span>
+                    <i class="fas fa-newspaper"></i><span>Community Newsfeed</span>
+             </a>
+            </li>
+            <li class="{{ Request::is('newsfeedsupplier') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('newsfeedsupplier.index') }}">
+                    <i class="fas fa-newspaper"></i><span>Supplier Community Newsfeed</span>
              </a>
             </li>
             {{-- <li class="{{ Request::is('notifications') ? 'active' : '' }}">
@@ -215,11 +244,6 @@
             @endif
                 </a>
             </li> --}}
-            <li class="{{ Request::is('supplier/dashboard') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('supplier.dashboard') }}">
-                <i class="fas fa-tachometer-alt"></i><span>Analytics Dashboard</span>
-                </a>
-            </li>
             @endif
         </ul>
     </aside>

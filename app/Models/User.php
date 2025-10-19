@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,11 +10,6 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -24,23 +18,14 @@ class User extends Authenticatable
         'latitude',
         'longitude',
         'address',
+        'phone',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -48,31 +33,34 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
     public function products()
-{
-    return $this->hasMany(Product::class);
-}
+    {
+        return $this->hasMany(Product::class);
+    }
+
     public function reviews()
-{
-    return $this->hasMany(Review::class);
-}
-public function posts()
-{
-    return $this->hasMany(Post::class);
-}
-public function orders()
-{
-    return $this->hasMany(Order::class);
-}
-public function resellerApplications()
-{
-    return $this->hasMany(\App\Models\ResellerApplication::class, 'user_id');
-}
+    {
+        return $this->hasMany(Review::class);
+    }
 
-public function latestResellerApplication()
-{
-    return $this->hasOne(\App\Models\ResellerApplication::class, 'user_id')->latestOfMany();
-}
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 
+    public function resellerApplications()
+    {
+        return $this->hasMany(ResellerApplication::class, 'user_id');
+    }
+
+    public function latestResellerApplication()
+    {
+        return $this->hasOne(ResellerApplication::class, 'user_id')->latestOfMany();
+    }
 }

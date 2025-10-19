@@ -263,6 +263,31 @@
         </div>
     @endif
 </div>
+
+{{-- Cancel Order Section --}}
+<div class="row g-2 mt-3">
+    @if($order->status !== 'Delivered' && $order->status !== 'Cancelled' && $order->status !== 'Shipped')
+        <div class="col-md-6">
+            <form action="{{ route('orders.cancel', $order->id) }}" method="POST">
+                @csrf
+                <div class="mb-2">
+                    <textarea name="cancel_reason" class="form-control" placeholder="Reason for cancellation" required style="border-radius: 10px;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-outline-danger w-100" style="border-radius: 15px;">
+                    <i class="fas fa-times-circle me-2"></i>Cancel Order
+                </button>
+            </form>
+        </div>
+    @elseif($order->status === 'Cancelled')
+        <div class="col-12">
+            <div class="alert alert-danger border-0" style="border-radius: 15px;">
+                <i class="fas fa-times-circle me-2"></i>
+                Order cancelled. Reason: <strong>{{ $order->cancel_reason }}</strong>
+            </div>
+        </div>
+    @endif
+</div>
+
                         </div>
                     </div>
                 </div>

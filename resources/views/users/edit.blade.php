@@ -104,9 +104,6 @@
                                     <option value="buyer" {{ old('role', $user->role) === 'buyer' ? 'selected' : '' }}>
                                         🛒 Buyer
                                     </option>
-                                    <option value="reseller" {{ old('role', $user->role) === 'reseller' ? 'selected' : '' }}>
-                                        🏪 Reseller
-                                    </option>
                                     <option value="supplier" {{ old('role', $user->role) === 'supplier' ? 'selected' : '' }}>
                                         🚚 Supplier
                                     </option>
@@ -143,10 +140,6 @@
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="d-flex align-items-center mb-1">
-                                                <span class="badge bg-success me-2">🏪</span>
-                                                <strong>Reseller:</strong> Buy and sell products
-                                            </div>
                                             <div class="d-flex align-items-center mb-1">
                                                 <span class="badge bg-warning me-2">🚚</span>
                                                 <strong>Supplier:</strong> Wholesale provider

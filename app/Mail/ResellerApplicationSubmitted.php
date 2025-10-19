@@ -29,7 +29,7 @@ class ResellerApplicationSubmitted extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reseller Application Received',
+            subject: 'Supplier Application Received',
         );
     }
 
@@ -49,5 +49,11 @@ class ResellerApplicationSubmitted extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+    public function build()
+    {
+    return $this->from('support@yourdomain.com', 'Fish Market')
+                ->subject('Supplier Application Submitted')
+                ->view('emails.Supplier.submitted');
     }
 }

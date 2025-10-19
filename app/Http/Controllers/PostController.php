@@ -9,7 +9,19 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::with(['user', 'comments.user', 'reactions'])->latest()->paginate(10);
+        $user = auth()->user();
+        $query = Post::with(['user', 'comments.user', 'reactions'])->latest();
+
+        // If not admin, show only approved posts + user's own posts
+        if (!$user->is_admin) {
+            $query->where(function ($q) use ($user) {
+                $q->where('status', 'approved')
+                    ->orWhere('user_id', $user->id);
+        });
+    }
+
+        $posts = $query->paginate(10);
+
         return view('newsfeed.index', compact('posts'));
     }
 
@@ -33,6 +45,7 @@ class PostController extends Controller
             'title' => $request->title,
             'content' => $request->content,
             'image' => $path,
+            'status' => 'pending',
         ]);
 
         return redirect()->route('newsfeed.index')->with('success', 'Post created successfully!');

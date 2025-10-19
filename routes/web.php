@@ -10,10 +10,16 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SupplierProductController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\SupplierPostController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ResellerApplicationController;
 use App\Http\Controllers\Admin\AdminResellerController;
+use App\Http\Controllers\Admin\LandingPageController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\ReviewController;
+
+
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('home');
@@ -111,7 +117,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/newsfeed/{post}/react', [PostController::class, 'react'])->name('newsfeed.react');
     Route::post('/newsfeed/{post}/comment', [PostController::class, 'comment'])->name('newsfeed.comment');
 });
-
+Route::middleware(['auth'])->group(function () {
+    Route::get('/newsfeedsupplier', [SupplierPostController::class, 'index'])->name('newsfeedsupplier.index');
+    Route::get('/newsfeedsupplier/create', [SupplierPostController::class, 'create'])->name('newsfeedsupplier.create');
+    Route::post('/newsfeedsupplier', [SupplierPostController::class, 'store'])->name('newsfeedsupplier.store');
+    Route::get('/newsfeedsupplier/{post}', [SupplierPostController::class, 'show'])->name('newsfeedsupplier.show');
+    Route::get('/newsfeedsupplier/{post}/edit', [SupplierPostController::class, 'edit'])->name('newsfeedsupplier.edit');
+    Route::put('/newsfeedsupplier/{post}', [SupplierPostController::class, 'update'])->name('newsfeedsupplier.update');
+    Route::delete('/newsfeedsupplier/{post}', [SupplierPostController::class, 'destroy'])->name('newsfeedsupplier.destroy');
+    Route::post('/newsfeedsupplier/{post}/react', [SupplierPostController::class, 'react'])->name('newsfeedsupplier.react');
+    Route::post('/newsfeedsupplier/{post}/comment', [SupplierPostController::class, 'comment'])->name('newsfeedsupplier.comment');
+});
 
 Route::post('/gemini/generate', [App\Http\Controllers\GeminiController::class, 'generate'])->name('gemini.generate');
 Route::get('/gemini/history', [App\Http\Controllers\GeminiController::class, 'history'])->name('gemini.history');
@@ -158,3 +174,53 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/reseller-applications/{id}/reject', [AdminResellerController::class, 'reject'])->name('reseller.reject');
 });
 
+// Supplier Application Management (Admin only)
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::post('/users/approve-supplier/{application}', [UserController::class, 'approveSupplier'])
+        ->name('users.approveSupplier');
+    
+    Route::post('/users/reject-supplier/{application}', [UserController::class, 'rejectSupplier'])
+        ->name('users.rejectSupplier');
+});
+
+
+
+// Existing routes...
+Route::resource('newsfeed', PostController::class);
+
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/posts/review', [App\Http\Controllers\Admin\PostReviewController::class, 'index'])->name('admin.posts.review');
+    Route::post('/posts/approve', [App\Http\Controllers\Admin\PostReviewController::class, 'approve'])->name('admin.posts.approve');
+    Route::post('/posts/reject', [App\Http\Controllers\Admin\PostReviewController::class, 'reject'])->name('admin.posts.reject');
+});
+
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/landing', [LandingPageController::class, 'index'])->name('landing.index');
+    Route::get('/landing/{section}/edit', [LandingPageController::class, 'edit'])->name('landing.edit');
+    Route::post('/landing/{section}/update', [LandingPageController::class, 'update'])->name('landing.update');
+});
+
+Route::middleware(['auth'])->group(function () {
+    
+    // Inventory Management Routes
+    Route::prefix('inventory')->name('inventory.')->group(function () {
+        Route::get('/', [InventoryController::class, 'index'])->name('index');
+        Route::post('/{product}/adjust', [InventoryController::class, 'adjust'])->name('adjust');
+        Route::post('/{product}/threshold', [InventoryController::class, 'updateThreshold'])->name('updateThreshold');
+        Route::get('/{product}/history', [InventoryController::class, 'history'])->name('history');
+        Route::post('/bulk-adjust', [InventoryController::class, 'bulkAdjust'])->name('bulkAdjust');
+    });
+    
+    // Existing Product Routes
+    Route::resource('products', ProductController::class);
+});
+
+Route::post('/orders/{order}/cancel', [OrderController::class, 'cancelOrder'])
+    ->name('orders.cancel')
+    ->middleware('auth');
+Route::put('/supplier/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('supplier.orders.cancel');
+
+Route::get('/profile/me/reviews', [ReviewController::class, 'index'])
+     ->name('profile.reviews')
+     ->middleware('auth');

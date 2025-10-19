@@ -17,11 +17,13 @@ class ProfileController extends Controller
         'name' => 'required|string|max:255',
         'email' => 'required|email|max:255',
         'address' => 'nullable|string|max:255',
+        'phone' => 'nullable|string|max:11',
     ]);
         $user = Auth::user();
         $user->name = $request->input('name');
         $user->email = $request->input('email');
         $user->address = $request->input('address');
+        $user->phone = $request->input('phone');
         $user->save();
 
         return redirect()->route('profile.edit')->with('status', 'Profile successfully updated!');

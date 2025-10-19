@@ -32,12 +32,5 @@ class UserSeeder extends Seeder
             'password' => Hash::make('supplier123'),
             'role' => 'supplier',
         ]);
-        // Reseller user account
-        User::create([
-            'name' => 'Reseller User',
-            'email' => 'reseller@example.com',
-            'password' => Hash::make('reseller123'),
-            'role' => 'reseller',
-        ]);
     }
 }

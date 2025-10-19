@@ -34,6 +34,7 @@
 
     {{-- Quick Stats --}}
     @php
+        $activeOrders = $orders->filter(fn($order) => $order->status !== 'Cancelled');
         $totalOrders = $orders->count();
         $pendingOrders = $orders->filter(function($order) {
             return $order->products->some(fn($p) => $p->pivot->product_status === 'Pending');
@@ -41,7 +42,9 @@
         $completedOrders = $orders->filter(function($order) {
             return $order->products->every(fn($p) => $p->pivot->product_status === 'Delivered');
         })->count();
-        $totalRevenue = $orders->sum('total_price');
+        $cancelOrders = $orders->filter(function($order) {
+            return $order->products->every(fn($p) => $p->pivot->product_status === 'Cancelled');
+        })->count();
     @endphp
 
     @if($totalOrders > 0)
@@ -83,13 +86,13 @@
             <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
-                        <i class="fas fa-money-bill text-success" style="font-size: 2rem;"></i>
+                        <i class="fas fa-ban text-danger text-success" style="font-size: 2rem;"></i>
                     </div>
-                    <h4 class="fw-bold mb-1" style="color: #28a745;">₱{{ number_format($totalRevenue, 2) }}</h4>
-                    <small class="text-muted">Total Revenue</small>
+                    <h4 class="fw-bold mb-1" style="color: #d41111;">{{ number_format($cancelOrders) }}</h4>
+                    <small class="text-muted">Cancelled Orders</small>
                 </div>
             </div>
-        </div>
+        </div> 
     </div>
     @endif
 
@@ -100,9 +103,18 @@
             $pendingCount = $products->where('pivot.product_status', 'Pending')->count();
             $shippedCount = $products->where('pivot.product_status', 'Shipped')->count();
             $deliveredCount = $products->where('pivot.product_status', 'Delivered')->count();
-            
+            $isCancelled = $order->status === 'Cancelled'; 
+
             // Determine overall order status
-            $overallStatus = $hasDeliveredAll ? 'Completed' : ($pendingCount > 0 ? 'Processing' : 'In Transit');
+        if ($isCancelled) {
+            $overallStatus = 'Cancelled';
+        } elseif ($hasDeliveredAll) {
+            $overallStatus = 'Completed';
+        } elseif ($pendingCount > 0) {
+            $overallStatus = 'Processing';
+        } else {
+            $overallStatus = 'In Transit';
+        }
             $statusColor = match($overallStatus) {
                 'Completed' => 'success',
                 'In Transit' => 'info', 
@@ -265,6 +277,7 @@
                                                 'Pending' => ['bg' => 'warning', 'icon' => 'fas fa-clock'],
                                                 'Shipped' => ['bg' => 'info', 'icon' => 'fas fa-truck'],
                                                 'Delivered' => ['bg' => 'success', 'icon' => 'fas fa-check-circle'],
+                                                'Cancelled' => ['bg' => 'danger', 'icon' => 'fas fa-ban'],
                                                 default => ['bg' => 'secondary', 'icon' => 'fas fa-question-circle']
                                             };
                                         @endphp
@@ -274,22 +287,24 @@
                                     </td>
                                     @if(!$hasDeliveredAll)
                                     <td class="border-0 py-3 text-center">
-                                        @if($product->pivot->product_status !== 'Delivered')
-                                            <select name="individual_status[{{ $product->id }}]" 
-                                                    class="form-select form-select-sm" 
-                                                    style="border-radius: 10px; max-width: 120px; margin: 0 auto;"
-                                                    onchange="updateIndividualStatus({{ $order->id }}, {{ $product->id }}, this.value)">
-                                                <option value="">Select...</option>
-                                                <option value="Pending" {{ $product->pivot->product_status === 'Pending' ? 'selected' : '' }}>Pending</option>
-                                                <option value="Shipped" {{ $product->pivot->product_status === 'Shipped' ? 'selected' : '' }}>Shipped</option>
-                                                <option value="Delivered" {{ $product->pivot->product_status === 'Delivered' ? 'selected' : '' }}>Delivered</option>
-                                            </select>
-                                        @else
-                                            <span class="text-success">
-                                                <i class="fas fa-check-circle me-1"></i>Complete
-                                            </span>
-                                        @endif
-                                    </td>
+    @if($hasDeliveredAll)
+        <span class="text-success">
+            <i class="fas fa-check-circle me-1"></i>Complete
+        </span>
+    @elseif($isCancelled)
+        <span class="text-danger fw-bold">Cancelled</span>
+    @else
+        <select name="individual_status[{{ $product->id }}]" 
+                class="form-select form-select-sm" 
+                style="border-radius: 10px; max-width: 120px; margin: 0 auto;"
+                onchange="updateIndividualStatus({{ $order->id }}, {{ $product->id }}, this.value)">
+            <option value="">Select...</option>
+            <option value="Pending" {{ $product->pivot->product_status === 'Pending' ? 'selected' : '' }}>Pending</option>
+            <option value="Shipped" {{ $product->pivot->product_status === 'Shipped' ? 'selected' : '' }}>Shipped</option>
+            <option value="Delivered" {{ $product->pivot->product_status === 'Delivered' ? 'selected' : '' }}>Delivered</option>
+        </select>
+    @endif
+</td>
                                     @endif
                                 </tr>
                                 <input type="hidden" name="product_ids[]" value="{{ $product->id }}">
@@ -297,50 +312,60 @@
                             </tbody>
                         </table>
                     </div>
-                    {{-- Bulk Actions --}}
-                    @if (!$hasDeliveredAll)
-                        <div class="card border-0 mt-4" style="background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%); border-radius: 15px;">
-                            <div class="card-body p-3">
-                                <h6 class="fw-bold mb-3" style="color: #0d6efd;">
-                                    <i class="fas fa-tools me-2"></i>Bulk Actions
-                                </h6>
-                                <div class="row g-3 align-items-end">
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-semibold">Update Selected To:</label>
-                                        <select name="product_status" class="form-select" style="border-radius: 10px; "color: #fff">
-                                            <option value="">Choose status...</option>
-                                            <option value="Pending">📋 Pending</option>
-                                            <option value="Shipped">🚛 Shipped</option>
-                                            <option value="Delivered">✅ Delivered</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button type="submit" class="btn btn-primary w-100" 
-                                                style="border-radius: 10px; background: linear-gradient(45deg, #0d6efd, #6610f2);">
-                                            <i class="fas fa-sync me-2"></i>Update Selected
-                                        </button>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button type="button" class="btn btn-success w-100" 
-                                                style="border-radius: 10px;"
-                                                onclick="markAllDelivered({{ $order->id }})">
-                                            <i class="fas fa-check-double me-2"></i>Mark All Delivered
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @else
-                        <div class="alert alert-success border-0 mt-4" style="border-radius: 15px;">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-trophy text-success me-3" style="font-size: 1.5rem;"></i>
-                                <div>
-                                    <h6 class="mb-1 fw-bold text-success">Order Completed!</h6>
-                                    <small style="color: #fff;">All products in this order have been successfully delivered.</small>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                   {{-- Bulk Actions / Status Messages --}}
+@if($hasDeliveredAll)
+    <div class="alert alert-success border-0 mt-4" style="border-radius: 15px;">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-trophy text-success me-3" style="font-size: 1.5rem;"></i>
+            <div>
+                <h6 class="mb-1 fw-bold text-success">Order Completed!</h6>
+                <small style="color: #fff;">All products in this order have been successfully delivered.</small>
+            </div>
+        </div>
+    </div>
+@elseif($isCancelled)
+    <div class="alert alert-danger border-0 mt-4" style="border-radius: 15px;">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-ban text-danger me-3" style="font-size: 1.5rem;"></i>
+            <div>
+                <h6 class="mb-1 fw-bold ">Order Cancelled</h6>
+                <small>This order cannot be processed because it has been cancelled.</small>
+            </div>
+        </div>
+    </div>
+@else
+    <div class="card border-0 mt-4" style="background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%); border-radius: 15px;">
+        <div class="card-body p-3">
+            <h6 class="fw-bold mb-3" style="color: #0d6efd;">
+                <i class="fas fa-tools me-2"></i>Bulk Actions
+            </h6>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Update Selected To:</label>
+                    <select name="product_status" class="form-select" style="border-radius: 10px; color: #fff;">
+                        <option value="">Choose status...</option>
+                        <option value="Pending">📋 Pending</option>
+                        <option value="Shipped">🚛 Shipped</option>
+                        <option value="Delivered">✅ Delivered</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100" 
+                            style="border-radius: 10px; background: linear-gradient(45deg, #0d6efd, #6610f2);">
+                        <i class="fas fa-sync me-2"></i>Update Selected
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-success w-100" 
+                            style="border-radius: 10px;"
+                            onclick="markAllDelivered({{ $order->id }})">
+                        <i class="fas fa-check-double me-2"></i>Mark All Delivered
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
                 </form>
 @php
     $refundLabel = match($order->refund_status) {

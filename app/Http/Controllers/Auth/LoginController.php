@@ -36,4 +36,14 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
     }
+    protected function authenticated($request, $user)
+    {
+        if ($user->role === 'admin') {
+            return redirect()->route('users.index');
+        }
+        if ($user->role === 'supplier') {
+            return redirect()->route('supplier.dashboard');
+        }
+    }
+
 }

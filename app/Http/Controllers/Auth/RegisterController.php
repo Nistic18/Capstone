@@ -51,9 +51,12 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'phone' => ['required', 'string', 'regex:/^(09|\+639)\d{9}$/'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'latitude' => ['nullable', 'numeric'],
-            'longitude' => ['nullable', 'numeric'],
+            'address' => ['required', 'string', 'max:500'],
+            'address.required' => 'Please provide your complete address',
+            'phone.regex' => 'Please enter a valid Philippine mobile number (e.g., 09123456789)',
+
         ]);
     }
 
@@ -68,9 +71,9 @@ class RegisterController extends Controller
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'phone' => $data['phone'],
+            'address' => $data['address'],
             'password' => Hash::make($data['password']),
-            'latitude' => $data['latitude'] ?? null,
-            'longitude' => $data['longitude'] ?? null,
         ]);
     }
 }

@@ -212,6 +212,41 @@ public function declineRefund(Request $request, $orderId)
 
     return back()->with('success', 'Refund declined successfully.');
 }
+public function cancelOrder(Request $request, $orderId)
+{
+    $order = Order::where('id', $orderId)
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+
+    if (in_array($order->status, ['Delivered', 'Cancelled', 'Shipped'])) {
+        return back()->with('error', 'This order cannot be cancelled.');
+    }
+
+    $request->validate([
+        'cancel_reason' => 'required|string|max:500',
+    ]);
+
+    DB::transaction(function () use ($order, $request) {
+        // Update the order status
+        $order->update([
+            'status' => 'Cancelled',
+            'cancel_reason' => $request->cancel_reason,
+        ]);
+
+        // Update all products in the order to 'Cancelled' in pivot table
+        DB::table('order_product')
+            ->where('order_id', $order->id)
+            ->update(['product_status' => 'Cancelled']);
+    });
+
+    // Notify all sellers involved in this order
+    $order->products->each(function ($product) use ($order) {
+        $product->user->notify(new OrderStatusUpdated($order));
+    });
+
+    return back()->with('success', 'Order and all products cancelled successfully.');
+}
+
 
 
 }

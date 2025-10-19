@@ -19,6 +19,7 @@
         @endphp
 
         <!-- Cart -->
+        @if(auth()->user()->role !== 'admin' && auth()->user()->role !== 'supplier')
         <li class="nav-item">
             <a href="{{ route('cart.index') }}" class="nav-link nav-link-lg position-relative">
                 <i class="fas fa-shopping-cart fa-lg"></i>
@@ -30,7 +31,7 @@
                 @endif
             </a>
         </li>
-
+        @endif
         <!-- Chat Icon Only (No Text) -->
         <li class="nav-item {{ Request::is('chat') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('chat.index') }}">
@@ -90,13 +91,6 @@
                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
-                @auth
-                @if(Auth::user()->role === 'buyer')
-                  <a class="dropdown-item has-icon" href="{{ route('reseller.apply') }}">
-                    <i class="fa fa-store"></i> Apply as Reseller
-                  </a>
-                @endif
-                @endauth
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                     @csrf
                 </form>

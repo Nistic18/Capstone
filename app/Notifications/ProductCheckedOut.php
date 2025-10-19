@@ -3,9 +3,12 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use App\Models\Order;
 
-class ProductCheckedOut extends Notification
+class ProductCheckedOut extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -20,9 +23,18 @@ class ProductCheckedOut extends Notification
 
     public function via($notifiable)
     {
-        return ['database']; // You can also add 'mail' if needed
+        return ['mail', 'database']; // You can also add 'mail' if needed
     }
-
+    // Add this method if using the 'mail' channel
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+                    ->subject('Product Checked Out')
+                    ->greeting('Hello ' . $notifiable->name . ',')
+                    ->line("Your product '{$this->product->name}' has been checked out in order #{$this->order->id}.")
+                    ->action('View Order', url('/orders/' . $this->order->id))
+                    ->line('Thank you for using our application!');
+    }
     public function toDatabase($notifiable)
     {
         return [

@@ -26,11 +26,11 @@
                    value="{{ old('price', $product->price ?? '') }}" step="0.01" required>
         </div>
 
-        <div class="mb-3">
+        {{-- <div class="mb-3">
             <label>Quantity</label>
             <input type="number" name="quantity" class="form-control"
                    value="{{ old('quantity', $product->quantity ?? '') }}" min="0" required>
-        </div>
+        </div> --}}
 
         {{-- MULTIPLE IMAGES --}}
         <div class="mb-3">

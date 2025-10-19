@@ -19,7 +19,8 @@ class ProductSeeder extends Seeder
                 'description' => $faker->sentence(10),
                 'price' => $faker->randomFloat(2, 50, 500), // Price between 50 and 500
                 'image' => 'products/sample' . rand(1, 5) . '.jpg', // Placeholder image paths
-                'user_id' => 1,
+                'quantity' => rand(1, 100), // Random quantity between 1 and 100
+                'user_id' => 3,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
