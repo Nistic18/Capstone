@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('title', 'My Order')
+@section('title', 'My Orders')
 @section('content')
 <div class="container mt-4">
     {{-- Breadcrumb Navigation --}}
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb" style="background: transparent; padding: 2%;">
             <li class="breadcrumb-item">
-                <a href="{{ route('home') }}" class="text-decoration-none" style="color: #667eea;">
+                <a href="{{ route('home') }}" class="text-decoration-none" style="color: #764ba2;">
                     <i class="fas fa-home me-1"></i>Home
                 </a>
             </li>
@@ -16,320 +16,155 @@
         </ol>
     </nav>
 
-    {{-- Page Header --}}
-    {{-- <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
-        <div class="card-body text-center py-4">
-            <div class="mb-3">
-                <i class="fas fa-shopping-bag text-white" style="font-size: 2.5rem;"></i>
-            </div>
-            <h1 class="text-white fw-bold mb-2">📦 My Fish Orders</h1>
-            <p class="text-white-50 mb-0">Track your fresh fish deliveries and order history</p>
-        </div>
-    </div> --}}
+    {{-- Page Title --}}
+    <h2 class="fw-bold mb-4" style="color: #333;">My Orders</h2>
 
-    @if ($orders->isEmpty())
-        {{-- Empty Orders State --}}
-        <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-            <div class="card-body text-center py-5">
-                <div class="mb-4">
-                    <i class="fas fa-shopping-bag text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+    {{-- Shopee-style Tabs --}}
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 8px;">
+        <div class="card-body p-0">
+            <ul class="nav nav-tabs border-0" id="orderTabs" role="tablist" style="border-bottom: 2px solid #f5f5f5;">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active px-4 py-3 border-0 fw-semibold" 
+                            id="all-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#all" 
+                            type="button" 
+                            role="tab"
+                            aria-controls="all"
+                            aria-selected="true">
+                        All ({{ $allOrders->count() }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3 border-0 fw-semibold" 
+                            id="to-ship-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#to-ship" 
+                            type="button" 
+                            role="tab"
+                            aria-controls="to-ship"
+                            aria-selected="false">
+                        To Ship ({{ $toShipOrders->count() }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3 border-0 fw-semibold" 
+                            id="to-receive-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#to-receive" 
+                            type="button" 
+                            role="tab"
+                            aria-controls="to-receive"
+                            aria-selected="false">
+                        To Receive ({{ $toReceiveOrders->count() }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3 border-0 fw-semibold" 
+                            id="completed-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#completed" 
+                            type="button" 
+                            role="tab"
+                            aria-controls="completed"
+                            aria-selected="false">
+                        Completed ({{ $completedOrders->count() }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3 border-0 fw-semibold" 
+                            id="cancelled-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#cancelled" 
+                            type="button" 
+                            role="tab"
+                            aria-controls="cancelled"
+                            aria-selected="false">
+                        Cancelled ({{ $cancelledOrders->count() }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3 border-0 fw-semibold" 
+                            id="refund-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#refund" 
+                            type="button" 
+                            role="tab"
+                            aria-controls="refund"
+                            aria-selected="false">
+                        Return/Refund ({{ $refundOrders->count() }})
+                    </button>
+                </li>
+            </ul>
+
+            {{-- Tab Content --}}
+            <div class="tab-content p-3" id="orderTabsContent">
+                {{-- All Orders --}}
+                <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                    @include('orders.partials.order-list', ['filteredOrders' => $allOrders])
                 </div>
-                <h3 class="text-muted mb-3">No Orders Yet</h3>
-                <p class="text-muted mb-4">You haven't placed any orders yet. Start shopping for fresh fish!</p>
-                <a href="{{ route('home') }}" class="btn btn-primary btn-lg" 
-                   style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
-                    <i class="fas fa-fish me-2"></i>Start Shopping
-                </a>
-            </div>
-        </div>
-    @else
-        {{-- Orders List --}}
-        <div class="row g-4">
-            @foreach ($orders as $order)
-                @php
-                    $statusConfig = match($order->status) {
-                        'Shipped' => ['color' => 'info', 'icon' => 'fas fa-truck', 'text' => 'Out for Delivery'],
-                        'Delivered' => ['color' => 'primary', 'icon' => 'fas fa-check-circle', 'text' => 'Delivered'],
-                        'Cancelled' => ['color' => 'danger', 'icon' => 'fas fa-times-circle', 'text' => 'Cancelled'],
-                        default => ['color' => 'warning', 'icon' => 'fas fa-clock', 'text' => 'Processing'],
-                    };
-                @endphp
 
-                <div class="col-12">
-                    <div class="card border-0 shadow-sm" style="border-radius: 20px; overflow: hidden;">
-                        {{-- Order Header --}}
-                        <div class="card-header border-0" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 1.5rem;">
-                            <div class="row align-items-center">
-                                <div class="col-md-6">
-                                    <h5 class="mb-1 fw-bold" style="color: #2c3e50;">
-                                        <i class="fas fa-receipt text-primary me-2"></i>
-                                        Order #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
-                                    </h5>
-                                    <small class="text-muted">
-                                        <i class="fas fa-calendar-alt me-1"></i>
-                                        {{ $order->created_at->format('M d, Y') }} at {{ $order->created_at->format('h:i A') }}
-                                    </small>
-                                </div>
-                                <div class="col-md-6 text-md-end mt-2 mt-md-0">
-                                    <div class="d-flex flex-column align-items-md-end">
-                                        <span class="badge mb-2" 
-                                              style="background: var(--bs-{{ $statusConfig['color'] }}); border-radius: 15px; padding: 8px 15px; font-size: 0.9rem;">
-                                            <i class="{{ $statusConfig['icon'] }} me-1"></i>{{ $statusConfig['text'] }}
-                                        </span>
-                                        <h4 class="mb-0 fw-bold" style="color: #28a745;">
-                                            Total: ₱{{ number_format($order->total_price, 2) }}
-                                        </h4>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Order Items --}}
-                        <div class="card-body p-4">
-                            <h6 class="fw-bold mb-3" style="color: #2c3e50;">
-                                <i class="fas fa-fish text-primary me-2"></i>
-                                Order Items ({{ $order->products->count() }} {{ $order->products->count() == 1 ? 'item' : 'items' }})
-                            </h6>
-                            
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead style="background-color: #f8f9fa;">
-                                        <tr>
-                                            <th class="border-0 fw-semibold" style="color: #495057;">Product</th>
-                                            <th class="border-0 fw-semibold text-center" style="color: #495057;">Quantity</th>
-                                            <th class="border-0 fw-semibold text-end" style="color: #495057;">Price</th>
-                                            <th class="border-0 fw-semibold text-end" style="color: #495057;">Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($order->products as $product)
-                                            <tr>
-                                                <td class="border-0 py-3">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="me-3">
-                                                            @if($product->images && $product->images->count() > 0)
-                                                                <img src="{{ asset('storage/' . $product->images->first()->image) }}" 
-                                                                     alt="{{ $product->name }}"
-                                                                     class="rounded"
-                                                                     style="width: 50px; height: 50px; object-fit: cover;">
-                                                            @else
-                                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
-                                                                     style="width: 50px; height: 50px;">
-                                                                    <i class="fas fa-fish text-muted"></i>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                        <div>
-                                                            <h6 class="mb-0 fw-semibold">{{ $product->name }}</h6>
-                                                            <small class="text-muted">Fresh Fish</small>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="border-0 py-3 text-center">
-                                                    <span class="badge bg-light text-dark" style="border-radius: 15px; padding: 8px 12px;">
-                                                        {{ $product->pivot->quantity }}
-                                                    </span>
-                                                </td>
-                                                <td class="border-0 py-3 text-end fw-semibold">
-                                                    ₱{{ number_format($product->price, 2) }}
-                                                </td>
-                                                <td class="border-0 py-3 text-end fw-bold" style="color: #28a745;">
-                                                    ₱{{ number_format($product->price * $product->pivot->quantity, 2) }}
-                                                </td>
-                                            </tr>
-
-                                            {{-- Review Section --}}
-                                            @if($order->status === 'Delivered')
-                                                @php
-                                                    $review = $product->reviews()
-                                                        ->where('user_id', auth()->id())
-                                                        ->where('order_id', $order->id)
-                                                        ->first();
-                                                @endphp
-                                                <tr>
-                                                    <td colspan="4" class="border-0 pt-0">
-                                                        @if(!$review)
-                                                            {{-- Review Form --}}
-                                                            <div class="card border-0" style="background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%); border-radius: 15px;">
-                                                                <div class="card-body p-3">
-                                                                    <h6 class="fw-bold mb-3" style="color: #0d6efd;">
-                                                                        <i class="fas fa-star me-2"></i>Rate {{ $product->name }}
-                                                                    </h6>
-                                                                    <form action="{{ route('reviews.store', ['order' => $order->id, 'product' => $product->id]) }}" method="POST">
-                                                                        @csrf
-                                                                        <div class="row g-3 align-items-end">
-                                                                            <div class="col-md-3">
-                                                                                <label for="rating-{{ $product->id }}" class="form-label small fw-semibold">Rating</label>
-                                                                                <select name="rating" id="rating-{{ $product->id }}" class="form-select" style="border-radius: 10px;">
-                                                                                    @for ($i = 5; $i >= 1; $i--)
-                                                                                        <option value="{{ $i }}">{{ str_repeat('★', $i) }} {{ $i }} Star{{ $i > 1 ? 's' : '' }}</option>
-                                                                                    @endfor
-                                                                                </select>
-                                                                            </div>
-                                                                            <div class="col-md-6">
-                                                                                <label for="comment-{{ $product->id }}" class="form-label small fw-semibold">Comment (Optional)</label>
-                                                                                <input type="text" name="comment" id="comment-{{ $product->id }}" 
-                                                                                       class="form-control" placeholder="Share your experience..."
-                                                                                       style="border-radius: 10px;">
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                <button type="submit" class="btn btn-primary w-100" 
-                                                                                        style="border-radius: 10px; background: linear-gradient(45deg, #0d6efd, #6610f2);">
-                                                                                    <i class="fas fa-paper-plane me-1"></i>Submit
-                                                                                </button>
-                                                                            </div>
-                                                                        </div>
-                                                                    </form>
-                                                                </div>
-                                                            </div>
-                                                        @else
-                                                            {{-- Existing Review --}}
-                                                            <div class="card border-0" style="background: linear-gradient(135deg, #d4edda 0%, #f0f9f0 100%); border-radius: 15px;">
-                                                                <div class="card-body p-3">
-                                                                    <div class="d-flex align-items-start">
-                                                                        <div class="me-3">
-                                                                            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" 
-                                                                                 style="width: 40px; height: 40px;">
-                                                                                <i class="fas fa-check text-white"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="flex-grow-1">
-                                                                            <h6 class="fw-bold mb-1" style="color: #198754;">
-                                                                                <i class="fas fa-star text-warning me-1"></i>Your Review
-                                                                            </h6>
-                                                                            <div class="mb-2">
-                                                                                @for ($i = 1; $i <= 5; $i++)
-                                                                                    @if($i <= $review->rating)
-                                                                                        <i class="fas fa-star text-warning"></i>
-                                                                                    @else
-                                                                                        <i class="far fa-star text-warning"></i>
-                                                                                    @endif
-                                                                                @endfor
-                                                                                <span class="ms-2 fw-semibold">{{ $review->rating }}/5</span>
-                                                                            </div>
-                                                                            @if($review->comment)
-                                                                                <p class="mb-0 text-muted fst-italic">"{{ $review->comment }}"</p>
-                                                                            @endif
-                                                                            <small class="text-muted">
-                                                                                <i class="fas fa-calendar-alt me-1"></i>
-                                                                                Reviewed on {{ $review->created_at->format('M d, Y') }}
-                                                                            </small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                            {{-- Order Actions --}}
-<div class="row g-2 mt-3">
-    @if($order->status === 'Delivered' && $order->refund_status === 'None')
-        <div class="col-md-6">
-            <form action="{{ route('orders.refund', $order->id) }}" method="POST">
-                @csrf
-                <div class="mb-2">
-                    <textarea name="refund_reason" class="form-control" placeholder="Why are you asking for a refund?" required style="border-radius: 10px;"></textarea>
+                {{-- To Ship --}}
+                <div class="tab-pane fade" id="to-ship" role="tabpanel" aria-labelledby="to-ship-tab">
+                    @include('orders.partials.order-list', ['filteredOrders' => $toShipOrders])
                 </div>
-                <button type="submit" class="btn btn-outline-danger w-100" style="border-radius: 15px;">
-                    <i class="fas fa-undo me-2"></i>Request Refund
-                </button>
-            </form>
-        </div>
-    @elseif($order->refund_status === 'Pending')
-        <div class="col-12">
-            <div class="alert alert-warning border-0" style="border-radius: 15px;">
-                <i class="fas fa-hourglass-half me-2"></i>
-                Refund request pending. Reason: <strong>{{ $order->refund_reason }}</strong>
-            </div>
-        </div>
-    @elseif($order->refund_status === 'Approved')
-        <div class="col-12">
-            <div class="alert alert-success border-0" style="border-radius: 15px;">
-                <i class="fas fa-check-circle me-2"></i>
-                Refund approved.
-            </div>
-        </div>
-    @elseif($order->refund_status === 'Rejected')
-        <div class="col-12">
-            <div class="alert alert-danger border-0" style="border-radius: 15px;">
-                <i class="fas fa-times-circle me-2"></i>
-                Refund request rejected. Reason: <strong>{{ $order->refund_reason }}</strong>
-            </div>
-        </div>
-    @endif
-</div>
 
-{{-- Cancel Order Section --}}
-<div class="row g-2 mt-3">
-    @if($order->status !== 'Delivered' && $order->status !== 'Cancelled' && $order->status !== 'Shipped')
-        <div class="col-md-6">
-            <form action="{{ route('orders.cancel', $order->id) }}" method="POST">
-                @csrf
-                <div class="mb-2">
-                    <textarea name="cancel_reason" class="form-control" placeholder="Reason for cancellation" required style="border-radius: 10px;"></textarea>
+                {{-- To Receive --}}
+                <div class="tab-pane fade" id="to-receive" role="tabpanel" aria-labelledby="to-receive-tab">
+                    @include('orders.partials.order-list', ['filteredOrders' => $toReceiveOrders])
                 </div>
-                <button type="submit" class="btn btn-outline-danger w-100" style="border-radius: 15px;">
-                    <i class="fas fa-times-circle me-2"></i>Cancel Order
-                </button>
-            </form>
-        </div>
-    @elseif($order->status === 'Cancelled')
-        <div class="col-12">
-            <div class="alert alert-danger border-0" style="border-radius: 15px;">
-                <i class="fas fa-times-circle me-2"></i>
-                Order cancelled. Reason: <strong>{{ $order->cancel_reason }}</strong>
+
+                {{-- Completed --}}
+                <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+                    @include('orders.partials.order-list', ['filteredOrders' => $completedOrders])
+                </div>
+
+                {{-- Cancelled --}}
+                <div class="tab-pane fade" id="cancelled" role="tabpanel" aria-labelledby="cancelled-tab">
+                    @include('orders.partials.order-list', ['filteredOrders' => $cancelledOrders])
+                </div>
+
+                {{-- Return/Refund --}}
+                <div class="tab-pane fade" id="refund" role="tabpanel" aria-labelledby="refund-tab">
+                    @include('orders.partials.order-list', ['filteredOrders' => $refundOrders])
+                </div>
             </div>
         </div>
-    @endif
-</div>
+    </div>
 
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-
-        {{-- Order Summary Stats --}}
+    {{-- Order Summary Stats --}}
+    @if ($orders->isNotEmpty())
         @php
             $totalOrders = $orders->count();
-            $totalSpent = $orders->sum('total_price');
+            $totalSpent = $orders->where('status', 'Delivered')->sum('total_price');
             $deliveredOrders = $orders->where('status', 'Delivered')->count();
         @endphp
         
-        <div class="row g-4 mt-4">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4" style="color: #2c3e50;">
-                            <i class="fas fa-chart-bar text-primary me-2"></i>Order Statistics
-                        </h5>
-                        <div class="row g-4 text-center">
-                            <div class="col-md-4">
-                                <div class="p-3">
-                                    <i class="fas fa-shopping-bag text-primary mb-2" style="font-size: 2rem;"></i>
-                                    <h4 class="fw-bold mb-1" style="color: #667eea;">{{ $totalOrders }}</h4>
-                                    <small class="text-muted">Total Orders</small>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="p-3">
-                                    <i class="fas fa-dollar-sign text-success mb-2" style="font-size: 2rem;"></i>
-                                    <h4 class="fw-bold mb-1" style="color: #28a745;">${{ number_format($totalSpent, 2) }}</h4>
-                                    <small class="text-muted">Total Spent</small>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="p-3">
-                                    <i class="fas fa-check-circle text-info mb-2" style="font-size: 2rem;"></i>
-                                    <h4 class="fw-bold mb-1" style="color: #17a2b8;">{{ $deliveredOrders }}</h4>
-                                    <small class="text-muted">Delivered Orders</small>
-                                </div>
-                            </div>
+        <div class="card border-0 shadow-sm" style="border-radius: 8px;">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4" style="color: #333;">
+                    <i class="fas fa-chart-bar text-primary me-2"></i>Order Statistics
+                </h5>
+                <div class="row g-4 text-center">
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <i class="fas fa-shopping-bag mb-2" style="font-size: 2rem; color: #764ba2;"></i>
+                            <h4 class="fw-bold mb-1" style="color: #764ba2;">{{ $totalOrders }}</h4>
+                            <small class="text-muted">Total Orders</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <i class="fas fa-peso-sign mb-2" style="font-size: 2rem; color: #28a745;"></i>
+                            <h4 class="fw-bold mb-1" style="color: #28a745;">₱{{ number_format($totalSpent, 2) }}</h4>
+                            <small class="text-muted">Total Spent</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <i class="fas fa-check-circle mb-2" style="font-size: 2rem; color: #17a2b8;"></i>
+                            <h4 class="fw-bold mb-1" style="color: #17a2b8;">{{ $deliveredOrders }}</h4>
+                            <small class="text-muted">Delivered Orders</small>
                         </div>
                     </div>
                 </div>
@@ -340,43 +175,93 @@
 
 {{-- Custom CSS --}}
 <style>
-    .table-hover tbody tr:hover {
-        background-color: rgba(102, 126, 234, 0.05);
+    :root {
+        --shopee-primary: #764ba2;
+        --shopee-hover: #764ba2;
     }
-    
-    .form-control:focus, .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
-    
-    .btn-outline-primary:hover {
-        background: linear-gradient(45deg, #667eea, #764ba2);
-        border-color: #667eea;
-    }
-    
-    .card {
+
+    /* Tab Styling */
+    .nav-tabs .nav-link {
+        color: #555;
+        position: relative;
         transition: all 0.3s ease;
     }
-    
-    .card:hover {
-        transform: translateY(-2px);
+
+    .nav-tabs .nav-link:hover {
+        color: var(--shopee-primary);
     }
-    
-    .badge {
-        font-weight: 500;
+
+    .nav-tabs .nav-link.active {
+        color: var(--shopee-primary);
+        background: transparent;
     }
-    
+
+    .nav-tabs .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--shopee-primary);
+    }
+
+    /* Form Controls */
+    .form-control:focus, .form-select:focus {
+        border-color: var(--shopee-primary);
+        box-shadow: 0 0 0 0.2rem rgba(238, 77, 45, 0.25);
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: var(--shopee-primary);
+        border-color: var(--shopee-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--shopee-hover);
+        border-color: var(--shopee-hover);
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    /* Cards */
+    .card {
+        transition: all 0.2s ease;
+    }
+
+    .order-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Tab Content - Ensure visibility */
+    .tab-content > .tab-pane {
+        display: none;
+    }
+
+    .tab-content > .active {
+        display: block;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
+        .nav-tabs {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-tabs .nav-link {
+            white-space: nowrap;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+        }
+
         .card-body {
             padding: 1rem;
-        }
-        
-        .table-responsive {
-            font-size: 0.9rem;
-        }
-        
-        .btn {
-            font-size: 0.9rem;
         }
     }
 </style>
@@ -384,5 +269,68 @@
 {{-- Add Font Awesome if not already included --}}
 @push('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Tab initialization started');
+        
+        // Get all tab triggers
+        const tabButtons = document.querySelectorAll('#orderTabs button[data-bs-toggle="tab"]');
+        
+        console.log('Found ' + tabButtons.length + ' tab buttons');
+        
+        // Add click event listeners
+        tabButtons.forEach(function(tabButton) {
+            tabButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('data-bs-target');
+                console.log('Tab clicked:', this.id, 'Target:', targetId);
+                
+                // Remove active class from all tabs
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-selected', 'false');
+                });
+                
+                // Remove active class from all tab panes
+                const tabPanes = document.querySelectorAll('.tab-pane');
+                tabPanes.forEach(pane => {
+                    pane.classList.remove('show', 'active');
+                });
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                this.setAttribute('aria-selected', 'true');
+                
+                // Show corresponding tab pane
+                const targetPane = document.querySelector(targetId);
+                if (targetPane) {
+                    targetPane.classList.add('show', 'active');
+                    console.log('Activated pane:', targetId);
+                } else {
+                    console.error('Target pane not found:', targetId);
+                }
+                
+                // Save active tab to localStorage
+                localStorage.setItem('activeOrderTab', this.id);
+            });
+        });
+
+        // Restore active tab from localStorage
+        const savedTab = localStorage.getItem('activeOrderTab');
+        if (savedTab) {
+            const savedButton = document.getElementById(savedTab);
+            if (savedButton) {
+                console.log('Restoring saved tab:', savedTab);
+                savedButton.click();
+            }
+        }
+        
+        console.log('Tab initialization complete');
+    });
+</script>
 @endpush
 @endsection

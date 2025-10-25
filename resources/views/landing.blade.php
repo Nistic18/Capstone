@@ -173,7 +173,78 @@
         $articleCards = LandingPageCard::where('section', 'articles')->orderBy('order')->get();
         $storeCards = LandingPageCard::where('section', 'stores')->orderBy('order')->get();
     @endphp
+    <!-- Privacy & Terms Modal -->
+    <div class="modal fade" id="privacyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-shield-alt text-primary me-2"></i>Privacy Policy & Terms of Service</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-primary">Data Privacy Policy</h6>
+                        <p class="small text-muted">Last updated: October 20, 2025</p>
+                        <p>We respect your privacy and are committed to protecting your personal data. This policy explains how we collect, use, and safeguard your information when you visit our website.</p>
+                        
+                        <h6 class="mt-3 fw-bold">Information We Collect:</h6>
+                        <ul class="small">
+                            <li>Personal identification information (name, email, phone number, address)</li>
+                            <li>Order and transaction details</li>
+                            <li>Usage data and cookies for website improvement</li>
+                        </ul>
 
+                        <h6 class="mt-3 fw-bold">How We Use Your Information:</h6>
+                        <ul class="small">
+                            <li>Process and fulfill your orders</li>
+                            <li>Communicate with you about products and services</li>
+                            <li>Improve our website and customer experience</li>
+                            <li>Comply with legal obligations</li>
+                        </ul>
+
+                        <h6 class="mt-3 fw-bold">Data Security:</h6>
+                        <p class="small">We implement appropriate security measures to protect your personal information from unauthorized access, alteration, or disclosure.</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="mt-4">
+                        <h6 class="fw-bold text-primary">Terms and Conditions</h6>
+                        <p class="small text-muted">Last updated: October 20, 2025</p>
+                        <p>By accessing and using Fish Market's website and services, you agree to be bound by these terms and conditions.</p>
+
+                        <h6 class="mt-3 fw-bold">Use of Service:</h6>
+                        <ul class="small">
+                            <li>You must be at least 18 years old to use our services</li>
+                            <li>You agree to provide accurate and complete information</li>
+                            <li>You are responsible for maintaining account security</li>
+                        </ul>
+
+                        <h6 class="mt-3 fw-bold">Product Information:</h6>
+                        <ul class="small">
+                            <li>We strive to provide accurate product descriptions and pricing</li>
+                            <li>Prices and availability are subject to change without notice</li>
+                            <li>Product images are for reference only</li>
+                        </ul>
+
+                        <h6 class="mt-3 fw-bold">Orders and Payment:</h6>
+                        <ul class="small">
+                            <li>All orders are subject to acceptance and availability</li>
+                            <li>Payment must be made in full before delivery</li>
+                            <li>We reserve the right to cancel or refuse any order</li>
+                        </ul>
+
+                        <h6 class="mt-3 fw-bold">Limitation of Liability:</h6>
+                        <p class="small">Fish Market shall not be liable for any indirect, incidental, or consequential damages arising from the use of our services.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary px-4" id="acceptBtn">
+                        <i class="fas fa-check me-2"></i>I Accept
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
@@ -203,7 +274,7 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-7">
-                    <h1>{{ $hero->title ?? '🐠 Fresh Fish Market' }}</h1>
+                    <h1>{{ $hero->title ?? 'Fish Market' }}</h1>
                     <p>{{ $hero->content ?? 'Discover the freshest seafood delivered straight to your door.' }}</p>
                     <a href="{{ route('login') }}" class="btn btn-hero">
                         <i class="fas fa-shopping-basket me-2"></i>Start Shopping
@@ -243,7 +314,7 @@
                 <h2>{{ $articles->title ?? 'Latest Articles' }}</h2>
                 <p>{{ $articles->content ?? 'Learn more about seafood and healthy eating' }}</p>
             </div>
-            <div class="row g-4">
+            <div class="row g-4 justify-content-center">
                 @forelse($articleCards as $card)
                     <div class="col-md-4">
                         <div class="feature-card">
@@ -407,6 +478,45 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cookie helper functions
+        function setCookie(name, value, days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user has already accepted the privacy policy
+            const hasAccepted = getCookie('privacy_accepted');
+
+            // Show modal if user hasn't accepted yet
+            if (!hasAccepted) {
+                const privacyModal = new bootstrap.Modal(document.getElementById('privacyModal'));
+                privacyModal.show();
+            }
+
+            // Handle accept button click
+            document.getElementById('acceptBtn').addEventListener('click', function() {
+                // Set cookie to remember acceptance for 15 days
+                setCookie('privacy_accepted', 'true', 15);
+                const privacyModal = bootstrap.Modal.getInstance(document.getElementById('privacyModal'));
+                privacyModal.hide();
+            });
+        });
+    </script>
 </body>
 </html>

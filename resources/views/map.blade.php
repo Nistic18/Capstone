@@ -121,6 +121,24 @@
                 </div>
             </div>
 
+            {{-- Geocoding Progress Card --}}
+            <div id="geocoding-progress" class="card border-0 shadow-sm mt-4" style="border-radius: 15px; background: rgba(13, 202, 240, 0.05); border-left: 4px solid #0dcaf0; display: none;">
+                <div class="card-body py-3">
+                    <div class="d-flex align-items-center">
+                        <div class="spinner-border spinner-border-sm text-info me-3" role="status"></div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1 fw-bold text-info">Geocoding Addresses</h6>
+                            <p class="mb-0 text-muted small">
+                                Processing <span id="geocoding-current">0</span> of <span id="geocoding-total">0</span> addresses...
+                            </p>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div id="geocoding-progress-bar" class="progress-bar bg-info" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Instructions Card --}}
             @if($role !== 'buyer')
             <div class="card border-0 shadow-sm mt-4" style="border-radius: 15px; background: rgba(40, 167, 69, 0.05); border-left: 4px solid #28a745;">
@@ -588,6 +606,9 @@
     let editingLocationId = null;
     let isEditMode = false;
     
+    // Geocoder instance
+    let geocoder;
+    
     // Initialize map
     function initializeMap() {
         map = L.map('map').setView([14.5995, 120.9842], 13); // Manila
@@ -601,10 +622,15 @@
         // Hide loading overlay
         document.getElementById('map-loading').style.display = 'none';
         
-        // Add geocoder
-        const geocoder = L.Control.Geocoder.nominatim({ 
-            geocodingQueryParams: { countrycodes: 'ph' } 
+        // Initialize geocoder for address conversion
+        geocoder = L.Control.Geocoder.nominatim({ 
+            geocodingQueryParams: { 
+                countrycodes: 'ph',
+                limit: 1
+            } 
         });
+        
+        // Add geocoder control
         L.Control.geocoder({ 
             defaultMarkGeocode: false, 
             geocoder,
@@ -685,6 +711,98 @@
             console.error('Failed to add marker:', e);
             return null;
         }
+    }
+
+    // Geocode address to coordinates
+    function geocodeAddress(address, callback) {
+        if (!address || address.trim() === '') {
+            callback(null, null);
+            return;
+        }
+        
+        geocoder.geocode(address, function(results) {
+            if (results && results.length > 0) {
+                const result = results[0];
+                callback(result.center.lat, result.center.lng);
+            } else {
+                console.warn('Geocoding failed for address:', address);
+                callback(null, null);
+            }
+        });
+    }
+
+    // Batch geocode addresses with delay to avoid rate limiting
+    async function batchGeocodeAddresses(usersWithAddresses) {
+        const progressCard = document.getElementById('geocoding-progress');
+        const currentEl = document.getElementById('geocoding-current');
+        const totalEl = document.getElementById('geocoding-total');
+        const progressBar = document.getElementById('geocoding-progress-bar');
+        
+        const total = usersWithAddresses.length;
+        if (total === 0) return;
+        
+        // Show progress card
+        progressCard.style.display = 'block';
+        totalEl.textContent = total;
+        
+        let processed = 0;
+        
+        for (const user of usersWithAddresses) {
+            await new Promise((resolve) => {
+                geocodeAddress(user.address, function(lat, lng) {
+                    if (lat && lng) {
+                        const popupHTML = `
+                            <div class="popup-content">
+                                <h6 class="fw-bold mb-2" style="color: #2c3e50;">${escapeHtml(user.name)}</h6>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                                    <small>${escapeHtml(user.address)}</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-user-tag text-muted me-2"></i>
+                                    <small class="badge bg-${getRoleBadgeColor(user.role)}">
+                                        ${escapeHtml(capitalizeFirst(user.role))}
+                                    </small>
+                                </div>
+                            </div>
+                        `;
+                        safeAddMarker(lat, lng, user.role, popupHTML, 'user-address', user.id);
+                    }
+                    
+                    processed++;
+                    currentEl.textContent = processed;
+                    progressBar.style.width = ((processed / total) * 100) + '%';
+                    
+                    // Delay to avoid rate limiting (1 request per second)
+                    setTimeout(resolve, 1000);
+                });
+            });
+        }
+        
+        // Hide progress card after completion
+        setTimeout(() => {
+            progressCard.style.display = 'none';
+        }, 2000);
+    }
+
+    // Helper functions
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function capitalizeFirst(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function getRoleBadgeColor(role) {
+        const colors = {
+            supplier: 'success',
+            reseller: 'danger',
+            buyer: 'info'
+        };
+        return colors[role] || 'info';
     }
 
     // Get current location
@@ -911,11 +1029,11 @@
             })();
         @endforeach
 
-        // Add users with coordinates
-        @foreach($users as $user)
+        // Add users with coordinates (existing lat/lng)
+        @foreach($users->where('latitude', '!=', null)->where('longitude', '!=', null) as $user)
             @php
-                $ulat = is_null($user->latitude) ? null : (float) $user->latitude;
-                $ulng = is_null($user->longitude) ? null : (float) $user->longitude;
+                $ulat = (float) $user->latitude;
+                $ulng = (float) $user->longitude;
                 $urole = $user->role ?? 'buyer';
             @endphp
             (function() {
@@ -936,6 +1054,26 @@
                 safeAddMarker(lat, lng, role, html, 'user');
             })();
         @endforeach
+
+        // Prepare users with addresses for geocoding
+        const usersWithAddresses = [
+            @foreach($users->whereNotNull('address')->where('address', '!=', '') as $user)
+                @if(is_null($user->latitude) || is_null($user->longitude))
+                {
+                    id: {{ $user->id }},
+                    name: @json($user->name),
+                    address: @json($user->address),
+                    role: @json(strtolower($user->role ?? 'buyer'))
+                },
+                @endif
+            @endforeach
+        ];
+
+        // Start batch geocoding for users with addresses
+        if (usersWithAddresses.length > 0) {
+            console.log('Starting batch geocoding for', usersWithAddresses.length, 'addresses');
+            batchGeocodeAddresses(usersWithAddresses);
+        }
     });
 </script>
 

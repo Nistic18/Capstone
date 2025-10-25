@@ -203,7 +203,13 @@
                                             <i class="fas fa-eye" id="togglePasswordIcon"></i>
                                         </button>
                                     </div>
-
+                                    {{-- Password Strength Indicator --}}
+                                <div id="password-strength" class="mt-2">
+                                    <small id="password-strength-text" class="fw-semibold"></small>
+                                        <div class="progress mt-1" style="height: 6px;">
+                                            <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0;"></div>
+                                        </div>
+                                </div>
                                     @error('password')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
@@ -537,6 +543,48 @@
 
 {{-- Custom JavaScript --}}
 <script>
+        const passwordInput = document.getElementById('password');
+    const strengthText = document.getElementById('password-strength-text');
+    const strengthBar = document.getElementById('password-strength-bar');
+
+    passwordInput.addEventListener('input', function() {
+        const value = passwordInput.value;
+        const strength = getPasswordStrength(value);
+
+        // Update text and color
+        if (strength.score === 0) {
+            strengthText.textContent = '';
+            strengthBar.style.width = '0';
+        } else {
+            strengthText.textContent = strength.label;
+            strengthText.style.color = strength.color;
+            strengthBar.style.width = strength.percent + '%';
+            strengthBar.style.backgroundColor = strength.color;
+        }
+    });
+
+    function getPasswordStrength(password) {
+        let score = 0;
+
+        if (password.length >= 8) score++;                // Minimum length
+        if (/[A-Z]/.test(password)) score++;              // Has uppercase
+        if (/[0-9]/.test(password)) score++;              // Has number
+        if (/[^A-Za-z0-9]/.test(password)) score++;       // Has special char
+
+        if (password.length === 0) return { score: 0, label: '', percent: 0, color: '' };
+
+        switch (score) {
+            case 1:
+                return { score, label: 'Weak', percent: 33, color: '#e53935' };
+            case 2:
+                return { score, label: 'Medium', percent: 66, color: '#ffb300' };
+            case 3:
+            case 4:
+                return { score, label: 'Strong', percent: 100, color: '#43a047' };
+            default:
+                return { score: 0, label: '', percent: 0, color: '' };
+        }
+    }
     // Initialize form validation and address handling when page loads
     document.addEventListener('DOMContentLoaded', function() {
         initializeFormValidation();

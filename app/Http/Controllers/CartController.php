@@ -93,9 +93,10 @@ public function update(Request $request, $productId)
     return back()->with('success', 'Quantity updated successfully!');
 }
 
-public function checkout()
+public function checkout(Request $request)
 {
     DB::beginTransaction();
+    
 
     try {
         $cartItems = Cart::where('user_id', Auth::id())->with('product')->get();
@@ -115,7 +116,8 @@ public function checkout()
             'user_id' => Auth::id(),
             'status' => 'Pending',
             'total_price' => 0, // temporary, will update after calculating total
-            'delivery_fee' => $deliveryFee
+            'delivery_fee' => $deliveryFee,
+            'payment_method' => $request->payment_method
         ]);
 
         foreach ($cartItems as $item) {

@@ -159,10 +159,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/users/{id}/reject-reseller', [UserController::class, 'rejectReseller'])->name('users.rejectReseller');
 });
 Route::post('/orders/{order}/refund', [OrderController::class, 'requestRefund'])->name('orders.refund');
-Route::post('/orders/{order}/refund/approve', [OrderController::class, 'approveRefund'])
+Route::put('/orders/{order}/refund/approve', [OrderController::class, 'approveRefund'])
     ->name('orders.refund.approve');
 
-Route::post('/orders/{order}/refund/decline', [OrderController::class, 'declineRefund'])
+Route::put('/orders/{order}/refund/decline', [OrderController::class, 'declineRefund'])
     ->name('orders.refund.decline');
 
 
@@ -224,3 +224,51 @@ Route::put('/supplier/orders/{order}/cancel', [OrderController::class, 'cancel']
 Route::get('/profile/me/reviews', [ReviewController::class, 'index'])
      ->name('profile.reviews')
      ->middleware('auth');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/refund', [OrderController::class, 'requestRefund'])->name('orders.refund');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancelOrder'])->name('orders.cancel');
+    Route::post('/orders/{order}/approve-refund', [OrderController::class, 'approveRefund'])->name('orders.approveRefund');
+    Route::post('/orders/{order}/decline-refund', [OrderController::class, 'declineRefund'])->name('orders.declineRefund');
+});
+// ✅ Supplier generates a QR for an order
+Route::get('/supplier/orders/{order}/generate-qr', [OrderController::class, 'generateQR'])->name('orders.generateQR');
+
+// ✅ Buyer scans this link — automatically marks order as delivered
+Route::get('/orders/{order}/qrDeliver', [OrderController::class, 'qrDeliver'])
+    ->middleware(['auth', 'signed']) // ✅ Require login + valid signed link
+    ->name('orders.qrDeliver');
+// Add these routes to your routes/web.php file
+
+// Admin Reports Routes (requires admin authentication)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    
+    // Reports Dashboard
+    Route::get('/reports', [App\Http\Controllers\Admin\AdminReportsController::class, 'index'])
+        ->name('reports.index');
+    
+    // Download User Report
+    Route::get('/reports/download/users', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadUserReport'])
+        ->name('reports.download.users');
+    
+    // Download Product Report
+    Route::get('/reports/download/products', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadProductReport'])
+        ->name('reports.download.products');
+    
+    // Download Sales Report
+    Route::get('/reports/download/sales', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadSalesReport'])
+        ->name('reports.download.sales');
+    
+    // Download Feedback/Rating Report
+    Route::get('/reports/download/feedback', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadFeedbackReport'])
+        ->name('reports.download.feedback');
+    
+    // Download Income Summary Report
+    Route::get('/reports/download/income-summary', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadIncomeSummaryReport'])
+        ->name('reports.download.income-summary');
+});
+
+// Note: You may need to create an 'admin' middleware if you don't have one already
+// Create it with: php artisan make:middleware AdminMiddleware

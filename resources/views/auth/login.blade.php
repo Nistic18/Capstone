@@ -97,12 +97,11 @@
                                     </div>
 
                                     @error('password')
-                                        <div class="invalid-feedback d-block">
+                                        <div id="password-error" class="invalid-feedback d-block">
                                             {{ $message }}
                                         </div>
                                     @enderror
                                 </div>
-
                                 {{-- Login Button --}}
                                 <div class="mb-3">
                                     <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold">
@@ -385,5 +384,61 @@
             toggleIcon.classList.add('fa-eye');
         }
     }
+document.addEventListener("DOMContentLoaded", function() {
+    let countdownTimer = null;
+
+    function startCountdown(duration, display) {
+        let remaining = duration;
+
+        // Always ensure element is visible and styled for updates
+        display.style.display = "block";
+        display.classList.remove('invalid-feedback');
+        display.classList.add('text-danger', 'fw-semibold');
+
+        if (countdownTimer) clearInterval(countdownTimer);
+
+        const update = () => {
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+            const formatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            display.textContent = `Too many failed attempts. Please wait ${formatted} before trying again.`;
+
+            remaining--;
+
+            if (remaining < 0) {
+                clearInterval(countdownTimer);
+                display.textContent = "You can now try logging in again.";
+                display.classList.remove('text-danger');
+                display.classList.add('text-success');
+            }
+        };
+
+        update(); // immediate update on start
+        countdownTimer = setInterval(update, 1000);
+    }
+
+    function initCountdown() {
+        const errorElem = document.getElementById("password-error");
+        if (!errorElem) return;
+
+        const text = errorElem.textContent.trim();
+        const match = text.match(/(\d{1,2}):(\d{2})/);
+
+        if (match) {
+            const minutes = parseInt(match[1], 10);
+            const seconds = parseInt(match[2], 10);
+            const totalSeconds = minutes * 60 + seconds;
+
+            startCountdown(totalSeconds, errorElem);
+        }
+    }
+
+    // Observe DOM updates to restart countdown when error changes
+    const observer = new MutationObserver(() => initCountdown());
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Initial delayed start to allow Laravel to render error
+    setTimeout(initCountdown, 300);
+});
 </script>
 

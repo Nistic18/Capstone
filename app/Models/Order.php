@@ -15,7 +15,8 @@ class Order extends Model
         'status', 
         'refund_status', 
         'refund_reason',
-        'cancel_reason'
+        'cancel_reason',
+        'payment_method'
     ];
 
     public function user(): BelongsTo

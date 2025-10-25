@@ -116,11 +116,11 @@
             @endif
                 </a>
             </li> --}}
-            <li class="{{ Request::is('supplier/dashboard') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('supplier.dashboard') }}">
-                <i class="fas fa-tachometer-alt"></i><span>Analytics Dashboard</span>
-                </a>
-            </li>
+            <li class="{{ Request::is('admin/reports') ? 'active' : '' }}">
+    <a class="nav-link" href="{{ route('admin.reports.index') }}">
+        <i class="fas fa-chart-bar"></i><span>Reports & Analytics</span>
+    </a>
+</li>
             @endif
 
             {{-- Reseller Sidebar --}}

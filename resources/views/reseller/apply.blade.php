@@ -157,7 +157,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="address" class="form-label fw-bold">Address <span class="text-danger">*</span></label>
+                            <label for="address" class="form-label fw-bold">Address & Barangay <span class="text-danger">*</span></label>
                             <input type="text" name="address" id="address"
                                    class="form-control @error('address') is-invalid @enderror"
                                    placeholder="Business address"
@@ -167,37 +167,519 @@
                             @enderror
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="province" class="form-label fw-bold">Province or State <span class="text-danger">*</span></label>
-                                <select name="province" id="province" class="form-select @error('province') is-invalid @enderror" required>
-                                    <option value="">Select</option>
-                                    <option value="Metro Manila" {{ old('province') == 'Metro Manila' ? 'selected' : '' }}>Metro Manila</option>
-                                    <option value="Cavite" {{ old('province') == 'Cavite' ? 'selected' : '' }}>Cavite</option>
-                                    <option value="Laguna" {{ old('province') == 'Laguna' ? 'selected' : '' }}>Laguna</option>
-                                    <option value="Rizal" {{ old('province') == 'Rizal' ? 'selected' : '' }}>Rizal</option>
-                                    <option value="Bulacan" {{ old('province') == 'Bulacan' ? 'selected' : '' }}>Bulacan</option>
-                                </select>
-                                @error('province')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="province" class="form-label fw-bold">Province or State <span class="text-danger">*</span></label>
+        <select name="province" id="province" class="form-select @error('province') is-invalid @enderror" required>
+            <option value="">Select Province</option>
+            
+            <!-- NCR - National Capital Region -->
+            <optgroup label="NCR - National Capital Region">
+                <option value="Metro Manila" {{ old('province') == 'Metro Manila' ? 'selected' : '' }}>Metro Manila</option>
+            </optgroup>
+            
+            <!-- CAR - Cordillera Administrative Region -->
+            <optgroup label="CAR - Cordillera Administrative Region">
+                <option value="Abra" {{ old('province') == 'Abra' ? 'selected' : '' }}>Abra</option>
+                <option value="Apayao" {{ old('province') == 'Apayao' ? 'selected' : '' }}>Apayao</option>
+                <option value="Benguet" {{ old('province') == 'Benguet' ? 'selected' : '' }}>Benguet</option>
+                <option value="Ifugao" {{ old('province') == 'Ifugao' ? 'selected' : '' }}>Ifugao</option>
+                <option value="Kalinga" {{ old('province') == 'Kalinga' ? 'selected' : '' }}>Kalinga</option>
+                <option value="Mountain Province" {{ old('province') == 'Mountain Province' ? 'selected' : '' }}>Mountain Province</option>
+            </optgroup>
+            
+            <!-- Region I - Ilocos Region -->
+            <optgroup label="Region I - Ilocos Region">
+                <option value="Ilocos Norte" {{ old('province') == 'Ilocos Norte' ? 'selected' : '' }}>Ilocos Norte</option>
+                <option value="Ilocos Sur" {{ old('province') == 'Ilocos Sur' ? 'selected' : '' }}>Ilocos Sur</option>
+                <option value="La Union" {{ old('province') == 'La Union' ? 'selected' : '' }}>La Union</option>
+                <option value="Pangasinan" {{ old('province') == 'Pangasinan' ? 'selected' : '' }}>Pangasinan</option>
+            </optgroup>
+            
+            <!-- Region II - Cagayan Valley -->
+            <optgroup label="Region II - Cagayan Valley">
+                <option value="Batanes" {{ old('province') == 'Batanes' ? 'selected' : '' }}>Batanes</option>
+                <option value="Cagayan" {{ old('province') == 'Cagayan' ? 'selected' : '' }}>Cagayan</option>
+                <option value="Isabela" {{ old('province') == 'Isabela' ? 'selected' : '' }}>Isabela</option>
+                <option value="Nueva Vizcaya" {{ old('province') == 'Nueva Vizcaya' ? 'selected' : '' }}>Nueva Vizcaya</option>
+                <option value="Quirino" {{ old('province') == 'Quirino' ? 'selected' : '' }}>Quirino</option>
+            </optgroup>
+            
+            <!-- Region III - Central Luzon -->
+            <optgroup label="Region III - Central Luzon">
+                <option value="Aurora" {{ old('province') == 'Aurora' ? 'selected' : '' }}>Aurora</option>
+                <option value="Bataan" {{ old('province') == 'Bataan' ? 'selected' : '' }}>Bataan</option>
+                <option value="Bulacan" {{ old('province') == 'Bulacan' ? 'selected' : '' }}>Bulacan</option>
+                <option value="Nueva Ecija" {{ old('province') == 'Nueva Ecija' ? 'selected' : '' }}>Nueva Ecija</option>
+                <option value="Pampanga" {{ old('province') == 'Pampanga' ? 'selected' : '' }}>Pampanga</option>
+                <option value="Tarlac" {{ old('province') == 'Tarlac' ? 'selected' : '' }}>Tarlac</option>
+                <option value="Zambales" {{ old('province') == 'Zambales' ? 'selected' : '' }}>Zambales</option>
+            </optgroup>
+            
+            <!-- Region IV-A - CALABARZON -->
+            <optgroup label="Region IV-A - CALABARZON">
+                <option value="Batangas" {{ old('province') == 'Batangas' ? 'selected' : '' }}>Batangas</option>
+                <option value="Cavite" {{ old('province') == 'Cavite' ? 'selected' : '' }}>Cavite</option>
+                <option value="Laguna" {{ old('province') == 'Laguna' ? 'selected' : '' }}>Laguna</option>
+                <option value="Quezon" {{ old('province') == 'Quezon' ? 'selected' : '' }}>Quezon</option>
+                <option value="Rizal" {{ old('province') == 'Rizal' ? 'selected' : '' }}>Rizal</option>
+            </optgroup>
+            
+            <!-- Region IV-B - MIMAROPA -->
+            <optgroup label="Region IV-B - MIMAROPA">
+                <option value="Marinduque" {{ old('province') == 'Marinduque' ? 'selected' : '' }}>Marinduque</option>
+                <option value="Occidental Mindoro" {{ old('province') == 'Occidental Mindoro' ? 'selected' : '' }}>Occidental Mindoro</option>
+                <option value="Oriental Mindoro" {{ old('province') == 'Oriental Mindoro' ? 'selected' : '' }}>Oriental Mindoro</option>
+                <option value="Palawan" {{ old('province') == 'Palawan' ? 'selected' : '' }}>Palawan</option>
+                <option value="Romblon" {{ old('province') == 'Romblon' ? 'selected' : '' }}>Romblon</option>
+            </optgroup>
+            
+            <!-- Region V - Bicol Region -->
+            <optgroup label="Region V - Bicol Region">
+                <option value="Albay" {{ old('province') == 'Albay' ? 'selected' : '' }}>Albay</option>
+                <option value="Camarines Norte" {{ old('province') == 'Camarines Norte' ? 'selected' : '' }}>Camarines Norte</option>
+                <option value="Camarines Sur" {{ old('province') == 'Camarines Sur' ? 'selected' : '' }}>Camarines Sur</option>
+                <option value="Catanduanes" {{ old('province') == 'Catanduanes' ? 'selected' : '' }}>Catanduanes</option>
+                <option value="Masbate" {{ old('province') == 'Masbate' ? 'selected' : '' }}>Masbate</option>
+                <option value="Sorsogon" {{ old('province') == 'Sorsogon' ? 'selected' : '' }}>Sorsogon</option>
+            </optgroup>
+            
+            <!-- Region VI - Western Visayas -->
+            <optgroup label="Region VI - Western Visayas">
+                <option value="Aklan" {{ old('province') == 'Aklan' ? 'selected' : '' }}>Aklan</option>
+                <option value="Antique" {{ old('province') == 'Antique' ? 'selected' : '' }}>Antique</option>
+                <option value="Capiz" {{ old('province') == 'Capiz' ? 'selected' : '' }}>Capiz</option>
+                <option value="Guimaras" {{ old('province') == 'Guimaras' ? 'selected' : '' }}>Guimaras</option>
+                <option value="Iloilo" {{ old('province') == 'Iloilo' ? 'selected' : '' }}>Iloilo</option>
+                <option value="Negros Occidental" {{ old('province') == 'Negros Occidental' ? 'selected' : '' }}>Negros Occidental</option>
+            </optgroup>
+            
+            <!-- Region VII - Central Visayas -->
+            <optgroup label="Region VII - Central Visayas">
+                <option value="Bohol" {{ old('province') == 'Bohol' ? 'selected' : '' }}>Bohol</option>
+                <option value="Cebu" {{ old('province') == 'Cebu' ? 'selected' : '' }}>Cebu</option>
+                <option value="Negros Oriental" {{ old('province') == 'Negros Oriental' ? 'selected' : '' }}>Negros Oriental</option>
+                <option value="Siquijor" {{ old('province') == 'Siquijor' ? 'selected' : '' }}>Siquijor</option>
+            </optgroup>
+            
+            <!-- Region VIII - Eastern Visayas -->
+            <optgroup label="Region VIII - Eastern Visayas">
+                <option value="Biliran" {{ old('province') == 'Biliran' ? 'selected' : '' }}>Biliran</option>
+                <option value="Eastern Samar" {{ old('province') == 'Eastern Samar' ? 'selected' : '' }}>Eastern Samar</option>
+                <option value="Leyte" {{ old('province') == 'Leyte' ? 'selected' : '' }}>Leyte</option>
+                <option value="Northern Samar" {{ old('province') == 'Northern Samar' ? 'selected' : '' }}>Northern Samar</option>
+                <option value="Samar" {{ old('province') == 'Samar' ? 'selected' : '' }}>Samar</option>
+                <option value="Southern Leyte" {{ old('province') == 'Southern Leyte' ? 'selected' : '' }}>Southern Leyte</option>
+            </optgroup>
+            
+            <!-- Region IX - Zamboanga Peninsula -->
+            <optgroup label="Region IX - Zamboanga Peninsula">
+                <option value="Zamboanga del Norte" {{ old('province') == 'Zamboanga del Norte' ? 'selected' : '' }}>Zamboanga del Norte</option>
+                <option value="Zamboanga del Sur" {{ old('province') == 'Zamboanga del Sur' ? 'selected' : '' }}>Zamboanga del Sur</option>
+                <option value="Zamboanga Sibugay" {{ old('province') == 'Zamboanga Sibugay' ? 'selected' : '' }}>Zamboanga Sibugay</option>
+            </optgroup>
+            
+            <!-- Region X - Northern Mindanao -->
+            <optgroup label="Region X - Northern Mindanao">
+                <option value="Bukidnon" {{ old('province') == 'Bukidnon' ? 'selected' : '' }}>Bukidnon</option>
+                <option value="Camiguin" {{ old('province') == 'Camiguin' ? 'selected' : '' }}>Camiguin</option>
+                <option value="Lanao del Norte" {{ old('province') == 'Lanao del Norte' ? 'selected' : '' }}>Lanao del Norte</option>
+                <option value="Misamis Occidental" {{ old('province') == 'Misamis Occidental' ? 'selected' : '' }}>Misamis Occidental</option>
+                <option value="Misamis Oriental" {{ old('province') == 'Misamis Oriental' ? 'selected' : '' }}>Misamis Oriental</option>
+            </optgroup>
+            
+            <!-- Region XI - Davao Region -->
+            <optgroup label="Region XI - Davao Region">
+                <option value="Davao de Oro" {{ old('province') == 'Davao de Oro' ? 'selected' : '' }}>Davao de Oro</option>
+                <option value="Davao del Norte" {{ old('province') == 'Davao del Norte' ? 'selected' : '' }}>Davao del Norte</option>
+                <option value="Davao del Sur" {{ old('province') == 'Davao del Sur' ? 'selected' : '' }}>Davao del Sur</option>
+                <option value="Davao Occidental" {{ old('province') == 'Davao Occidental' ? 'selected' : '' }}>Davao Occidental</option>
+                <option value="Davao Oriental" {{ old('province') == 'Davao Oriental' ? 'selected' : '' }}>Davao Oriental</option>
+            </optgroup>
+            
+            <!-- Region XII - SOCCSKSARGEN -->
+            <optgroup label="Region XII - SOCCSKSARGEN">
+                <option value="Cotabato" {{ old('province') == 'Cotabato' ? 'selected' : '' }}>Cotabato</option>
+                <option value="Sarangani" {{ old('province') == 'Sarangani' ? 'selected' : '' }}>Sarangani</option>
+                <option value="South Cotabato" {{ old('province') == 'South Cotabato' ? 'selected' : '' }}>South Cotabato</option>
+                <option value="Sultan Kudarat" {{ old('province') == 'Sultan Kudarat' ? 'selected' : '' }}>Sultan Kudarat</option>
+            </optgroup>
+            
+            <!-- Region XIII - Caraga -->
+            <optgroup label="Region XIII - Caraga">
+                <option value="Agusan del Norte" {{ old('province') == 'Agusan del Norte' ? 'selected' : '' }}>Agusan del Norte</option>
+                <option value="Agusan del Sur" {{ old('province') == 'Agusan del Sur' ? 'selected' : '' }}>Agusan del Sur</option>
+                <option value="Dinagat Islands" {{ old('province') == 'Dinagat Islands' ? 'selected' : '' }}>Dinagat Islands</option>
+                <option value="Surigao del Norte" {{ old('province') == 'Surigao del Norte' ? 'selected' : '' }}>Surigao del Norte</option>
+                <option value="Surigao del Sur" {{ old('province') == 'Surigao del Sur' ? 'selected' : '' }}>Surigao del Sur</option>
+            </optgroup>
+            
+            <!-- BARMM - Bangsamoro Autonomous Region in Muslim Mindanao -->
+            <optgroup label="BARMM - Bangsamoro">
+                <option value="Basilan" {{ old('province') == 'Basilan' ? 'selected' : '' }}>Basilan</option>
+                <option value="Lanao del Sur" {{ old('province') == 'Lanao del Sur' ? 'selected' : '' }}>Lanao del Sur</option>
+                <option value="Maguindanao del Norte" {{ old('province') == 'Maguindanao del Norte' ? 'selected' : '' }}>Maguindanao del Norte</option>
+                <option value="Maguindanao del Sur" {{ old('province') == 'Maguindanao del Sur' ? 'selected' : '' }}>Maguindanao del Sur</option>
+                <option value="Sulu" {{ old('province') == 'Sulu' ? 'selected' : '' }}>Sulu</option>
+                <option value="Tawi-Tawi" {{ old('province') == 'Tawi-Tawi' ? 'selected' : '' }}>Tawi-Tawi</option>
+            </optgroup>
+        </select>
+        @error('province')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label for="city" class="form-label fw-bold">City <span class="text-danger">*</span></label>
-                                <select name="city" id="city" class="form-select @error('city') is-invalid @enderror" required>
-                                    <option value="">Select</option>
-                                    <option value="Makati" {{ old('city') == 'Makati' ? 'selected' : '' }}>Makati</option>
-                                    <option value="Manila" {{ old('city') == 'Manila' ? 'selected' : '' }}>Manila</option>
-                                    <option value="Quezon City" {{ old('city') == 'Quezon City' ? 'selected' : '' }}>Quezon City</option>
-                                    <option value="Pasig" {{ old('city') == 'Pasig' ? 'selected' : '' }}>Pasig</option>
-                                    <option value="Taguig" {{ old('city') == 'Taguig' ? 'selected' : '' }}>Taguig</option>
-                                </select>
-                                @error('city')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
+    <div class="col-md-6 mb-3">
+        <label for="city" class="form-label fw-bold">City <span class="text-danger">*</span></label>
+        <select name="city" id="city" class="form-select @error('city') is-invalid @enderror" required>
+            <option value="">Select City/Municipality</option>
+            
+            <!-- Metro Manila -->
+            <option value="Caloocan" data-province="Metro Manila">Caloocan</option>
+            <option value="Las Piñas" data-province="Metro Manila">Las Piñas</option>
+            <option value="Makati" data-province="Metro Manila">Makati</option>
+            <option value="Malabon" data-province="Metro Manila">Malabon</option>
+            <option value="Mandaluyong" data-province="Metro Manila">Mandaluyong</option>
+            <option value="Manila" data-province="Metro Manila">Manila</option>
+            <option value="Marikina" data-province="Metro Manila">Marikina</option>
+            <option value="Muntinlupa" data-province="Metro Manila">Muntinlupa</option>
+            <option value="Navotas" data-province="Metro Manila">Navotas</option>
+            <option value="Parañaque" data-province="Metro Manila">Parañaque</option>
+            <option value="Pasay" data-province="Metro Manila">Pasay</option>
+            <option value="Pasig" data-province="Metro Manila">Pasig</option>
+            <option value="Pateros" data-province="Metro Manila">Pateros</option>
+            <option value="Quezon City" data-province="Metro Manila">Quezon City</option>
+            <option value="San Juan" data-province="Metro Manila">San Juan</option>
+            <option value="Taguig" data-province="Metro Manila">Taguig</option>
+            <option value="Valenzuela" data-province="Metro Manila">Valenzuela</option>
+            
+            <!-- Cavite -->
+            <option value="Bacoor" data-province="Cavite">Bacoor</option>
+            <option value="Cavite City" data-province="Cavite">Cavite City</option>
+            <option value="Dasmariñas" data-province="Cavite">Dasmariñas</option>
+            <option value="General Trias" data-province="Cavite">General Trias</option>
+            <option value="Imus" data-province="Cavite">Imus</option>
+            <option value="Tagaytay" data-province="Cavite">Tagaytay</option>
+            <option value="Trece Martires" data-province="Cavite">Trece Martires</option>
+            
+            <!-- Laguna -->
+            <option value="Biñan" data-province="Laguna">Biñan</option>
+            <option value="Cabuyao" data-province="Laguna">Cabuyao</option>
+            <option value="Calamba" data-province="Laguna">Calamba</option>
+            <option value="San Pablo" data-province="Laguna">San Pablo</option>
+            <option value="San Pedro" data-province="Laguna">San Pedro</option>
+            <option value="Santa Rosa" data-province="Laguna">Santa Rosa</option>
+            
+            <!-- Batangas -->
+            <option value="Batangas City" data-province="Batangas">Batangas City</option>
+            <option value="Lipa" data-province="Batangas">Lipa</option>
+            <option value="Tanauan" data-province="Batangas">Tanauan</option>
+            
+            <!-- Quezon -->
+            <option value="Lucena" data-province="Quezon">Lucena</option>
+            <option value="Tayabas" data-province="Quezon">Tayabas</option>
+            
+            <!-- Rizal -->
+            <option value="Antipolo" data-province="Rizal">Antipolo</option>
+            <option value="Cainta" data-province="Rizal">Cainta</option>
+            <option value="Taytay" data-province="Rizal">Taytay</option>
+            
+            <!-- Bulacan -->
+            <option value="Malolos" data-province="Bulacan">Malolos</option>
+            <option value="Meycauayan" data-province="Bulacan">Meycauayan</option>
+            <option value="San Jose del Monte" data-province="Bulacan">San Jose del Monte</option>
+            
+            <!-- Pampanga -->
+            <option value="Angeles" data-province="Pampanga">Angeles</option>
+            <option value="Mabalacat" data-province="Pampanga">Mabalacat</option>
+            <option value="San Fernando (Pampanga)" data-province="Pampanga">San Fernando</option>
+            
+            <!-- Nueva Ecija -->
+            <option value="Cabanatuan" data-province="Nueva Ecija">Cabanatuan</option>
+            <option value="Gapan" data-province="Nueva Ecija">Gapan</option>
+            <option value="Muñoz" data-province="Nueva Ecija">Muñoz</option>
+            <option value="Palayan" data-province="Nueva Ecija">Palayan</option>
+            <option value="San Jose" data-province="Nueva Ecija">San Jose</option>
+            
+            <!-- Tarlac -->
+            <option value="Tarlac City" data-province="Tarlac">Tarlac City</option>
+            
+            <!-- Zambales -->
+            <option value="Olongapo" data-province="Zambales">Olongapo</option>
+            
+            <!-- Bataan -->
+            <option value="Balanga" data-province="Bataan">Balanga</option>
+            
+            <!-- Benguet -->
+            <option value="Baguio" data-province="Benguet">Baguio</option>
+            <option value="La Trinidad" data-province="Benguet">La Trinidad</option>
+            
+            <!-- Ilocos Norte -->
+            <option value="Batac" data-province="Ilocos Norte">Batac</option>
+            <option value="Laoag" data-province="Ilocos Norte">Laoag</option>
+            
+            <!-- Ilocos Sur -->
+            <option value="Candon" data-province="Ilocos Sur">Candon</option>
+            <option value="Vigan" data-province="Ilocos Sur">Vigan</option>
+            
+            <!-- La Union -->
+            <option value="San Fernando (La Union)" data-province="La Union">San Fernando</option>
+            
+            <!-- Pangasinan -->
+            <option value="Alaminos" data-province="Pangasinan">Alaminos</option>
+            <option value="Dagupan" data-province="Pangasinan">Dagupan</option>
+            <option value="San Carlos" data-province="Pangasinan">San Carlos</option>
+            <option value="Urdaneta" data-province="Pangasinan">Urdaneta</option>
+            
+            <!-- Cagayan -->
+            <option value="Tuguegarao" data-province="Cagayan">Tuguegarao</option>
+            
+            <!-- Isabela -->
+            <option value="Cauayan" data-province="Isabela">Cauayan</option>
+            <option value="Ilagan" data-province="Isabela">Ilagan</option>
+            <option value="Santiago" data-province="Isabela">Santiago</option>
+            
+            <!-- Albay -->
+            <option value="Legazpi" data-province="Albay">Legazpi</option>
+            <option value="Ligao" data-province="Albay">Ligao</option>
+            <option value="Tabaco" data-province="Albay">Tabaco</option>
+            
+            <!-- Camarines Sur -->
+            <option value="Iriga" data-province="Camarines Sur">Iriga</option>
+            <option value="Naga" data-province="Camarines Sur">Naga</option>
+            
+            <!-- Sorsogon -->
+            <option value="Sorsogon City" data-province="Sorsogon">Sorsogon City</option>
+            
+            <!-- Masbate -->
+            <option value="Masbate City" data-province="Masbate">Masbate City</option>
+            
+            <!-- Palawan -->
+            <option value="Puerto Princesa" data-province="Palawan">Puerto Princesa</option>
+            
+            <!-- Oriental Mindoro -->
+            <option value="Calapan" data-province="Oriental Mindoro">Calapan</option>
+            
+            <!-- Iloilo -->
+            <option value="Iloilo City" data-province="Iloilo">Iloilo City</option>
+            <option value="Passi" data-province="Iloilo">Passi</option>
+            
+            <!-- Capiz -->
+            <option value="Roxas" data-province="Capiz">Roxas</option>
+            
+            <!-- Negros Occidental -->
+            <option value="Bacolod" data-province="Negros Occidental">Bacolod</option>
+            <option value="Bago" data-province="Negros Occidental">Bago</option>
+            <option value="Cadiz" data-province="Negros Occidental">Cadiz</option>
+            <option value="Escalante" data-province="Negros Occidental">Escalante</option>
+            <option value="Himamaylan" data-province="Negros Occidental">Himamaylan</option>
+            <option value="Kabankalan" data-province="Negros Occidental">Kabankalan</option>
+            <option value="Sagay" data-province="Negros Occidental">Sagay</option>
+            <option value="San Carlos (Negros Occidental)" data-province="Negros Occidental">San Carlos</option>
+            <option value="Silay" data-province="Negros Occidental">Silay</option>
+            <option value="Sipalay" data-province="Negros Occidental">Sipalay</option>
+            <option value="Talisay (Negros Occidental)" data-province="Negros Occidental">Talisay</option>
+            <option value="Victorias" data-province="Negros Occidental">Victorias</option>
+            
+            <!-- Cebu -->
+            <option value="Bogo" data-province="Cebu">Bogo</option>
+            <option value="Carcar" data-province="Cebu">Carcar</option>
+            <option value="Cebu City" data-province="Cebu">Cebu City</option>
+            <option value="Danao" data-province="Cebu">Danao</option>
+            <option value="Lapu-Lapu" data-province="Cebu">Lapu-Lapu</option>
+            <option value="Mandaue" data-province="Cebu">Mandaue</option>
+            <option value="Naga (Cebu)" data-province="Cebu">Naga</option>
+            <option value="Talisay (Cebu)" data-province="Cebu">Talisay</option>
+            <option value="Toledo" data-province="Cebu">Toledo</option>
+            
+            <!-- Bohol -->
+            <option value="Tagbilaran" data-province="Bohol">Tagbilaran</option>
+            
+            <!-- Negros Oriental -->
+            <option value="Bais" data-province="Negros Oriental">Bais</option>
+            <option value="Bayawan" data-province="Negros Oriental">Bayawan</option>
+            <option value="Canlaon" data-province="Negros Oriental">Canlaon</option>
+            <option value="Dumaguete" data-province="Negros Oriental">Dumaguete</option>
+            <option value="Guihulngan" data-province="Negros Oriental">Guihulngan</option>
+            <option value="Tanjay" data-province="Negros Oriental">Tanjay</option>
+            
+            <!-- Leyte -->
+            <option value="Baybay" data-province="Leyte">Baybay</option>
+            <option value="Ormoc" data-province="Leyte">Ormoc</option>
+            <option value="Tacloban" data-province="Leyte">Tacloban</option>
+            
+            <!-- Southern Leyte -->
+            <option value="Maasin" data-province="Southern Leyte">Maasin</option>
+            
+            <!-- Eastern Samar -->
+            <option value="Borongan" data-province="Eastern Samar">Borongan</option>
+            
+            <!-- Samar -->
+            <option value="Calbayog" data-province="Samar">Calbayog</option>
+            <option value="Catbalogan" data-province="Samar">Catbalogan</option>
+            
+            <!-- Zamboanga del Norte -->
+            <option value="Dapitan" data-province="Zamboanga del Norte">Dapitan</option>
+            <option value="Dipolog" data-province="Zamboanga del Norte">Dipolog</option>
+            
+            <!-- Zamboanga del Sur -->
+            <option value="Pagadian" data-province="Zamboanga del Sur">Pagadian</option>
+            <option value="Zamboanga City" data-province="Zamboanga del Sur">Zamboanga City</option>
+            
+            <!-- Bukidnon -->
+            <option value="Malaybalay" data-province="Bukidnon">Malaybalay</option>
+            <option value="Valencia" data-province="Bukidnon">Valencia</option>
+            
+            <!-- Lanao del Norte -->
+            <option value="Iligan" data-province="Lanao del Norte">Iligan</option>
+            
+            <!-- Misamis Occidental -->
+            <option value="Oroquieta" data-province="Misamis Occidental">Oroquieta</option>
+            <option value="Ozamiz" data-province="Misamis Occidental">Ozamiz</option>
+            <option value="Tangub" data-province="Misamis Occidental">Tangub</option>
+            
+            <!-- Misamis Oriental -->
+            <option value="Cagayan de Oro" data-province="Misamis Oriental">Cagayan de Oro</option>
+            <option value="El Salvador" data-province="Misamis Oriental">El Salvador</option>
+            <option value="Gingoog" data-province="Misamis Oriental">Gingoog</option>
+            
+            <!-- Davao del Norte -->
+            <option value="Panabo" data-province="Davao del Norte">Panabo</option>
+            <option value="Samal" data-province="Davao del Norte">Samal</option>
+            <option value="Tagum" data-province="Davao del Norte">Tagum</option>
+            
+            <!-- Davao del Sur -->
+            <option value="Davao City" data-province="Davao del Sur">Davao City</option>
+            <option value="Digos" data-province="Davao del Sur">Digos</option>
+            
+            <!-- Davao Oriental -->
+            <option value="Mati" data-province="Davao Oriental">Mati</option>
+            
+            <!-- South Cotabato -->
+                        <option value="General Santos" data-province="South Cotabato">General Santos</option>
+            <option value="Koronadal" data-province="South Cotabato">Koronadal</option>
+            
+            <!-- Cotabato -->
+            <option value="Kidapawan" data-province="Cotabato">Kidapawan</option>
+            
+            <!-- Sultan Kudarat -->
+            <option value="Tacurong" data-province="Sultan Kudarat">Tacurong</option>
+            
+            <!-- Agusan del Norte -->
+            <option value="Butuan" data-province="Agusan del Norte">Butuan</option>
+            <option value="Cabadbaran" data-province="Agusan del Norte">Cabadbaran</option>
+            
+            <!-- Agusan del Sur -->
+            <option value="Bayugan" data-province="Agusan del Sur">Bayugan</option>
+            
+            <!-- Surigao del Norte -->
+            <option value="Surigao City" data-province="Surigao del Norte">Surigao City</option>
+            
+            <!-- Surigao del Sur -->
+            <option value="Bislig" data-province="Surigao del Sur">Bislig</option>
+            <option value="Tandag" data-province="Surigao del Sur">Tandag</option>
+            
+            <!-- Basilan -->
+            <option value="Lamitan" data-province="Basilan">Lamitan</option>
+            
+            <!-- Lanao del Sur -->
+            <option value="Marawi" data-province="Lanao del Sur">Marawi</option>
+            
+            <!-- Maguindanao -->
+            <option value="Cotabato City" data-province="Maguindanao del Norte">Cotabato City</option>
+            
+            <!-- Abra -->
+            <option value="Bangued" data-province="Abra">Bangued</option>
+            
+            <!-- Kalinga -->
+            <option value="Tabuk" data-province="Kalinga">Tabuk</option>
+            
+            <!-- Mountain Province -->
+            <option value="Bontoc" data-province="Mountain Province">Bontoc</option>
+            
+            <!-- Ifugao -->
+            <option value="Lagawe" data-province="Ifugao">Lagawe</option>
+            
+            <!-- Batanes -->
+            <option value="Basco" data-province="Batanes">Basco</option>
+            
+            <!-- Nueva Vizcaya -->
+            <option value="Bayombong" data-province="Nueva Vizcaya">Bayombong</option>
+            
+            <!-- Aurora -->
+            <option value="Baler" data-province="Aurora">Baler</option>
+            
+            <!-- Catanduanes -->
+            <option value="Virac" data-province="Catanduanes">Virac</option>
+            
+            <!-- Camarines Norte -->
+            <option value="Daet" data-province="Camarines Norte">Daet</option>
+            
+            <!-- Marinduque -->
+            <option value="Boac" data-province="Marinduque">Boac</option>
+            
+            <!-- Occidental Mindoro -->
+            <option value="Mamburao" data-province="Occidental Mindoro">Mamburao</option>
+            
+            <!-- Romblon -->
+            <option value="Romblon" data-province="Romblon">Romblon</option>
+            
+            <!-- Aklan -->
+            <option value="Kalibo" data-province="Aklan">Kalibo</option>
+            
+            <!-- Antique -->
+            <option value="San Jose" data-province="Antique">San Jose</option>
+            
+            <!-- Guimaras -->
+            <option value="Jordan" data-province="Guimaras">Jordan</option>
+            
+            <!-- Siquijor -->
+            <option value="Siquijor" data-province="Siquijor">Siquijor</option>
+            
+            <!-- Biliran -->
+            <option value="Naval" data-province="Biliran">Naval</option>
+            
+            <!-- Northern Samar -->
+            <option value="Catarman" data-province="Northern Samar">Catarman</option>
+            
+            <!-- Zamboanga Sibugay -->
+            <option value="Ipil" data-province="Zamboanga Sibugay">Ipil</option>
+            
+            <!-- Camiguin -->
+            <option value="Mambajao" data-province="Camiguin">Mambajao</option>
+            
+            <!-- Davao de Oro -->
+            <option value="Nabunturan" data-province="Davao de Oro">Nabunturan</option>
+            
+            <!-- Davao Occidental -->
+            <option value="Malita" data-province="Davao Occidental">Malita</option>
+            
+            <!-- Sarangani -->
+            <option value="Alabel" data-province="Sarangani">Alabel</option>
+            
+            <!-- Dinagat Islands -->
+            <option value="San Jose" data-province="Dinagat Islands">San Jose</option>
+            
+            <!-- Apayao -->
+            <option value="Kabugao" data-province="Apayao">Kabugao</option>
+            
+            <!-- Quirino -->
+            <option value="Cabarroguis" data-province="Quirino">Cabarroguis</option>
+            
+            <!-- Maguindanao del Sur -->
+            <option value="Buluan" data-province="Maguindanao del Sur">Buluan</option>
+            
+            <!-- Sulu -->
+            <option value="Jolo" data-province="Sulu">Jolo</option>
+            
+            <!-- Tawi-Tawi -->
+            <option value="Bongao" data-province="Tawi-Tawi">Bongao</option>
+        </select>
+        @error('city')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -471,6 +953,50 @@
 </style>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const provinceSelect = document.getElementById('province');
+    const citySelect = document.getElementById('city');
+    const allCityOptions = Array.from(citySelect.querySelectorAll('option[data-province]'));
+    
+    // Function to filter cities based on selected province
+    function filterCities() {
+        const selectedProvince = provinceSelect.value;
+        
+        // Remove all city options except the first one (placeholder)
+        citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+        
+        if (selectedProvince) {
+            // Add only cities that match the selected province
+            allCityOptions.forEach(option => {
+                if (option.dataset.province === selectedProvince) {
+                    citySelect.appendChild(option.cloneNode(true));
+                }
+            });
+        }
+        
+        // Reset city selection
+        citySelect.value = '';
+        
+        // If there's an old value (from validation error), try to select it
+        const oldCity = '{{ old("city") }}';
+        if (oldCity && selectedProvince) {
+            const matchingOption = citySelect.querySelector(`option[value="${oldCity}"]`);
+            if (matchingOption) {
+                citySelect.value = oldCity;
+            }
+        }
+    }
+    
+    // Listen for province changes
+    provinceSelect.addEventListener('change', filterCities);
+    
+    // Initialize on page load if province is already selected
+    const oldProvince = '{{ old("province") }}';
+    if (oldProvince) {
+        provinceSelect.value = oldProvince;
+        filterCities();
+    }
+});
     document.addEventListener('DOMContentLoaded', function() {
         let currentStep = 1;
         const totalSteps = 3;

@@ -2,29 +2,85 @@
 
 namespace App\Http\Controllers;
 
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Product;
-use App\Notifications\OrderStatusUpdated; // ✅ Added
-
+use App\Models\User;
+use App\Notifications\OrderStatusUpdated;
+use App\Notifications\OrderDeliveredNotification;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 class OrderController extends Controller
 {
-    public function index()
-    {
-        // Buyers can view their own orders
-        if (auth()->user()->role === 'seller') {
-            abort(403, 'Unauthorized access.');
-        }
-
-        $orders = Order::with('products') // eager load products
-            ->where('user_id', Auth::id())
-            ->orderByDesc('created_at')
-            ->get();
-
-        return view('orders.index', compact('orders'));
+   public function index()
+{
+    if (auth()->user()->role === 'seller') {
+        abort(403, 'Unauthorized access.');
     }
+
+    $userId = Auth::id();
+
+    // Query database SEPARATELY for each tab - most reliable method
+    $orders = Order::with('products.images')
+        ->where('user_id', $userId)
+        ->orderByDesc('created_at')
+        ->get();
+
+    $allOrders = $orders;
+    
+    $toShipOrders = Order::with('products.images')
+        ->where('user_id', $userId)
+        ->where('status', 'Pending')
+        ->orderByDesc('created_at')
+        ->get();
+    
+    $toReceiveOrders = Order::with('products.images')
+        ->where('user_id', $userId)
+        ->where('status', 'Shipped')
+        ->orderByDesc('created_at')
+        ->get();
+    
+    $completedOrders = Order::with('products.images')
+        ->where('user_id', $userId)
+        ->where('status', 'Delivered')
+        ->where('refund_status', 'None')
+        ->orderByDesc('created_at')
+        ->get();
+    
+    $cancelledOrders = Order::with('products.images')
+        ->where('user_id', $userId)
+        ->where('status', 'Cancelled')
+        ->orderByDesc('created_at')
+        ->get();
+    
+    $refundOrders = Order::with('products.images')
+        ->where('user_id', $userId)
+        ->whereIn('refund_status', ['Pending', 'Approved', 'Rejected'])
+        ->orderByDesc('created_at')
+        ->get();
+
+    // Debug logs
+    // \Log::info('=== ORDER COUNTS ===');
+    // \Log::info('All: ' . $allOrders->count());
+    // \Log::info('To Ship: ' . $toShipOrders->count());
+    // \Log::info('To Receive: ' . $toReceiveOrders->count());
+    // \Log::info('Completed: ' . $completedOrders->count());
+    // \Log::info('Cancelled: ' . $cancelledOrders->count());
+    // \Log::info('Refund: ' . $refundOrders->count());
+
+    return view('orders.index', compact(
+        'orders',
+        'allOrders',
+        'toShipOrders',
+        'toReceiveOrders',
+        'completedOrders',
+        'cancelledOrders',
+        'refundOrders'
+    ));
+}
 
     public function supplierOrders()
     {
@@ -247,6 +303,62 @@ public function cancelOrder(Request $request, $orderId)
     return back()->with('success', 'Order and all products cancelled successfully.');
 }
 
+public function seller()
+{
+    return $this->belongsTo(User::class, 'seller_id');
+}
+
+public function generateQR($orderId)
+{
+    $order = Order::findOrFail($orderId);
+
+    // ✅ Create a temporary signed URL (valid for 24 hours)
+    $qrUrl = URL::temporarySignedRoute(
+        'orders.qrDeliver', // route name
+        now()->addHours(24), // expiration
+        ['order' => $order->id]
+    );
+
+    // ✅ Use SVG format (no Imagick/GD needed)
+    $qrCode = QrCode::format('svg')->size(250)->generate($qrUrl);
+
+    return view('orders.qr', compact('order', 'qrCode', 'qrUrl'));
+}
 
 
+public function qrDeliver(Request $request, $orderId)
+{
+    // ✅ Ensure the signed link is valid
+    if (! $request->hasValidSignature()) {
+        abort(403, 'Invalid or expired QR code.');
+    }
+
+    $order = Order::findOrFail($orderId);
+
+    // ✅ Ensure the logged-in user is the rightful buyer
+    if (Auth::id() !== $order->user_id) {
+        Log::warning("Unauthorized QR scan attempt for order {$order->id} by user " . Auth::id());
+        abort(403, 'You are not authorized to confirm this delivery.');
+    }
+
+    // ✅ Log the scan
+    Log::info("QR scanned for order {$order->id} by buyer " . Auth::id() . " (IP: " . $request->ip() . ")");
+
+    if ($order->status !== 'Delivered') {
+        DB::table('order_product')
+            ->where('order_id', $orderId)
+            ->update(['product_status' => 'Delivered']);
+
+        $order->update(['status' => 'Delivered']);
+
+        // ✅ Notify buyer (themselves)
+        $order->user->notify(new OrderDeliveredNotification($order));
+
+        Log::info("Order {$order->id} marked as delivered via QR scan by buyer " . Auth::id());
+    } else {
+        Log::warning("QR for order {$order->id} scanned again (already delivered).");
+    }
+
+    return view('orders.qr-confirm', compact('order'));
+}
 }

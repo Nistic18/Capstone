@@ -111,19 +111,20 @@ class DashboardController extends Controller
 
     private function getMonthlyRevenue($userId, $month)
     {
-        return DB::table('order_product')
-            ->join('products', 'order_product.product_id', '=', 'products.id')
-            ->join('orders', 'order_product.order_id', '=', 'orders.id')
-            ->where('products.user_id', $userId)
-            ->whereIn('orders.status', ['Delivered', 'Completed'])
-            ->whereYear('orders.created_at', $month->year)
-            ->whereMonth('orders.created_at', $month->month)
-            ->where(function ($query) {
+        return DB::table('orders')
+        ->join('order_product', 'orders.id', '=', 'order_product.order_id')
+        ->join('products', 'order_product.product_id', '=', 'products.id')
+        ->where('products.user_id', $userId)
+        ->whereIn('orders.status', ['Delivered', 'Completed'])
+        ->whereYear('orders.created_at', $month->year)
+        ->whereMonth('orders.created_at', $month->month)
+        ->where(function ($query) {
             $query->whereNull('orders.refund_status')
                   ->orWhere('orders.refund_status', '!=', 'Approved');
-            })
-            ->sum(DB::raw('order_product.quantity * products.price'));
-    }
+        })
+        ->distinct('orders.id')
+        ->sum('orders.total_price');
+}
 
     private function getTotalOrders($userId)
     {

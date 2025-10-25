@@ -104,6 +104,8 @@
             $shippedCount = $products->where('pivot.product_status', 'Shipped')->count();
             $deliveredCount = $products->where('pivot.product_status', 'Delivered')->count();
             $isCancelled = $order->status === 'Cancelled'; 
+            $isRefunded = $order->refund_status === 'Approved';
+
 
             // Determine overall order status
         if ($isCancelled) {
@@ -158,9 +160,23 @@
                                     <i class="fas fa-clock me-1"></i>{{ $overallStatus }}
                                 @endif
                             </span>
-                            <h4 class="mb-0 fw-bold" style="color: #28a745;">
-                                Total: ₱{{ number_format($order->total_price, 2) }}
-                            </h4>
+                            @php
+    $paymentMethodFull = match(strtolower($order->payment_method)) {
+        'cod' => 'Cash on Delivery',
+        'pickup' => 'Pickup',
+        default => ucfirst($order->payment_method ?? 'Cash on Delivery'),
+    };
+@endphp
+
+<h4 class="mb-0 fw-bold" style="color: #28a745;">
+    Total: ₱{{ number_format($order->total_price, 2) }}
+</h4>
+<div class="mt-1">
+    <span class="badge bg-light text-dark" style="border-radius: 10px;">
+        <i class="fas fa-wallet me-1 text-secondary"></i>
+        {{ $paymentMethodFull }}
+    </span>
+</div>
                         </div>
                     </div>
                 </div>
@@ -169,7 +185,7 @@
             {{-- Order Content --}}
             <div class="card-body p-4">
                 {{-- Status Summary --}}
-                @if(!$hasDeliveredAll)
+                @if(!$hasDeliveredAll && !$isRefunded)
                 <div class="mb-4">
                     <div class="row g-3">
                         <div class="col-md-4">
@@ -209,7 +225,15 @@
            style="border-radius: 10px;">
             <i class="fas fa-eye me-1"></i> View Details
         </a>
+        @if($order->status === 'Pending')
+        <a href="{{ route('orders.generateQR', $order->id) }}" 
+   class="btn btn-sm btn-outline-success"
+   style="border-radius: 10px;">
+    <i class="fas fa-qrcode me-1"></i> Generate QR
+</a>
+@endif
     </div>
+
                 <form method="POST" action="{{ route('supplier.orders.status.bulk-update', $order->id) }}" 
                       id="orderForm{{ $order->id }}">
                     @csrf
@@ -222,7 +246,7 @@
                                 <tr>
                                     <th class="border-0 fw-semibold" style="color: #495057;">
                                         <div class="d-flex align-items-center">
-                                            @if(!$hasDeliveredAll)
+                                            @if(!$hasDeliveredAll && !$isRefunded) 
                                             <input type="checkbox" class="form-check-input me-2" 
                                                    id="selectAll{{ $order->id }}" 
                                                    onchange="toggleAllProducts({{ $order->id }})">
@@ -232,7 +256,7 @@
                                     </th>
                                     <th class="border-0 fw-semibold text-center" style="color: #495057;">Quantity</th>
                                     <th class="border-0 fw-semibold text-center" style="color: #495057;">Current Status</th>
-                                    @if(!$hasDeliveredAll)
+                                    @if(!$hasDeliveredAll && !$isRefunded)
                                     <th class="border-0 fw-semibold text-center" style="color: #495057;">Action</th>
                                     @endif
                                 </tr>
@@ -242,7 +266,7 @@
                                 <tr>
                                     <td class="border-0 py-3">
                                         <div class="d-flex align-items-center">
-                                            @if(!$hasDeliveredAll && $product->pivot->product_status !== 'Delivered')
+                                            @if(!$hasDeliveredAll && !$isRefunded && $product->pivot->product_status !== 'Delivered')
                                             <input type="checkbox" class="form-check-input me-3 product-checkbox" 
                                                    name="selected_products[]" value="{{ $product->id }}"
                                                    data-order="{{ $order->id }}">
@@ -285,9 +309,9 @@
                                             <i class="{{ $statusBadge['icon'] }} me-1"></i>{{ $product->pivot->product_status }}
                                         </span>
                                     </td>
-                                    @if(!$hasDeliveredAll)
+                                    @if(!$hasDeliveredAll && !$isRefunded)
                                     <td class="border-0 py-3 text-center">
-    @if($hasDeliveredAll)
+    @if($hasDeliveredAll && !$isRefunded)
         <span class="text-success">
             <i class="fas fa-check-circle me-1"></i>Complete
         </span>
@@ -314,25 +338,36 @@
                     </div>
                    {{-- Bulk Actions / Status Messages --}}
 @if($hasDeliveredAll)
-    <div class="alert alert-success border-0 mt-4" style="border-radius: 15px;">
-        <div class="d-flex align-items-center">
-            <i class="fas fa-trophy text-success me-3" style="font-size: 1.5rem;"></i>
-            <div>
-                <h6 class="mb-1 fw-bold text-success">Order Completed!</h6>
-                <small style="color: #fff;">All products in this order have been successfully delivered.</small>
-            </div>
+    <div class="alert alert-success border-0 mt-4" style="border-radius: 15px; background-color: #d4edda;">
+    <div class="d-flex align-items-center">
+        <i class="fas fa-trophy text-dark me-3" style="font-size: 1.5rem;"></i>
+        <div>
+            <h6 class="mb-1 fw-bold text-dark">Order Completed!</h6>
+            <small class="text-muted">All products in this order have been successfully delivered.</small>
         </div>
     </div>
+</div>
 @elseif($isCancelled)
-    <div class="alert alert-danger border-0 mt-4" style="border-radius: 15px;">
-        <div class="d-flex align-items-center">
-            <i class="fas fa-ban text-danger me-3" style="font-size: 1.5rem;"></i>
-            <div>
-                <h6 class="mb-1 fw-bold ">Order Cancelled</h6>
-                <small>This order cannot be processed because it has been cancelled.</small>
-            </div>
+    <div class="alert alert-danger border-0 mt-4 text-white" style="border-radius: 15px; background-color: #dc3545;">
+    <div class="d-flex align-items-center">
+        <i class="fas fa-ban text-white me-3" style="font-size: 1.5rem;"></i>
+        <div>
+            <h6 class="mb-1 fw-bold text-white">Order Cancelled</h6>
+            <small class="text-white-50">This order cannot be processed because it has been cancelled.</small>
         </div>
     </div>
+</div>
+
+@elseif($isRefunded)
+    <div class="alert alert-secondary border-0 mt-4" style="border-radius: 15px;">
+    <div class="d-flex align-items-center">
+        <i class="fas fa-undo-alt text-dark me-3" style="font-size: 1.5rem;"></i>
+        <div>
+            <h6 class="mb-1 fw-bold text-dark">Refunded</h6>
+            <small class="text-muted">This order has been refunded. Product updates are disabled for this transaction.</small>
+        </div>
+    </div>
+</div>
 @else
     <div class="card border-0 mt-4" style="background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%); border-radius: 15px;">
         <div class="card-body p-3">
@@ -342,7 +377,7 @@
             <div class="row g-3 align-items-end">
                 <div class="col-md-4">
                     <label class="form-label small fw-semibold">Update Selected To:</label>
-                    <select name="product_status" class="form-select" style="border-radius: 10px; color: #fff;">
+                    <select name="product_status" class="form-select" style="border-radius: 10px; color: #000000;">
                         <option value="">Choose status...</option>
                         <option value="Pending">📋 Pending</option>
                         <option value="Shipped">🚛 Shipped</option>
@@ -391,10 +426,41 @@
 @endphp
 
 @if($refundLabel)
-<div class="mt-3">
+<div class="mt-3 d-flex align-items-center justify-content-between flex-wrap">
     <span class="badge {{ $refundClass }}" style="padding: 8px 12px; border-radius: 15px;">
         <i class="{{ $refundIcon }} me-1"></i>{{ $refundLabel }}
     </span>
+
+    {{-- ✅ Refund action buttons (only show if pending) --}}
+    @if($order->refund_status === 'Pending')
+        <div class="d-flex gap-2 mt-2 mt-md-0">
+            <form method="POST" action="{{ route('orders.refund.approve', ['order' => $order->id, 'status' => 'Approved']) }}">
+                @csrf
+                @method('PUT')
+                <button type="submit" 
+                        class="btn btn-sm btn-success"
+                        style="border-radius: 10px;">
+                    <i class="fas fa-check-circle me-1"></i>Approve Refund
+                </button>
+            </form>
+            <form method="POST" 
+      action="{{ route('orders.refund.decline', ['order' => $order->id, 'status' => 'Rejected']) }}">
+    @csrf
+    @method('PUT')
+
+    <div class="mb-2">
+        <label for="decline_reason" class="form-label fw-bold">Reason for Rejection:</label>
+        <textarea name="decline_reason" id="decline_reason" class="form-control" rows="2" required></textarea>
+    </div>
+
+    <button type="submit" 
+            class="btn btn-sm btn-danger"
+            style="border-radius: 10px;">
+        <i class="fas fa-times-circle me-1"></i>Reject Refund
+    </button>
+</form>
+        </div>
+    @endif
 </div>
 @endif
 

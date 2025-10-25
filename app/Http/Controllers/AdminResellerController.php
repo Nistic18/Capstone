@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ResellerApplication;
-use App\Mail\ResellerApplicationApproved;
-use App\Mail\ResellerApplicationRejected;
+use App\Mail\SupplierApplicationApproved;
+use App\Mail\SupplierApplicationRejected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -48,7 +48,7 @@ class AdminResellerController extends Controller
         // Send approval email
         try {
             Mail::to($application->email_address)
-                ->send(new ResellerApplicationApproved($application));
+                ->send(new SupplierApplicationApproved($application));
         } catch (\Exception $e) {
             \Log::error('Failed to send approval email: ' . $e->getMessage());
         }
@@ -80,7 +80,7 @@ class AdminResellerController extends Controller
         // Send rejection email
         try {
             Mail::to($application->email_address)
-                ->send(new ResellerApplicationRejected($application));
+                ->send(new SupplierApplicationRejected($application));
         } catch (\Exception $e) {
             \Log::error('Failed to send rejection email: ' . $e->getMessage());
         }

@@ -221,12 +221,21 @@
                     {{-- Checkout Button --}}
 @if($userAddress)
     <form action="{{ route('cart.checkout') }}" method="POST">
-        @csrf
-        <button type="submit" class="btn btn-lg w-100 mb-3" 
-                style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997); border: none; color: white; padding: 12px;">
-            <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
-        </button>
-    </form>
+    @csrf
+    <div class="mb-3">
+        <label for="payment_method" class="form-label fw-semibold">
+            <i class="fas fa-hand-holding-usd me-2 text-success"></i>Choose Payment Method
+        </label>
+        <select name="payment_method" id="payment_method" class="form-select" required>
+            <option value="COD">Cash on Delivery</option>
+            <option value="Pickup">Pickup</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-lg w-100 mb-3" style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997); border: none; color: white; padding: 12px;">
+        <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+    </button>
+</form>
 @else
     <div class="alert alert-warning text-center mb-3" style="border-radius: 10px;">
         <i class="fas fa-exclamation-triangle me-1"></i>

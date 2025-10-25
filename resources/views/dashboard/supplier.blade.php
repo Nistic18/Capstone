@@ -230,6 +230,20 @@
                                             <span class="badge status-badge status-{{ strtolower($order->status) }}">
                                                 {{ $order->status }}
                                             </span>
+                                            {{-- Refund Status (shown only if applicable) --}}
+    @if($order->refund_status === 'Approved')
+        <div class="mt-1">
+            <span class="badge bg-success">Refund Approved</span>
+        </div>
+    @elseif($order->refund_status === 'Pending')
+        <div class="mt-1">
+            <span class="badge bg-warning text-dark">Refund Pending</span>
+        </div>
+    @elseif($order->refund_status === 'Rejected')
+        <div class="mt-1">
+            <span class="badge bg-danger">Refund Rejected</span>
+        </div>
+    @endif
                                         </td>
                                         <td class="text-muted">{{ $order->created_at->format('M j, Y') }}</td>
                                     </tr>
@@ -427,6 +441,7 @@
     .status-processing { background-color: #17a2b8; color: white; }
     .status-delivered { background-color: #28a745; color: white; }
     .status-cancelled { background-color: #dc3545; color: white; }
+    .status-refunded { background-color: #dc3545; color: white; }
 
     .avatar-sm {
         width: 32px;
@@ -580,7 +595,8 @@ document.addEventListener('DOMContentLoaded', function() {
         'Processing': '#17a2b8',
         'Delivered': '#28a745',
         'Cancelled': '#dc3545',
-        'Completed': '#28a745'
+        'Completed': '#28a745',
+        'Refunded': '#dc3545'
     };
 
     new Chart(orderStatusCtx, {
