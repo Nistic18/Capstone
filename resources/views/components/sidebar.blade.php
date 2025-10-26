@@ -39,6 +39,11 @@
                         <i class="fas fa-newspaper"></i><span>Newsfeed</span>
                     </a>
                 </li>
+                <li class="{{ Request::is('buyer/dashboard') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('buyer.dashboard') }}">
+                        <i class="fas fa-chart-pie"></i><span>My Dashboard</span>
+                    </a>
+                </li>
             @endif
 
             {{-- Admin Sidebar --}}
@@ -233,17 +238,12 @@
                     <i class="fas fa-newspaper"></i><span>Supplier Community Newsfeed</span>
              </a>
             </li>
-            {{-- <li class="{{ Request::is('notifications') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('notifications.index') }}">
-                    <i class="fas fa-bell"></i><span>Notifications</span>
-            @php
-            $unread = auth()->user()->unreadNotifications()->count();
-            @endphp
-            @if($unread > 0)
-            <span class="badge bg-danger">{{ $unread }}</span>
-            @endif
-                </a>
-            </li> --}}
+            <li class="menu-header">Reports & Analytics</li>
+    <li class="{{ Request::is('supplier/reports*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('supplier.reports.index') }}">
+            <i class="fas fa-chart-line"></i><span>Reports Dashboard</span>
+        </a>
+    </li>
             @endif
         </ul>
     </aside>

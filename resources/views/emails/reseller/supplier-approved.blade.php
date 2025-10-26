@@ -231,9 +231,9 @@
 
         <div class="footer">
             <p>This is an automated message. Please do not reply to this email.</p>
-            <p>Need help? <a href="mailto:support@yourstore.com">Contact Support</a></p>
+            <p>Need help? <a href="mailto:fishmarketnotification@gmail.com">Contact Support</a></p>
             <p style="margin-top: 15px; color: #999; font-size: 12px;">
-                © {{ date('Y') }} Your Store. All rights reserved.
+                © {{ date('Y') }} FishMarket. All rights reserved.
             </p>
         </div>
     </div>

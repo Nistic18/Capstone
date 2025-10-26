@@ -83,12 +83,6 @@
                             {{-- Product Price --}}
                             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                                 <div class="mb-2">
-                                    <span class="text-muted" style="text-decoration: line-through; font-size: 0.9rem;">
-                                        ₱{{ number_format($product->price * 1.2, 2) }}
-                                    </span>
-                                </div>
-                                <div class="fw-bold" style="color: #764ba2; font-size: 1.1rem;">
-                                    ₱{{ number_format($product->price * $product->pivot->quantity, 2) }}
                                 </div>
                             </div>
                         </div>
@@ -208,11 +202,6 @@
 
                         {{-- Action Buttons --}}
                         <div class="col-12 text-end mt-2">
-                            @if($order->status === 'Shipped')
-                                <button class="btn btn-primary btn-sm me-2" style="border-radius: 4px;">
-                                    <i class="fas fa-truck me-1"></i>Track Order
-                                </button>
-                            @endif
                             @if($order->status === 'Delivered')
                                 <a href="{{ route('home') }}" class="btn btn-outline-primary btn-sm" style="border-radius: 4px;">
                                     <i class="fas fa-redo me-1"></i>Buy Again

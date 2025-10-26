@@ -1,8 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\ProductType;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -16,6 +19,14 @@ class ProductController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
+        // Filter by category or type
+        if ($request->filled('product_category_id')) {
+            $query->where('product_category_id', $request->product_category_id);
+        }
+        if ($request->filled('product_type_id')) {
+            $query->where('product_type_id', $request->product_type_id);
+        }
+
         // Price filter
         if ($request->filled('min_price')) {
             $query->where('price', '>=', $request->min_price);
@@ -26,56 +37,38 @@ class ProductController extends Controller
 
         // Sorting
         switch ($request->sort) {
-            case 'price_asc':
-                $query->orderBy('price', 'asc');
-                break;
-            case 'price_desc':
-                $query->orderBy('price', 'desc');
-                break;
-            case 'name_asc':
-                $query->orderBy('name', 'asc');
-                break;
-            case 'name_desc':
-                $query->orderBy('name', 'desc');
-                break;
-            default:
-                $query->latest();
+            case 'price_asc': $query->orderBy('price', 'asc'); break;
+            case 'price_desc': $query->orderBy('price', 'desc'); break;
+            case 'name_asc': $query->orderBy('name', 'asc'); break;
+            case 'name_desc': $query->orderBy('name', 'desc'); break;
+            default: $query->latest();
         }
 
         $products = $query->paginate(9)->appends($request->query());
+        $categories = ProductCategory::all();
+        $types = ProductType::all();
 
-        return view('home', compact('products'));
+        return view('home', compact('products', 'categories', 'types'));
     }
 
     public function index(Request $request)
     {
-        // Only allow sellers or admins
         if (auth()->user()->role === 'buyer') {
             abort(403, 'Unauthorized access.');
         }
 
-        $query = \App\Models\Product::where('user_id', Auth::id());
+        $query = Product::where('user_id', Auth::id());
 
-        // Optional: search filter
         if ($request->filled('search')) {
             $query->where('name', 'like', '%'.$request->search.'%');
         }
 
-        // Optional: sorting
         if ($request->filled('sort')) {
             switch ($request->sort) {
-                case 'price_asc':
-                    $query->orderBy('price', 'asc');
-                    break;
-                case 'price_desc':
-                    $query->orderBy('price', 'desc');
-                    break;
-                case 'name_asc':
-                    $query->orderBy('name', 'asc');
-                    break;
-                case 'name_desc':
-                    $query->orderBy('name', 'desc');
-                    break;
+                case 'price_asc': $query->orderBy('price', 'asc'); break;
+                case 'price_desc': $query->orderBy('price', 'desc'); break;
+                case 'name_asc': $query->orderBy('name', 'asc'); break;
+                case 'name_desc': $query->orderBy('name', 'desc'); break;
             }
         }
 
@@ -85,9 +78,12 @@ class ProductController extends Controller
     }
 
     public function create()
-    {
-        return view('products.create');
-    }
+{
+    $productCategories = ProductCategory::all();
+    $productTypes = ProductType::all();
+
+    return view('products.create', compact('productCategories', 'productTypes'));
+}
 
     public function store(Request $request)
     {
@@ -97,6 +93,8 @@ class ProductController extends Controller
             'quantity' => 'required|integer|min:0',
             'low_stock_threshold' => 'nullable|integer|min:0',
             'description' => 'nullable|string',
+            'product_category_id' => 'required|exists:product_categories,id',
+            'product_type_id' => 'required|exists:product_types,id',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
@@ -106,6 +104,8 @@ class ProductController extends Controller
             'quantity' => $request->quantity,
             'low_stock_threshold' => $request->low_stock_threshold ?? 10,
             'description' => $request->description,
+            'product_category_id' => $request->product_category_id,
+            'product_type_id' => $request->product_type_id,
             'user_id' => auth()->id(),
         ]);
 
@@ -133,19 +133,17 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Product created successfully!');
     }
 
-    public function show(Product $product)
-    {
-        return view('products.show', compact('product'));
-    }
-
     public function edit(Product $product)
-    {
-        if (auth()->id() !== $product->user_id && auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized access.');
-        }
-
-        return view('products.create', compact('product'));
+{
+    if (auth()->id() !== $product->user_id && auth()->user()->role !== 'admin') {
+        abort(403, 'Unauthorized access.');
     }
+
+    $productCategories = ProductCategory::all();
+    $productTypes = ProductType::all();
+
+    return view('products.create', compact('product', 'productCategories', 'productTypes'));
+}
 
     public function update(Request $request, Product $product)
     {
@@ -159,6 +157,8 @@ class ProductController extends Controller
             'quantity' => 'required|integer|min:0',
             'low_stock_threshold' => 'nullable|integer|min:0',
             'description' => 'nullable|string',
+            'product_category_id' => 'required|exists:product_categories,id',
+            'product_type_id' => 'required|exists:product_types,id',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
@@ -171,9 +171,10 @@ class ProductController extends Controller
             'quantity' => $newQuantity,
             'low_stock_threshold' => $request->low_stock_threshold ?? $product->low_stock_threshold,
             'description' => $request->description,
+            'product_category_id' => $request->product_category_id,
+            'product_type_id' => $request->product_type_id,
         ]);
 
-        // Log quantity change if it happened
         if ($oldQuantity != $newQuantity) {
             $difference = $newQuantity - $oldQuantity;
             $product->inventoryLogs()->create([
@@ -187,7 +188,6 @@ class ProductController extends Controller
             ]);
         }
 
-        // Handle new images if uploaded
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('products', 'public');
@@ -207,4 +207,15 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted!');
     }
+    public function show(Product $product)
+    {
+        $product->load('images', 'user', 'reviews', 'category', 'type');
+        
+        return view('products.show', compact('product'));
+    }
+public function landing()
+{
+    $heroProducts = Product::inRandomOrder()->take(4)->get();
+    return view('landing', compact('heroProducts'));
+}
 }

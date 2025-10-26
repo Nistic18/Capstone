@@ -21,7 +21,7 @@ class CartController extends Controller
     $totalQuantity = $cart->sum('quantity');
 
     // Determine delivery fee
-    $deliveryFee = $totalQuantity >= 10 ? 100 : 50;
+    $deliveryFee = $totalQuantity >= 10 ? 0 : 0;
 
     // Calculate total price
     $total = $cart->sum(function($item) {
@@ -107,7 +107,7 @@ public function checkout(Request $request)
 
         // Calculate total quantity and delivery fee
         $totalQuantity = $cartItems->sum('quantity');
-        $deliveryFee = $totalQuantity >= 10 ? 100 : 50;
+        $deliveryFee = $totalQuantity >= 10 ? 0 : 0;
 
         $totalProducts = 0;
 

@@ -234,7 +234,7 @@
 
     <div class="footer">
         <p>This report was generated automatically by the system.</p>
-        <p>&copy; {{ date('Y') }} Your Company Name. All rights reserved.</p>
+        <p>&copy; {{ date('Y') }} Fishmarket. All rights reserved.</p>
     </div>
 </body>
 </html>

@@ -7,7 +7,8 @@ use App\Models\User;
 
 class Product extends Model
 {
-    protected $fillable = ['name', 'description', 'price', 'quantity', 'user_id', 'image', 'status', 'low_stock_threshold'];
+    protected $fillable = ['name', 'description', 'price', 'quantity', 'user_id', 'image', 'status', 'low_stock_threshold','product_category_id',
+    'product_type_id'];
 
     protected $casts = [
         'low_stock_threshold' => 'integer',
@@ -139,4 +140,17 @@ class Product extends Model
                 return '<span class="badge bg-success">In Stock</span>';
         }
     }
+    public function type()
+{
+    return $this->belongsTo(ProductType::class, 'product_type_id');
+}
+
+public function category()
+{
+    return $this->belongsTo(ProductCategory::class, 'product_category_id');
+}
+public function productCategory()
+{
+    return $this->belongsTo(ProductCategory::class);
+}
 }

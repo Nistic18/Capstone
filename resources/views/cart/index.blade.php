@@ -13,6 +13,7 @@
 @section('content')
 @php
     $userAddress = auth()->user()->address ?? null;
+    $userPhone = auth()->user()->phone ?? null;
 @endphp
 
 <div class="container mt-4">
@@ -185,24 +186,47 @@
                         <i class="fas fa-receipt text-primary me-2"></i>Order Summary
                     </h5>
 
+                    {{-- User Information Display --}}
+                    @if($userAddress || $userPhone)
+                    <div class="mb-4 p-3 rounded" style="background-color: #f8f9fa; border: 1px solid #dee2e6;">
+                        <h6 class="fw-bold mb-3" style="color: #2c3e50;">
+                            <i class="fas fa-user-circle me-2 text-primary"></i>Delivery Information
+                        </h6>
+                        
+                        @if($userPhone)
+                        <div class="mb-2">
+                            <small class="text-muted d-block mb-1">
+                                <i class="fas fa-phone me-2 text-success"></i>Phone Number
+                            </small>
+                            <span class="fw-semibold">{{ $userPhone }}</span>
+                        </div>
+                        @endif
+
+                        @if($userAddress)
+                        <div class="mb-2">
+                            <small class="text-muted d-block mb-1">
+                                <i class="fas fa-map-marker-alt me-2 text-danger"></i>Delivery Address
+                            </small>
+                            <span class="fw-semibold">{{ $userAddress }}</span>
+                        </div>
+                        @endif
+
+                        <a href="{{ route('profile.edit') }}" class="btn btn-sm btn-outline-primary mt-2 w-100" style="border-radius: 8px;">
+                            <i class="fas fa-edit me-1"></i>Update Information
+                        </a>
+                    </div>
+                    @endif
+
                     {{-- Order Details --}}
                     <div class="mb-4">
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">Items ({{ $cart->count() }})</span>
                             <span class="fw-semibold">₱{{ number_format($total, 2) }}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Delivery Fee</span>
-                            <span class="fw-semibold text-success">₱{{ number_format($deliveryFee, 2) }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Handling Fee</span>
-                            <span class="fw-semibold text-success">FREE</span>
-                        </div>
                         <hr class="my-3">
                         <div class="d-flex justify-content-between mb-2">
                             <span class="h6 fw-bold">Total Amount</span>
-                            <span class="h5 fw-bold" style="color: #28a745;">₱{{ number_format($total + $deliveryFee, 2) }}</span>
+                            <span class="h5 fw-bold" style="color: #28a745;">₱{{ number_format($total, 2) }}</span>
                         </div>
                     </div>
 
@@ -219,9 +243,7 @@
                     </div>
 
                     {{-- Checkout Button --}}
-@if($userAddress)
-    <form action="{{ route('cart.checkout') }}" method="POST">
-    @csrf
+@if($userAddress && $userPhone)
     <div class="mb-3">
         <label for="payment_method" class="form-label fw-semibold">
             <i class="fas fa-hand-holding-usd me-2 text-success"></i>Choose Payment Method
@@ -232,14 +254,16 @@
         </select>
     </div>
 
-    <button type="submit" class="btn btn-lg w-100 mb-3" style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997); border: none; color: white; padding: 12px;">
+    <button type="button" class="btn btn-lg w-100 mb-3" 
+            style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997); border: none; color: white; padding: 12px;"
+            data-bs-toggle="modal" 
+            data-bs-target="#checkoutConfirmationModal">
         <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
     </button>
-</form>
 @else
     <div class="alert alert-warning text-center mb-3" style="border-radius: 10px;">
         <i class="fas fa-exclamation-triangle me-1"></i>
-        Please add your delivery address before checkout.
+        Please add your delivery address and phone number before checkout.
     </div>
     <button type="button" class="btn btn-lg w-100 mb-3" 
             style="border-radius: 15px; background: #ccc; border: none; color: #666; padding: 12px;" disabled>
@@ -315,6 +339,102 @@
     </div>
 </div>
 
+{{-- Checkout Confirmation Modal --}}
+<div class="modal fade" id="checkoutConfirmationModal" tabindex="-1" aria-labelledby="checkoutConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title fw-bold text-white" id="checkoutConfirmationModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>Confirm Your Order
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-info border-0 mb-4" style="background: rgba(23, 162, 184, 0.1); color: #0c5460; border-radius: 10px;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Please review your order details before confirming.
+                </div>
+
+                {{-- Order Items Summary --}}
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-3" style="color: #2c3e50;">
+                        <i class="fas fa-shopping-bag me-2 text-primary"></i>Order Items
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead style="background-color: #f8f9fa;">
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-center">Qty</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($cart as $item)
+                                <tr>
+                                    <td>{{ $item->product->name }}</td>
+                                    <td class="text-center">{{ $item->quantity }}</td>
+                                    <td class="text-end">₱{{ number_format($item->product->price, 2) }}</td>
+                                    <td class="text-end fw-semibold">₱{{ number_format($item->product->price * $item->quantity, 2) }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot style="background-color: #f8f9fa;">
+                                <tr>
+                                    <td colspan="3" class="text-end fw-bold">Total Amount:</td>
+                                    <td class="text-end fw-bold" style="color: #28a745;">₱{{ number_format($total, 2) }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Delivery Information --}}
+                <div class="mb-4 p-3 rounded" style="background-color: #f8f9fa; border-left: 4px solid #28a745;">
+                    <h6 class="fw-bold mb-3" style="color: #2c3e50;">
+                        <i class="fas fa-truck me-2 text-success"></i>Delivery Information
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <small class="text-muted d-block">Phone Number:</small>
+                            <span class="fw-semibold" id="confirmPhone">{{ $userPhone }}</span>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <small class="text-muted d-block">Payment Method:</small>
+                            <span class="fw-semibold" id="confirmPaymentMethod">Cash on Delivery</span>
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted d-block">Delivery Address:</small>
+                            <span class="fw-semibold" id="confirmAddress">{{ $userAddress }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Terms and Conditions --}}
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="confirmTerms" required>
+                    <label class="form-check-label" for="confirmTerms">
+                        I confirm that all information is correct and I agree to the terms and conditions.
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <form id="checkoutForm" action="{{ route('cart.checkout') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <input type="hidden" name="payment_method" id="hiddenPaymentMethod" value="COD">
+                    <button type="submit" class="btn btn-success" style="border-radius: 10px;" id="confirmCheckoutBtn" disabled>
+                        <i class="fas fa-check me-1"></i>Confirm & Place Order
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Custom CSS --}}
 <style>
     .form-control:focus {
@@ -363,7 +483,7 @@
     }
 </style>
 
-{{-- JavaScript for quantity controls and modal --}}
+{{-- JavaScript for quantity controls and modals --}}
 <script>
     function decreaseQuantity(productId) {
         const input = document.getElementById('quantity-' + productId);
@@ -386,14 +506,13 @@
     // Auto-submit form when quantity changes
     document.querySelectorAll('input[name="quantity"]').forEach(input => {
         input.addEventListener('change', function() {
-            // Add a small delay to prevent rapid submissions
             setTimeout(() => {
                 this.form.submit();
             }, 100);
         });
     });
     
-    // JavaScript to handle modal data
+    // JavaScript to handle remove from cart modal
     document.addEventListener('DOMContentLoaded', function() {
         const removeFromCartModal = document.getElementById('removeFromCartModal');
         
@@ -403,12 +522,43 @@
                 const productName = button.getAttribute('data-product-name');
                 const productId = button.getAttribute('data-product-id');
                 
-                // Update modal content
                 document.getElementById('cartProductName').textContent = productName;
                 
-                // Update form action
                 const form = document.getElementById('removeFromCartForm');
                 form.action = '{{ route("cart.remove", ":id") }}'.replace(':id', productId);
+            });
+        }
+
+        // Handle checkout confirmation modal
+        const checkoutConfirmationModal = document.getElementById('checkoutConfirmationModal');
+        const confirmTermsCheckbox = document.getElementById('confirmTerms');
+        const confirmCheckoutBtn = document.getElementById('confirmCheckoutBtn');
+        const paymentMethodSelect = document.getElementById('payment_method');
+        
+        if (checkoutConfirmationModal) {
+            checkoutConfirmationModal.addEventListener('show.bs.modal', function(event) {
+                // Update payment method in modal
+                const selectedPaymentMethod = paymentMethodSelect.value;
+                document.getElementById('confirmPaymentMethod').textContent = selectedPaymentMethod === 'COD' ? 'Cash on Delivery' : 'Pickup';
+                document.getElementById('hiddenPaymentMethod').value = selectedPaymentMethod;
+                
+                // Reset checkbox
+                confirmTermsCheckbox.checked = false;
+                confirmCheckoutBtn.disabled = true;
+            });
+        }
+        
+        // Enable/disable confirm button based on checkbox
+        if (confirmTermsCheckbox) {
+            confirmTermsCheckbox.addEventListener('change', function() {
+                confirmCheckoutBtn.disabled = !this.checked;
+            });
+        }
+        
+        // Update payment method when changed
+        if (paymentMethodSelect) {
+            paymentMethodSelect.addEventListener('change', function() {
+                document.getElementById('hiddenPaymentMethod').value = this.value;
             });
         }
     });

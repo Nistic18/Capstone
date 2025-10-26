@@ -230,7 +230,6 @@
                     @endif
 
                     {{-- Action Buttons --}}
-                    {{-- Action Buttons --}}
 <div class="mt-auto">
     @if($product->quantity > 0)
         @if(auth()->id() === $product->user_id)

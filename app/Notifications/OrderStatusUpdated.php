@@ -26,16 +26,31 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
     }
 
     public function toMail($notifiable)
-    {
-        return (new MailMessage)
-            ->subject('Your Order Status Updated')
-            ->greeting('Hello ' . $notifiable->name . '!')
-            ->line('The status of your order #' . str_pad($this->order->id, 6, '0', STR_PAD_LEFT) . ' has been updated.')
-            ->line('New Status: ' . $this->order->status)
-            ->action('View Order', url('/orders/' . $this->order->id))
-            ->line('Thank you for shopping with us!');
-    }
+{
+    $orderNumber = str_pad($this->order->id, 6, '0', STR_PAD_LEFT);
+    $orderUrl = url('/orders/' . $this->order->id);
 
+    return (new MailMessage)
+        ->subject('Your Order Status Updated')
+        ->view('emails.order_status_updated', [
+            'order' => $this->order,
+            'notifiable' => $notifiable,
+            'orderNumber' => $orderNumber,
+            'orderUrl' => $orderUrl,
+            'statusColor' => $this->getStatusColor($this->order->status),
+        ]);
+}
+// Optional: helper function for status color
+protected function getStatusColor($status)
+{
+    return match($status) {
+        'Pending' => '#ffc107',
+        'Processing' => '#17a2b8',
+        'Completed' => '#28a745',
+        'Cancelled' => '#dc3545',
+        default => '#333',
+    };
+}
 public function toDatabase($notifiable)
 {
     return [

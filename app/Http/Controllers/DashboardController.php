@@ -110,20 +110,23 @@ class DashboardController extends Controller
     }
 
     private function getMonthlyRevenue($userId, $month)
-    {
-        return DB::table('orders')
-        ->join('order_product', 'orders.id', '=', 'order_product.order_id')
+{
+    $orderIds = DB::table('order_product')
         ->join('products', 'order_product.product_id', '=', 'products.id')
         ->where('products.user_id', $userId)
-        ->whereIn('orders.status', ['Delivered', 'Completed'])
-        ->whereYear('orders.created_at', $month->year)
-        ->whereMonth('orders.created_at', $month->month)
+        ->pluck('order_product.order_id')
+        ->unique();
+
+    return DB::table('orders')
+        ->whereIn('id', $orderIds)
+        ->whereIn('status', ['Delivered', 'Completed'])
+        ->whereYear('created_at', $month->year)
+        ->whereMonth('created_at', $month->month)
         ->where(function ($query) {
-            $query->whereNull('orders.refund_status')
-                  ->orWhere('orders.refund_status', '!=', 'Approved');
+            $query->whereNull('refund_status')
+                  ->orWhere('refund_status', '!=', 'Approved');
         })
-        ->distinct('orders.id')
-        ->sum('orders.total_price');
+        ->sum('total_price');
 }
 
     private function getTotalOrders($userId)
@@ -572,4 +575,405 @@ private function getMonthlyRefundData($userId)
     return $data;
 }
 
+
+
+
+// Add these methods to your DashboardController.php
+
+public function buyerDashboard()
+{
+    // Only allow buyers
+    if (auth()->user()->role !== 'buyer') {
+        abort(403, 'Unauthorized access.');
+    }
+
+    $userId = auth()->id();
+    
+    // Get current date information
+    $currentMonth = Carbon::now();
+    $previousMonth = Carbon::now()->subMonth();
+    
+    // 1. TOTAL ORDERS METRICS
+    $totalOrders = $this->getBuyerTotalOrders($userId);
+    $completedOrders = $this->getBuyerCompletedOrders($userId);
+    $ongoingOrders = $this->getBuyerOngoingOrders($userId);
+    
+    // 2. SPENDING METRICS
+    $totalSpent = $this->getBuyerTotalSpent($userId);
+    $monthlySpending = $this->getBuyerMonthlySpending($userId, $currentMonth);
+    $previousMonthSpending = $this->getBuyerMonthlySpending($userId, $previousMonth);
+    $spendingGrowth = $this->calculateGrowthPercentage($monthlySpending, $previousMonthSpending);
+    
+    // 3. AVERAGE ORDER VALUE
+    $averageOrderValue = $totalOrders > 0 ? $totalSpent / $totalOrders : 0;
+    
+    // 4. MONTHLY SPENDING CHART DATA (Last 12 months)
+    $monthlySpendingData = $this->getBuyerMonthlySpendingData($userId);
+    
+    // 5. PAYMENT METHOD DISTRIBUTION
+    $paymentMethodData = $this->getBuyerPaymentMethodDistribution($userId);
+    
+    // 6. TOP 5 PRODUCT CATEGORIES
+    $topCategoriesData = $this->getBuyerTopCategories($userId, 5);
+    
+    // 7. RECENT ORDERS
+    $recentOrders = Order::where('user_id', $userId)
+        ->with('products')
+        ->latest()
+        ->limit(10)
+        ->get();
+    
+    // 8. ORDER STATUS BREAKDOWN
+    $pendingOrders = Order::where('user_id', $userId)->where('status', 'Pending')->count();
+    $shippedOrders = Order::where('user_id', $userId)->where('status', 'Shipped')->count();
+    $deliveredOrders = Order::where('user_id', $userId)->where('status', 'Delivered')->count();
+    $cancelledOrders = Order::where('user_id', $userId)->where('status', 'Cancelled')->count();
+    
+    return view('dashboard.buyer', compact(
+        'totalOrders',
+        'completedOrders',
+        'ongoingOrders',
+        'totalSpent',
+        'monthlySpending',
+        'spendingGrowth',
+        'averageOrderValue',
+        'monthlySpendingData',
+        'paymentMethodData',
+        'topCategoriesData',
+        'recentOrders',
+        'pendingOrders',
+        'shippedOrders',
+        'deliveredOrders',
+        'cancelledOrders'
+    ));
+}
+
+// BUYER-SPECIFIC HELPER METHODS
+
+private function getBuyerTotalOrders($userId)
+{
+    return Order::where('user_id', $userId)->count();
+}
+
+private function getBuyerCompletedOrders($userId)
+{
+    return Order::where('user_id', $userId)
+        ->whereIn('status', ['Delivered', 'Completed'])
+        ->count();
+}
+
+private function getBuyerOngoingOrders($userId)
+{
+    return Order::where('user_id', $userId)
+        ->whereIn('status', ['Pending', 'Processing', 'Shipped'])
+        ->count();
+}
+
+private function getBuyerTotalSpent($userId)
+{
+    return Order::where('user_id', $userId)
+        ->whereIn('status', ['Delivered', 'Completed', 'Pending', 'Shipped'])
+        ->where(function ($query) {
+            $query->whereNull('refund_status')
+                  ->orWhere('refund_status', '!=', 'Approved');
+        })
+        ->sum('total_price');
+}
+
+private function getBuyerMonthlySpending($userId, $month)
+{
+    return Order::where('user_id', $userId)
+        ->whereYear('created_at', $month->year)
+        ->whereMonth('created_at', $month->month)
+        ->whereIn('status', ['Delivered', 'Completed', 'Pending', 'Shipped'])
+        ->where(function ($query) {
+            $query->whereNull('refund_status')
+                  ->orWhere('refund_status', '!=', 'Approved');
+        })
+        ->sum('total_price');
+}
+
+private function getBuyerMonthlySpendingData($userId)
+{
+    $data = [];
+    for ($i = 11; $i >= 0; $i--) {
+        $date = Carbon::now()->subMonths($i);
+        
+        $amount = Order::where('user_id', $userId)
+            ->whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->whereIn('status', ['Delivered', 'Completed', 'Pending', 'Shipped'])
+            ->where(function ($query) {
+                $query->whereNull('refund_status')
+                      ->orWhere('refund_status', '!=', 'Approved');
+            })
+            ->sum('total_price');
+
+        $data[] = [
+            'month' => $date->format('M Y'),
+            'amount' => (float) $amount
+        ];
+    }
+    return $data;
+}
+
+private function getBuyerPaymentMethodDistribution($userId)
+{
+    return Order::where('user_id', $userId)
+        ->select('payment_method', DB::raw('count(*) as count'))
+        ->groupBy('payment_method')
+        ->get()
+        ->mapWithKeys(function ($item) {
+            return [ucfirst($item->payment_method) => $item->count];
+        })
+        ->toArray();
+}
+
+// private function getBuyerTopCategories($userId, $limit = 5)
+// {
+//     // Get the top categories based on order count
+//     return DB::table('orders')
+//         ->join('order_product', 'orders.id', '=', 'order_product.order_id')
+//         ->join('products', 'order_product.product_id', '=', 'products.id')
+//         ->where('orders.user_id', $userId)
+//         ->select(
+//             DB::raw("COALESCE(products.category, 'Uncategorized') as category"),
+//             DB::raw('COUNT(DISTINCT orders.id) as count')
+//         )
+//         ->groupBy('category')
+//         ->orderByDesc('count')
+//         ->limit($limit)
+//         ->get()
+//         ->map(function ($item) {
+//             return [
+//                 'category' => $item->category,
+//                 'count' => $item->count
+//             ];
+//         })
+//         ->toArray();
+// }
+
+/**
+ * Get buyer's favorite products (most purchased)
+ */
+
+private function getBuyerTopCategories($userId, $limit = 5)
+{
+    // Since there's no category column, we'll return top purchased products instead
+    return DB::table('orders')
+        ->join('order_product', 'orders.id', '=', 'order_product.order_id')
+        ->join('products', 'order_product.product_id', '=', 'products.id')
+        ->where('orders.user_id', $userId)
+        ->select(
+            'products.name as category', // Using product name as category
+            DB::raw('SUM(order_product.quantity) as count')
+        )
+        ->groupBy('products.id', 'products.name')
+        ->orderByDesc('count')
+        ->limit($limit)
+        ->get()
+        ->map(function ($item) {
+            return [
+                'category' => $item->category,
+                'count' => $item->count
+            ];
+        })
+        ->toArray();
+}
+
+
+private function getBuyerFavoriteProducts($userId, $limit = 5)
+{
+    return DB::table('order_product')
+        ->join('products', 'order_product.product_id', '=', 'products.id')
+        ->join('orders', 'order_product.order_id', '=', 'orders.id')
+        ->where('orders.user_id', $userId)
+        ->select(
+            'products.name',
+            DB::raw('SUM(order_product.quantity) as total_purchased'),
+            DB::raw('SUM(order_product.quantity * products.price) as total_spent')
+        )
+        ->groupBy('products.id', 'products.name')
+        ->orderByDesc('total_purchased')
+        ->limit($limit)
+        ->get();
+}
+
+/**
+ * Get buyer's spending by supplier/seller
+ */
+private function getBuyerSpendingBySeller($userId)
+{
+    return DB::table('orders')
+        ->join('order_product', 'orders.id', '=', 'order_product.order_id')
+        ->join('products', 'order_product.product_id', '=', 'products.id')
+        ->join('users', 'products.user_id', '=', 'users.id')
+        ->where('orders.user_id', $userId)
+        ->select(
+            'users.name as seller_name',
+            DB::raw('SUM(order_product.quantity * products.price) as total_spent'),
+            DB::raw('COUNT(DISTINCT orders.id) as order_count')
+        )
+        ->groupBy('users.id', 'users.name')
+        ->orderByDesc('total_spent')
+        ->get();
+}
+
+/**
+ * Get buyer's order frequency (average days between orders)
+ */
+private function getBuyerOrderFrequency($userId)
+{
+    $orders = Order::where('user_id', $userId)
+        ->orderBy('created_at')
+        ->pluck('created_at')
+        ->toArray();
+
+    if (count($orders) < 2) {
+        return null;
+    }
+
+    $intervals = [];
+    for ($i = 1; $i < count($orders); $i++) {
+        $diff = Carbon::parse($orders[$i])->diffInDays(Carbon::parse($orders[$i - 1]));
+        $intervals[] = $diff;
+    }
+
+    return count($intervals) > 0 ? array_sum($intervals) / count($intervals) : null;
+}
+
+/**
+ * Get buyer's refund/return history
+ */
+private function getBuyerRefundHistory($userId)
+{
+    return [
+        'total_refunds' => Order::where('user_id', $userId)
+            ->where('refund_status', 'Approved')
+            ->count(),
+        'pending_refunds' => Order::where('user_id', $userId)
+            ->where('refund_status', 'Pending')
+            ->count(),
+        'rejected_refunds' => Order::where('user_id', $userId)
+            ->where('refund_status', 'Rejected')
+            ->count(),
+        'total_refunded_amount' => Order::where('user_id', $userId)
+            ->where('refund_status', 'Approved')
+            ->sum('total_price')
+    ];
+}
+
+/**
+ * Get buyer's order status timeline
+ */
+private function getBuyerOrderTimeline($userId, $days = 90)
+{
+    return Order::where('user_id', $userId)
+        ->where('created_at', '>=', Carbon::now()->subDays($days))
+        ->select(
+            DB::raw('DATE(created_at) as date'),
+            'status',
+            DB::raw('COUNT(*) as count')
+        )
+        ->groupBy('date', 'status')
+        ->orderBy('date')
+        ->get();
+}
+
+/**
+ * Get buyer's savings (if you have discounts/promos)
+ */
+private function getBuyerSavings($userId)
+{
+    // If you have a discount or original_price field
+    return DB::table('order_product')
+        ->join('orders', 'order_product.order_id', '=', 'orders.id')
+        ->join('products', 'order_product.product_id', '=', 'products.id')
+        ->where('orders.user_id', $userId)
+        ->select(
+            DB::raw('SUM((products.original_price - products.price) * order_product.quantity) as total_savings')
+        )
+        ->value('total_savings') ?? 0;
+}
+
+/**
+ * Export buyer analytics to CSV
+ */
+public function exportBuyerAnalytics(Request $request)
+{
+    if (auth()->user()->role !== 'buyer') {
+        abort(403, 'Unauthorized access.');
+    }
+
+    $userId = auth()->id();
+    $type = $request->get('type', 'orders'); // orders, spending, products
+    
+    $headers = [
+        'Content-Type' => 'text/csv',
+        'Content-Disposition' => 'attachment; filename="buyer_analytics_' . $type . '_' . date('Y-m-d') . '.csv"',
+    ];
+
+    $callback = function() use ($userId, $type) {
+        $file = fopen('php://output', 'w');
+        
+        switch($type) {
+            case 'orders':
+                fputcsv($file, ['Order ID', 'Date', 'Total', 'Status', 'Payment Method', 'Items']);
+                $orders = Order::where('user_id', $userId)->get();
+                foreach($orders as $order) {
+                    fputcsv($file, [
+                        $order->id,
+                        $order->created_at->format('Y-m-d H:i:s'),
+                        $order->total_price,
+                        $order->status,
+                        $order->payment_method,
+                        $order->products->count()
+                    ]);
+                }
+                break;
+                
+            case 'spending':
+                fputcsv($file, ['Month', 'Amount Spent', 'Orders']);
+                $data = $this->getBuyerMonthlySpendingData($userId);
+                foreach($data as $row) {
+                    fputcsv($file, [
+                        $row['month'],
+                        $row['amount'],
+                        Order::where('user_id', $userId)
+                            ->whereYear('created_at', Carbon::parse($row['month'])->year)
+                            ->whereMonth('created_at', Carbon::parse($row['month'])->month)
+                            ->count()
+                    ]);
+                }
+                break;
+                
+            case 'products':
+                fputcsv($file, ['Product Name', 'Quantity Purchased', 'Total Spent']);
+                $products = DB::table('order_product')
+                    ->join('products', 'order_product.product_id', '=', 'products.id')
+                    ->join('orders', 'order_product.order_id', '=', 'orders.id')
+                    ->where('orders.user_id', $userId)
+                    ->select(
+                        'products.name',
+                        DB::raw('SUM(order_product.quantity) as qty'),
+                        DB::raw('SUM(order_product.quantity * products.price) as total')
+                    )
+                    ->groupBy('products.id', 'products.name')
+                    ->get();
+                    
+                foreach($products as $product) {
+                    fputcsv($file, [
+                        $product->name,
+                        $product->qty,
+                        $product->total
+                    ]);
+                }
+                break;
+        }
+        
+        fclose($file);
+    };
+
+    return response()->stream($callback, 200, $headers);
+}
 }

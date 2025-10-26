@@ -108,8 +108,11 @@
     </div>
 
     <div class="footer">
-        <p>&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</p>
-        <p>This is an automated message. Please do not reply to this email.</p>
-    </div>
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>Need help? <a href="mailto:fishmarketnotification@gmail.com">Contact Support</a></p>
+            <p style="margin-top: 15px; color: #999; font-size: 12px;">
+                © {{ date('Y') }} FishMarket. All rights reserved.
+            </p>
+        </div>
 </body>
 </html>

@@ -9,7 +9,7 @@
 @section('content')
 <div class="reports-container py-4">
     {{-- Header --}}
-    <div class="card border-0 shadow-lg mb-5 header-card">
+    {{-- <div class="card border-0 shadow-lg mb-5 header-card">
         <div class="card-body text-center py-5">
             <div class="mb-3">
                 <i class="fas fa-chart-bar header-icon"></i>
@@ -17,7 +17,7 @@
             <h1 class="display-4 fw-bold text-white mb-3">📊 Admin Reports & Analytics</h1>
             <p class="lead text-white-50 mb-0">Generate comprehensive reports and download data</p>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Summary Statistics --}}
     <div class="row mb-5">
@@ -123,9 +123,6 @@
                             <button type="submit" name="format" value="csv" class="btn btn-success">
                                 <i class="fas fa-file-csv me-2"></i>Download CSV
                             </button>
-                            <button type="submit" name="format" value="excel" class="btn btn-primary">
-                                <i class="fas fa-file-excel me-2"></i>Download Excel
-                            </button>
                         </div>
                     </form>
                 </div>
@@ -153,9 +150,6 @@
                             </button>
                             <button type="submit" name="format" value="csv" class="btn btn-success">
                                 <i class="fas fa-file-csv me-2"></i>Download CSV
-                            </button>
-                            <button type="submit" name="format" value="excel" class="btn btn-primary">
-                                <i class="fas fa-file-excel me-2"></i>Download Excel
                             </button>
                         </div>
                     </form>
@@ -190,9 +184,6 @@
                             </button>
                             <button type="submit" name="format" value="csv" class="btn btn-success">
                                 <i class="fas fa-file-csv me-2"></i>Download CSV
-                            </button>
-                            <button type="submit" name="format" value="excel" class="btn btn-primary">
-                                <i class="fas fa-file-excel me-2"></i>Download Excel
                             </button>
                         </div>
                     </form>
@@ -231,9 +222,6 @@
                             </button>
                             <button type="submit" name="format" value="csv" class="btn btn-success">
                                 <i class="fas fa-file-csv me-2"></i>Download CSV
-                            </button>
-                            <button type="submit" name="format" value="excel" class="btn btn-primary">
-                                <i class="fas fa-file-excel me-2"></i>Download Excel
                             </button>
                         </div>
                     </form>
@@ -289,9 +277,6 @@
                             <button type="submit" name="format" value="csv" class="btn btn-success flex-fill">
                                 <i class="fas fa-file-csv me-2"></i>Download CSV
                             </button>
-                            <button type="submit" name="format" value="excel" class="btn btn-primary flex-fill">
-                                <i class="fas fa-file-excel me-2"></i>Download Excel
-                            </button>
                         </div>
                     </form>
                 </div>
@@ -314,7 +299,7 @@
                             <div class="info-box">
                                 <i class="fas fa-file-alt text-primary mb-2"></i>
                                 <h6 class="fw-bold">Report Formats</h6>
-                                <p class="text-muted mb-0 small">Download reports in PDF, CSV, or Excel format for easy analysis and sharing.</p>
+                                <p class="text-muted mb-0 small">Download reports in PDF and CSV format for easy analysis and sharing.</p>
                             </div>
                         </div>
                         <div class="col-md-4 mb-3">

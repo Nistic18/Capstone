@@ -177,8 +177,17 @@
                                 </a>
                             </div>
                         @else
+                            @php
+                                $ordersPerPage = 8;
+                                $currentOrdersPage = request()->get('orders_page', 1);
+                                $allOrders = auth()->user()->orders->sortByDesc('created_at');
+                                $totalOrdersPages = ceil($allOrders->count() / $ordersPerPage);
+                                $ordersOffset = ($currentOrdersPage - 1) * $ordersPerPage;
+                                $paginatedOrders = $allOrders->slice($ordersOffset, $ordersPerPage);
+                            @endphp
+
                             <div class="row">
-                                @foreach(auth()->user()->orders->sortByDesc('created_at') as $order)
+                                @foreach($paginatedOrders as $order)
                                     <div class="col-md-6 mb-4">
                                         <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
                                             <div class="card-body">
@@ -256,6 +265,23 @@
                                     </div>
                                 @endforeach
                             </div>
+
+                            {{-- Orders Pagination --}}
+                            @if($totalOrdersPages > 1)
+                                <div class="d-flex justify-content-center align-items-center mt-4 gap-3">
+                                    <a href="?orders_page={{ max(1, $currentOrdersPage - 1) }}#orders" 
+                                       class="btn btn-outline-primary rounded-pill {{ $currentOrdersPage <= 1 ? 'disabled' : '' }}">
+                                        <i class="fas fa-chevron-left me-2"></i>Previous
+                                    </a>
+                                    <span class="text-muted">
+                                        Page <strong>{{ $currentOrdersPage }}</strong> of <strong>{{ $totalOrdersPages }}</strong>
+                                    </span>
+                                    <a href="?orders_page={{ min($totalOrdersPages, $currentOrdersPage + 1) }}#orders" 
+                                       class="btn btn-outline-primary rounded-pill {{ $currentOrdersPage >= $totalOrdersPages ? 'disabled' : '' }}">
+                                        Next<i class="fas fa-chevron-right ms-2"></i>
+                                    </a>
+                                </div>
+                            @endif
                         @endif
                     </div>
 
@@ -291,8 +317,17 @@
                                 </a>
                             </div>
                         @else
+                            @php
+                                $productsPerPage = 9;
+                                $currentProductsPage = request()->get('products_page', 1);
+                                $allProducts = auth()->user()->products;
+                                $totalProductsPages = ceil($allProducts->count() / $productsPerPage);
+                                $productsOffset = ($currentProductsPage - 1) * $productsPerPage;
+                                $paginatedProducts = $allProducts->slice($productsOffset, $productsPerPage);
+                            @endphp
+
                             <div class="row">
-                                @foreach(auth()->user()->products as $product)
+                                @foreach($paginatedProducts as $product)
                                     <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
                                         <div class="card h-100 border-0 shadow-sm position-relative overflow-hidden" 
                                              style="border-radius: 15px; transition: all 0.3s ease;">
@@ -362,6 +397,23 @@
                                     </div>
                                 @endforeach
                             </div>
+
+                            {{-- Products Pagination --}}
+                            @if($totalProductsPages > 1)
+                                <div class="d-flex justify-content-center align-items-center mt-4 gap-3">
+                                    <a href="?products_page={{ max(1, $currentProductsPage - 1) }}#products" 
+                                       class="btn btn-outline-primary rounded-pill {{ $currentProductsPage <= 1 ? 'disabled' : '' }}">
+                                        <i class="fas fa-chevron-left me-2"></i>Previous
+                                    </a>
+                                    <span class="text-muted">
+                                        Page <strong>{{ $currentProductsPage }}</strong> of <strong>{{ $totalProductsPages }}</strong>
+                                    </span>
+                                    <a href="?products_page={{ min($totalProductsPages, $currentProductsPage + 1) }}#products" 
+                                       class="btn btn-outline-primary rounded-pill {{ $currentProductsPage >= $totalProductsPages ? 'disabled' : '' }}">
+                                        Next<i class="fas fa-chevron-right ms-2"></i>
+                                    </a>
+                                </div>
+                            @endif
                         @endif
                     </div>
                 @endif
@@ -395,8 +447,17 @@
                             </button>
                         </div>
                     @else
+                        @php
+                            $postsPerPage = 5;
+                            $currentPostsPage = request()->get('posts_page', 1);
+                            $allPosts = auth()->user()->posts->sortByDesc('created_at');
+                            $totalPostsPages = ceil($allPosts->count() / $postsPerPage);
+                            $postsOffset = ($currentPostsPage - 1) * $postsPerPage;
+                            $paginatedPosts = $allPosts->slice($postsOffset, $postsPerPage);
+                        @endphp
+
                         <div class="posts-container">
-                            @foreach(auth()->user()->posts->sortByDesc('created_at') as $post)
+                            @foreach($paginatedPosts as $post)
                                 <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
                                     <div class="card-body">
                                         <div class="d-flex align-items-start mb-3">
@@ -447,14 +508,28 @@
                                                     <i class="fas fa-comment me-1"></i>{{ $post->comments->count() }} comments
                                                 </span>
                                             </div>
-                                            {{-- <a href="{{ route('posts.show', $post) }}" class="btn btn-sm btn-outline-primary">
-                                                View Post
-                                            </a> --}}
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
+
+                        {{-- Posts Pagination --}}
+                        @if($totalPostsPages > 1)
+                            <div class="d-flex justify-content-center align-items-center mt-4 gap-3">
+                                <a href="?posts_page={{ max(1, $currentPostsPage - 1) }}#posts" 
+                                   class="btn btn-outline-primary rounded-pill {{ $currentPostsPage <= 1 ? 'disabled' : '' }}">
+                                    <i class="fas fa-chevron-left me-2"></i>Previous
+                                </a>
+                                <span class="text-muted">
+                                    Page <strong>{{ $currentPostsPage }}</strong> of <strong>{{ $totalPostsPages }}</strong>
+                                </span>
+                                <a href="?posts_page={{ min($totalPostsPages, $currentPostsPage + 1) }}#posts" 
+                                   class="btn btn-outline-primary rounded-pill {{ $currentPostsPage >= $totalPostsPages ? 'disabled' : '' }}">
+                                    Next<i class="fas fa-chevron-right ms-2"></i>
+                                </a>
+                            </div>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -508,6 +583,11 @@
         background: #667eea;
         border-radius: 10px;
     }
+
+    .btn.disabled {
+        pointer-events: none;
+        opacity: 0.5;
+    }
     
     @media (max-width: 768px) {
         .nav-tabs .nav-link {
@@ -525,6 +605,22 @@
 {{-- Add Bootstrap JS if not already included --}}
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Scroll to active tab on page load if there's a hash
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.location.hash) {
+            const hash = window.location.hash.substring(1);
+            const tabButton = document.getElementById(hash + '-tab');
+            if (tabButton) {
+                const tab = new bootstrap.Tab(tabButton);
+                tab.show();
+                setTimeout(() => {
+                    document.getElementById(hash).scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+        }
+    });
+</script>
 @endpush
 
 @push('styles')

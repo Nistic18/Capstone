@@ -33,59 +33,228 @@
     </div> --}}
 
     {{-- Enhanced Search & Filter Section --}}
-    <div class="card border-0 shadow-sm mb-5" style="border-radius: 15px;">
-        <div class="card-body p-4">
-            <form method="GET" action="{{ route('home') }}" class="row g-3">
-                {{-- Search Input with Icon --}}
-                <div class="col-lg-4 col-md-6">
-                    <div class="position-relative">
-                        <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                        <input type="text" name="search" class="form-control ps-5" 
-                               style="border-radius: 25px; border: 2px solid #e9ecef;"
-                               placeholder="Search for fish species..."
-                               value="{{ request('search') }}">
+<div class="card border-0 shadow-sm mb-5" style="border-radius: 20px; overflow: hidden;">
+    <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <h5 class="text-white mb-0 d-flex align-items-center">
+            <i class="fas fa-filter me-2"></i>
+            Search & Filter Products
+        </h5>
+    </div>
+    
+    <div class="card-body p-4">
+        <form method="GET" action="{{ route('home') }}" id="filterForm">
+            {{-- Search Bar - Full Width --}}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="input-group input-group-lg shadow-sm" style="border-radius: 50px; overflow: hidden;">
+                        <span class="input-group-text bg-white border-0 ps-4" style="border-radius: 50px 0 0 50px;">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" 
+                               name="search" 
+                               class="form-control border-0 ps-2" 
+                               placeholder="Search for fish species, type, or category..."
+                               value="{{ request('search') }}"
+                               style="font-size: 1rem;">
+                        <button type="submit" 
+                                class="btn btn-primary px-4" 
+                                style="border-radius: 0 50px 50px 0; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
+                            <i class="fas fa-search me-2"></i>Search
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                {{-- Price Range --}}
-                <div class="col-lg-2 col-md-3">
-                    <div class="position-relative">
-                        <i class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                        <input type="number" name="min_price" class="form-control ps-5" 
-                               style="border-radius: 25px; border: 2px solid #e9ecef;"
-                               placeholder="Min ₱"
-                               value="{{ request('min_price') }}">
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-3">
-                    <input type="number" name="max_price" class="form-control" 
-                           style="border-radius: 25px; border: 2px solid #e9ecef;"
-                           placeholder="Max ₱"
-                           value="{{ request('max_price') }}">
-                </div>
-
-                {{-- Sort Dropdown --}}
+            {{-- Filters Row --}}
+            <div class="row g-3 mb-3">
+                {{-- Category Filter --}}
                 <div class="col-lg-3 col-md-6">
-                    <select name="sort" class="form-select" 
-                            style="border-radius: 25px; border: 2px solid #e9ecef;"
-                            onchange="this.form.submit()">
-                        <option value="">🔄 Sort by...</option>
-                        <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>💰 Price: Low to High</option>
-                        <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>💸 Price: High to Low</option>
-                        <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>🔤 Name: A to Z</option>
-                        <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>🔤 Name: Z to A</option>
+                    <label class="form-label small fw-semibold text-muted mb-2">
+                        <i class="fas fa-tag me-1"></i>Category
+                    </label>
+                    <select name="product_category_id" 
+                            class="form-select shadow-sm" 
+                            style="border-radius: 15px; border: 2px solid #e9ecef;">
+                        <option value="">All Categories</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" 
+                                    {{ request('product_category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
-                <div class="col-lg-1 col-md-12">
-                    <button type="submit" class="btn btn-primary w-100" 
-                            style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
-                        <i class="fas fa-search me-1"></i> Filter
-                    </button>
+                {{-- Type Filter --}}
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label small fw-semibold text-muted mb-2">
+                        <i class="fas fa-fish me-1"></i>Type
+                    </label>
+                    <select name="product_type_id" 
+                            class="form-select shadow-sm" 
+                            style="border-radius: 15px; border: 2px solid #e9ecef;">
+                        <option value="">All Types</option>
+                        @foreach($types as $type)
+                            <option value="{{ $type->id }}" 
+                                    {{ request('product_type_id') == $type->id ? 'selected' : '' }}>
+                                {{ $type->name }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
-            </form>
-        </div>
+
+                {{-- Price Range --}}
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label small fw-semibold text-muted mb-2">
+                        <i class="fas fa-peso-sign me-1"></i>Min Price
+                    </label>
+                    <div class="input-group shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                        <span class="input-group-text bg-white border-0" style="border-radius: 15px 0 0 15px;">₱</span>
+                        <input type="number" 
+                               name="min_price" 
+                               class="form-control border-0" 
+                               placeholder="0"
+                               value="{{ request('min_price') }}"
+                               style="border-radius: 0 15px 15px 0;">
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label small fw-semibold text-muted mb-2">
+                        <i class="fas fa-peso-sign me-1"></i>Max Price
+                    </label>
+                    <div class="input-group shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                        <span class="input-group-text bg-white border-0" style="border-radius: 15px 0 0 15px;">₱</span>
+                        <input type="number" 
+                               name="max_price" 
+                               class="form-control border-0" 
+                               placeholder="9999"
+                               value="{{ request('max_price') }}"
+                               style="border-radius: 0 15px 15px 0;">
+                    </div>
+                </div>
+            </div>
+
+            {{-- Sort and Actions Row --}}
+            <div class="row g-3 align-items-end">
+                {{-- Sort Dropdown --}}
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label small fw-semibold text-muted mb-2">
+                        <i class="fas fa-sort me-1"></i>Sort By
+                    </label>
+                    <select name="sort" 
+                            class="form-select shadow-sm" 
+                            style="border-radius: 15px; border: 2px solid #e9ecef;">
+                        <option value="">Default</option>
+                        <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>
+                            💰 Price: Low to High
+                        </option>
+                        <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>
+                            💸 Price: High to Low
+                        </option>
+                        <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>
+                            🔤 Name: A to Z
+                        </option>
+                        <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>
+                            🔤 Name: Z to A
+                        </option>
+                    </select>
+                </div>
+
+                {{-- Action Buttons --}}
+                <div class="col-lg-8 col-md-6">
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="submit" 
+                                class="btn btn-primary px-4 shadow-sm" 
+                                style="border-radius: 15px; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
+                            <i class="fas fa-filter me-2"></i>Apply Filters
+                        </button>
+                        <a href="{{ route('home') }}" 
+                           class="btn btn-outline-secondary px-4 shadow-sm" 
+                           style="border-radius: 15px; border-width: 2px;">
+                            <i class="fas fa-redo me-2"></i>Reset
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Active Filters Display --}}
+            @if(request()->hasAny(['search', 'product_category_id', 'product_type_id', 'min_price', 'max_price', 'sort']))
+            <div class="mt-4 pt-3 border-top">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="small fw-semibold text-muted">Active Filters:</span>
+                    
+                    @if(request('search'))
+                        <span class="badge bg-primary" style="border-radius: 20px; padding: 8px 12px;">
+                            <i class="fas fa-search me-1"></i>
+                            "{{ request('search') }}"
+                            <a href="{{ route('home', array_merge(request()->except('search'))) }}" 
+                               class="text-white ms-1 text-decoration-none">×</a>
+                        </span>
+                    @endif
+
+                    @if(request('product_category_id'))
+                        @php
+                            $category = $categories->find(request('product_category_id'));
+                        @endphp
+                        @if($category)
+                        <span class="badge bg-info" style="border-radius: 20px; padding: 8px 12px;">
+                            <i class="fas fa-tag me-1"></i>
+                            {{ $category->name }}
+                            <a href="{{ route('home', array_merge(request()->except('product_category_id'))) }}" 
+                               class="text-white ms-1 text-decoration-none">×</a>
+                        </span>
+                        @endif
+                    @endif
+
+                    @if(request('product_type_id'))
+                        @php
+                            $type = $types->find(request('product_type_id'));
+                        @endphp
+                        @if($type)
+                        <span class="badge bg-success" style="border-radius: 20px; padding: 8px 12px;">
+                            <i class="fas fa-fish me-1"></i>
+                            {{ $type->name }}
+                            <a href="{{ route('home', array_merge(request()->except('product_type_id'))) }}" 
+                               class="text-white ms-1 text-decoration-none">×</a>
+                        </span>
+                        @endif
+                    @endif
+
+                    @if(request('min_price') || request('max_price'))
+                        <span class="badge bg-warning text-dark" style="border-radius: 20px; padding: 8px 12px;">
+                            <i class="fas fa-peso-sign me-1"></i>
+                            @if(request('min_price') && request('max_price'))
+                                ₱{{ number_format(request('min_price')) }} - ₱{{ number_format(request('max_price')) }}
+                            @elseif(request('min_price'))
+                                Min: ₱{{ number_format(request('min_price')) }}
+                            @else
+                                Max: ₱{{ number_format(request('max_price')) }}
+                            @endif
+                            <a href="{{ route('home', array_merge(request()->except(['min_price', 'max_price']))) }}" 
+                               class="text-dark ms-1 text-decoration-none">×</a>
+                        </span>
+                    @endif
+
+                    @if(request('sort'))
+                        <span class="badge bg-secondary" style="border-radius: 20px; padding: 8px 12px;">
+                            <i class="fas fa-sort me-1"></i>
+                            @switch(request('sort'))
+                                @case('price_asc') Price: Low to High @break
+                                @case('price_desc') Price: High to Low @break
+                                @case('name_asc') Name: A to Z @break
+                                @case('name_desc') Name: Z to A @break
+                            @endswitch
+                            <a href="{{ route('home', array_merge(request()->except('sort'))) }}" 
+                               class="text-white ms-1 text-decoration-none">×</a>
+                        </span>
+                    @endif
+                </div>
+            </div>
+            @endif
+        </form>
     </div>
+</div>
 
     {{-- Results Count --}}
     @if(!$products->isEmpty())
@@ -194,9 +363,15 @@
                 <div class="card-body d-flex flex-column p-4">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <h5 class="card-title fw-bold mb-0" style="color: #2c3e50;">{{ $product->name }}</h5>
-                        <span class="badge" style="background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; color: #fff;">
-                            🐟 Fresh
-                        </span>
+                        @if($product->productCategory)
+                            <span class="badge" style="background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; color: #fff;">
+                                {{ $product->productCategory->name }}
+                            </span>
+                        @else
+                            <span class="badge" style="background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; color: #fff;">
+                                Fresh
+                            </span>
+                        @endif
                     </div>
                     
                     <p class="card-text text-muted small mb-3" style="line-height: 1.5;">
@@ -383,6 +558,47 @@
         
         .card-body {
             padding: 1rem;
+        }
+    }
+        .form-control:focus, 
+    .form-select:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15) !important;
+    }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border: 2px solid #e9ecef;
+    }
+
+    .input-group:focus-within .input-group-text {
+        border-color: #667eea;
+    }
+
+    .input-group:focus-within {
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .badge a:hover {
+        opacity: 0.8;
+        transform: scale(1.2);
+        display: inline-block;
+    }
+
+    @media (max-width: 768px) {
+        .d-flex.gap-2 {
+            flex-direction: column;
+        }
+        
+        .d-flex.gap-2 .btn {
+            width: 100%;
         }
     }
 </style>

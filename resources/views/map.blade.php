@@ -121,23 +121,6 @@
                 </div>
             </div>
 
-            {{-- Geocoding Progress Card --}}
-            <div id="geocoding-progress" class="card border-0 shadow-sm mt-4" style="border-radius: 15px; background: rgba(13, 202, 240, 0.05); border-left: 4px solid #0dcaf0; display: none;">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div class="spinner-border spinner-border-sm text-info me-3" role="status"></div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1 fw-bold text-info">Geocoding Addresses</h6>
-                            <p class="mb-0 text-muted small">
-                                Processing <span id="geocoding-current">0</span> of <span id="geocoding-total">0</span> addresses...
-                            </p>
-                            <div class="progress mt-2" style="height: 4px;">
-                                <div id="geocoding-progress-bar" class="progress-bar bg-info" role="progressbar" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             {{-- Instructions Card --}}
             @if($role !== 'buyer')
@@ -155,6 +138,21 @@
                 </div>
             </div>
             @endif
+            @if($role === 'supplier' && $userLocations->count() >= 1)
+<div class="card border-0 shadow-sm mt-4" style="border-radius: 15px; background: rgba(220, 53, 69, 0.05); border-left: 4px solid #dc3545;">
+    <div class="card-body py-3">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-info-circle text-danger me-3" style="font-size: 1.5rem;"></i>
+            <div>
+                <h6 class="mb-1 fw-bold text-danger">Location Limit Reached</h6>
+                <p class="mb-0 text-muted small">
+                    Suppliers can only have one location. To add a new location, please delete your existing one first.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
         </div>
 
         {{-- Sidebar --}}
@@ -713,77 +711,6 @@
         }
     }
 
-    // Geocode address to coordinates
-    function geocodeAddress(address, callback) {
-        if (!address || address.trim() === '') {
-            callback(null, null);
-            return;
-        }
-        
-        geocoder.geocode(address, function(results) {
-            if (results && results.length > 0) {
-                const result = results[0];
-                callback(result.center.lat, result.center.lng);
-            } else {
-                console.warn('Geocoding failed for address:', address);
-                callback(null, null);
-            }
-        });
-    }
-
-    // Batch geocode addresses with delay to avoid rate limiting
-    async function batchGeocodeAddresses(usersWithAddresses) {
-        const progressCard = document.getElementById('geocoding-progress');
-        const currentEl = document.getElementById('geocoding-current');
-        const totalEl = document.getElementById('geocoding-total');
-        const progressBar = document.getElementById('geocoding-progress-bar');
-        
-        const total = usersWithAddresses.length;
-        if (total === 0) return;
-        
-        // Show progress card
-        progressCard.style.display = 'block';
-        totalEl.textContent = total;
-        
-        let processed = 0;
-        
-        for (const user of usersWithAddresses) {
-            await new Promise((resolve) => {
-                geocodeAddress(user.address, function(lat, lng) {
-                    if (lat && lng) {
-                        const popupHTML = `
-                            <div class="popup-content">
-                                <h6 class="fw-bold mb-2" style="color: #2c3e50;">${escapeHtml(user.name)}</h6>
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="fas fa-map-marker-alt text-muted me-2"></i>
-                                    <small>${escapeHtml(user.address)}</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-user-tag text-muted me-2"></i>
-                                    <small class="badge bg-${getRoleBadgeColor(user.role)}">
-                                        ${escapeHtml(capitalizeFirst(user.role))}
-                                    </small>
-                                </div>
-                            </div>
-                        `;
-                        safeAddMarker(lat, lng, user.role, popupHTML, 'user-address', user.id);
-                    }
-                    
-                    processed++;
-                    currentEl.textContent = processed;
-                    progressBar.style.width = ((processed / total) * 100) + '%';
-                    
-                    // Delay to avoid rate limiting (1 request per second)
-                    setTimeout(resolve, 1000);
-                });
-            });
-        }
-        
-        // Hide progress card after completion
-        setTimeout(() => {
-            progressCard.style.display = 'none';
-        }, 2000);
-    }
 
     // Helper functions
     function escapeHtml(text) {
@@ -807,27 +734,112 @@
 
     // Get current location
     function getCurrentLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    map.setView([lat, lng], 16);
-                    
-                    // Add current location marker
-                    const currentLocationMarker = L.marker([lat, lng], { 
-                        icon: roleIcons['user'] 
-                    }).addTo(map);
-                    currentLocationMarker.bindPopup('<strong>Your Current Location</strong>').openPopup();
-                },
-                function(error) {
-                    alert('Unable to get your location: ' + error.message);
+    if (navigator.geolocation) {
+        // Show loading state on button
+        const locationBtn = event.target.closest('button');
+        const originalHTML = locationBtn.innerHTML;
+        locationBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Getting Location...';
+        locationBtn.disabled = true;
+        
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                map.setView([lat, lng], 16);
+                
+                @if($role !== 'buyer')
+                // For non-buyers, auto-save the location
+                // Set current coordinates
+                currentLat = lat;
+                currentLng = lng;
+                
+                // Show modal to get location name
+                const modal = new bootstrap.Modal(document.getElementById('locationModal'));
+                modal.show();
+                
+                // Add temporary marker
+                if (tempMarker) {
+                    map.removeLayer(tempMarker);
                 }
-            );
-        } else {
-            alert('Geolocation is not supported by this browser.');
-        }
+                tempMarker = L.marker([lat, lng], { 
+                    icon: getIconForRole('{{ $role }}') 
+                }).addTo(map);
+                tempMarker.bindPopup('Your current location - Enter a name to save').openPopup();
+                
+                // Update modal title to indicate it's current location
+                document.querySelector('#locationModal .modal-title').innerHTML = 
+                    '<i class="fas fa-location-arrow text-success me-2"></i>Save Your Current Location';
+                
+                // Pre-fill with default name (optional)
+                document.getElementById('locationNameInput').placeholder = 'e.g., My Store Location';
+                
+                @else
+                // For buyers, just show the location marker
+                const currentLocationMarker = L.marker([lat, lng], { 
+                    icon: roleIcons['user'] 
+                }).addTo(map);
+                currentLocationMarker.bindPopup('<strong>Your Current Location</strong>').openPopup();
+                @endif
+                
+                // Restore button state
+                locationBtn.innerHTML = originalHTML;
+                locationBtn.disabled = false;
+            },
+            function(error) {
+                // Restore button state
+                locationBtn.innerHTML = originalHTML;
+                locationBtn.disabled = false;
+                
+                // Show user-friendly error messages
+                let errorMessage = 'Unable to get your location. ';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage += 'Please allow location access in your browser settings.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage += 'Location information is unavailable.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage += 'Location request timed out. Please try again.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                        break;
+                }
+                
+                // Show error in a more elegant way
+                showNotification('error', errorMessage);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    } else {
+        showNotification('error', 'Geolocation is not supported by this browser.');
     }
+}
+function showNotification(type, message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 10px;';
+    notification.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'} me-2"></i>
+            <div>${message}</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
 
     // Reset map view
     function resetMapView() {
@@ -959,122 +971,129 @@
 
     // Initialize everything when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize map
-        initializeMap();
-        
-        @if($role !== 'buyer')
-        // Add click handler for non-buyers
-        map.on('click', handleMapClick);
-        
-        // Add confirm location handler
-        document.getElementById('confirmLocation').addEventListener('click', confirmLocationSetting);
-        
-        // Add confirm edit location handler
-        document.getElementById('confirmEditLocation').addEventListener('click', confirmEditLocation);
-        
-        // Reset edit mode when modals are closed
-        document.getElementById('editLocationModal').addEventListener('hidden.bs.modal', function() {
-            isEditMode = false;
-            editingLocationId = null;
-            if (editMarker) {
-                map.removeLayer(editMarker);
-            }
-        });
-        @endif
-
-        // Delete location modal handler
-        const deleteLocationModal = document.getElementById('deleteLocationModal');
-        if (deleteLocationModal) {
-            deleteLocationModal.addEventListener('show.bs.modal', function(event) {
-                const button = event.relatedTarget;
-                const locationId = button.getAttribute('data-location-id');
-                const locationName = button.getAttribute('data-location-name');
-                
-                // Update modal content
-                document.getElementById('deleteLocationName').textContent = locationName;
-                
-                // Update form action
-                const form = document.getElementById('deleteLocationForm');
-                form.action = '{{ route("locations.destroy", ":id") }}'.replace(':id', locationId);
-            });
+    // Initialize map
+    initializeMap();
+    
+    // Check if user can add locations
+    const userRole = '{{ $role }}';
+    const userLocationCount = {{ $userLocations->count() }};
+    const canAddLocation = userRole !== 'supplier' || userLocationCount === 0;
+    
+    @if($role !== 'buyer')
+    // Add click handler for non-buyers
+    map.on('click', function(e) {
+        // Check if supplier has reached their limit
+        if (userRole === 'supplier' && !canAddLocation) {
+            showNotification('error', 'Suppliers can only have one location. Please edit or delete your existing location to add a new one.');
+            return;
         }
-
-        // Add existing saved locations
-        @foreach($locations as $location)
-            @php
-                $lat = is_null($location->latitude) ? null : (float) $location->latitude;
-                $lng = is_null($location->longitude) ? null : (float) $location->longitude;
-                $r   = $location->user->role ?? 'buyer';
-            @endphp
-            (function() {
-                const lat = @json($lat);
-                const lng = @json($lng);
-                const role = @json(strtolower($r));
-                const html = `
-                    <div class="popup-content">
-                        <h6 class="fw-bold mb-2" style="color: #2c3e50;">{{ addslashes($location->location_name) }}</h6>
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-user text-muted me-2"></i>
-                            <small>{{ addslashes($location->user->name ?? 'Unknown') }}</small>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-tag text-muted me-2"></i>
-                            <small class="badge bg-{{ $r === 'supplier' ? 'success' : ($r === 'reseller' ? 'danger' : 'info') }}">
-                                {{ addslashes(ucfirst($r)) }}
-                            </small>
-                        </div>
-                    </div>
-                `;
-                safeAddMarker(lat, lng, role, html, 'location', {{ $location->id }});
-            })();
-        @endforeach
-
-        // Add users with coordinates (existing lat/lng)
-        @foreach($users->where('latitude', '!=', null)->where('longitude', '!=', null) as $user)
-            @php
-                $ulat = (float) $user->latitude;
-                $ulng = (float) $user->longitude;
-                $urole = $user->role ?? 'buyer';
-            @endphp
-            (function() {
-                const lat = @json($ulat);
-                const lng = @json($ulng);
-                const role = @json(strtolower($urole));
-                const html = `
-                    <div class="popup-content">
-                        <h6 class="fw-bold mb-2" style="color: #2c3e50;">{{ addslashes($user->name) }}</h6>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-user-tag text-muted me-2"></i>
-                            <small class="badge bg-{{ $urole === 'supplier' ? 'success' : ($urole === 'reseller' ? 'danger' : 'info') }}">
-                                {{ addslashes(ucfirst($urole)) }}
-                            </small>
-                        </div>
-                    </div>
-                `;
-                safeAddMarker(lat, lng, role, html, 'user');
-            })();
-        @endforeach
-
-        // Prepare users with addresses for geocoding
-        const usersWithAddresses = [
-            @foreach($users->whereNotNull('address')->where('address', '!=', '') as $user)
-                @if(is_null($user->latitude) || is_null($user->longitude))
-                {
-                    id: {{ $user->id }},
-                    name: @json($user->name),
-                    address: @json($user->address),
-                    role: @json(strtolower($user->role ?? 'buyer'))
-                },
-                @endif
-            @endforeach
-        ];
-
-        // Start batch geocoding for users with addresses
-        if (usersWithAddresses.length > 0) {
-            console.log('Starting batch geocoding for', usersWithAddresses.length, 'addresses');
-            batchGeocodeAddresses(usersWithAddresses);
+        handleMapClick(e);
+    });
+    
+    // Add confirm location handler
+    document.getElementById('confirmLocation').addEventListener('click', confirmLocationSetting);
+    
+    // Add confirm edit location handler
+    document.getElementById('confirmEditLocation').addEventListener('click', confirmEditLocation);
+    
+    // Reset edit mode when modals are closed
+    document.getElementById('editLocationModal').addEventListener('hidden.bs.modal', function() {
+        isEditMode = false;
+        editingLocationId = null;
+        if (editMarker) {
+            map.removeLayer(editMarker);
         }
     });
+    @endif
+
+    // Delete location modal handler
+    const deleteLocationModal = document.getElementById('deleteLocationModal');
+    if (deleteLocationModal) {
+        deleteLocationModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const locationId = button.getAttribute('data-location-id');
+            const locationName = button.getAttribute('data-location-name');
+            
+            // Update modal content
+            document.getElementById('deleteLocationName').textContent = locationName;
+            
+            // Update form action
+            const form = document.getElementById('deleteLocationForm');
+            form.action = '{{ route("locations.destroy", ":id") }}'.replace(':id', locationId);
+        });
+    }
+
+    // Add existing saved locations
+    @foreach($locations as $location)
+        @php
+            $lat = is_null($location->latitude) ? null : (float) $location->latitude;
+            $lng = is_null($location->longitude) ? null : (float) $location->longitude;
+            $r   = $location->user->role ?? 'buyer';
+        @endphp
+        (function() {
+            const lat = @json($lat);
+            const lng = @json($lng);
+            const role = @json(strtolower($r));
+            const html = `
+                <div class="popup-content">
+                    <h6 class="fw-bold mb-2" style="color: #2c3e50;">{{ addslashes($location->location_name) }}</h6>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-user text-muted me-2"></i>
+                        <small>{{ addslashes($location->user->name ?? 'Unknown') }}</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-tag text-muted me-2"></i>
+                        <small class="badge bg-{{ $r === 'supplier' ? 'success' : ($r === 'reseller' ? 'danger' : 'info') }}">
+                            {{ addslashes(ucfirst($r)) }}
+                        </small>
+                    </div>
+                </div>
+            `;
+            safeAddMarker(lat, lng, role, html, 'location', {{ $location->id }});
+        })();
+    @endforeach
+
+    // Add users with coordinates (existing lat/lng)
+    @foreach($users->where('latitude', '!=', null)->where('longitude', '!=', null) as $user)
+        @php
+            $ulat = (float) $user->latitude;
+            $ulng = (float) $user->longitude;
+            $urole = $user->role ?? 'buyer';
+        @endphp
+        (function() {
+            const lat = @json($ulat);
+            const lng = @json($ulng);
+            const role = @json(strtolower($urole));
+            const html = `
+                <div class="popup-content">
+                    <h6 class="fw-bold mb-2" style="color: #2c3e50;">{{ addslashes($user->name) }}</h6>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-tag text-muted me-2"></i>
+                        <small class="badge bg-{{ $urole === 'supplier' ? 'success' : ($urole === 'reseller' ? 'danger' : 'info') }}">
+                            {{ addslashes(ucfirst($urole)) }}
+                        </small>
+                    </div>
+                </div>
+            `;
+            safeAddMarker(lat, lng, role, html, 'user');
+        })();
+    @endforeach
+
+    // Prepare users with addresses for geocoding
+    const usersWithAddresses = [
+        @foreach($users->whereNotNull('address')->where('address', '!=', '') as $user)
+            @if(is_null($user->latitude) || is_null($user->longitude))
+            {
+                id: {{ $user->id }},
+                name: @json($user->name),
+                address: @json($user->address),
+                role: @json(strtolower($user->role ?? 'buyer'))
+            },
+            @endif
+        @endforeach
+    ];
+});
+
 </script>
 
 {{-- Add Font Awesome if not already included --}}
