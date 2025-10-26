@@ -44,6 +44,11 @@
                         <i class="fas fa-chart-pie"></i><span>My Dashboard</span>
                     </a>
                 </li>
+                <li class="{{ Request::is('buyer/reviews') ? 'active' : '' }}"> 
+                    <a class="nav-link" href="{{ route('buyer.reviews') }}">
+                        <i class="fas fa-star"></i><span>My Reviews</span>
+                    </a> 
+                </li>
             @endif
 
             {{-- Admin Sidebar --}}

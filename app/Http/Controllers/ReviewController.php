@@ -36,22 +36,21 @@ class ReviewController extends Controller
     }
 
     // Show user reviews
+    // Show user reviews - BUYER ONLY
     public function index()
-{
-    if(auth()->user()->role !== 'buyer') {
-        // Supplier: show reviews received on their products
-        $reviews = Review::whereIn('product_id', auth()->user()->products->pluck('id'))
-                         ->with(['product', 'user', 'order'])
-                         ->latest()
-                         ->get();
-    } else {
-        // Buyer: show reviews they wrote
+    {
+        // Only buyers can access this page
+        if(auth()->user()->role !== 'buyer') {
+            abort(403, 'Only buyers can view this page.');
+        }
+
+        // Show only reviews written by the logged-in buyer
         $reviews = Review::where('user_id', auth()->id())
                          ->with(['product', 'order'])
                          ->latest()
                          ->get();
-    }
 
-    return view('profile.reviews', compact('reviews'));
+        return view('profile.reviews', compact('reviews'));
+    }
 }
-}
+
