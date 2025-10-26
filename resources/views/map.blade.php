@@ -96,9 +96,6 @@
                                     <li><a class="dropdown-item" href="#" onclick="filterMarkers('supplier')">
                                         <i class="fas fa-circle text-success me-2"></i>Suppliers
                                     </a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="filterMarkers('reseller')">
-                                        <i class="fas fa-circle text-danger me-2"></i>Resellers
-                                    </a></li>
                                     <li><a class="dropdown-item" href="#" onclick="filterMarkers('buyer')">
                                         <i class="fas fa-circle text-info me-2"></i>Buyers
                                     </a></li>
@@ -171,10 +168,6 @@
                         <span class="small fw-semibold">Suppliers</span>
                     </div>
                     <div class="legend-item d-flex align-items-center mb-2">
-                        <div class="legend-marker bg-danger rounded-circle me-3" style="width: 16px; height: 16px;"></div>
-                        <span class="small fw-semibold">Resellers</span>
-                    </div>
-                    <div class="legend-item d-flex align-items-center mb-2">
                         <div class="legend-marker bg-info rounded-circle me-3" style="width: 16px; height: 16px;"></div>
                         <span class="small fw-semibold">Buyers</span>
                     </div>
@@ -202,7 +195,7 @@
                                     @php
                                         $roleColor = match($role) {
                                             'supplier' => 'success',
-                                            'reseller' => 'danger',
+                                            
                                             default => 'info'
                                         };
                                     @endphp
@@ -265,7 +258,6 @@
                 <div class="card-body py-3">
                     @php
                         $supplierCount = $locations->where('user.role', 'supplier')->count();
-                        $resellerCount = $locations->where('user.role', 'reseller')->count();
                         $buyerCount = $locations->where('user.role', 'buyer')->count();
                     @endphp
                     
@@ -277,13 +269,6 @@
                         <span class="badge bg-success">{{ $supplierCount }}</span>
                     </div>
                     
-                    <div class="stat-item d-flex justify-content-between align-items-center mb-2">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-shopping-cart text-danger me-2"></i>
-                            <span class="small">Resellers</span>
-                        </div>
-                        <span class="badge bg-danger">{{ $resellerCount }}</span>
-                    </div>
                     
                     <div class="stat-item d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
@@ -310,7 +295,6 @@
                                 @php
                                     $roleColor = match($location->user->role ?? 'buyer') {
                                         'supplier' => 'success',
-                                        'reseller' => 'danger',
                                         default => 'info'
                                     };
                                 @endphp
@@ -726,7 +710,6 @@
     function getRoleBadgeColor(role) {
         const colors = {
             supplier: 'success',
-            reseller: 'danger',
             buyer: 'info'
         };
         return colors[role] || 'info';

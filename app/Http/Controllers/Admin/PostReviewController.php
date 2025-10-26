@@ -13,17 +13,25 @@ class PostReviewController extends Controller
 {
     public function index()
     {
-        // Fetch pending community posts
+        // Fetch pending community posts and add a 'post_type' attribute
         $communityPosts = Post::where('status', 'pending')
             ->with('user')
             ->latest()
-            ->get();
+            ->get()
+            ->map(function ($post) {
+                $post->post_type = 'community';
+                return $post;
+            });
 
-        // Fetch pending supplier posts
+        // Fetch pending supplier posts and add a 'post_type' attribute
         $supplierPosts = PostSupplier::where('status', 'pending')
             ->with('user')
             ->latest()
-            ->get();
+            ->get()
+            ->map(function ($post) {
+                $post->post_type = 'supplier';
+                return $post;
+            });
 
         // Combine both
         $allPosts = $communityPosts
@@ -48,7 +56,7 @@ class PostReviewController extends Controller
 
     public function approve(Request $request)
     {
-        $type = $request->input('type'); // 'community' or 'supplier'
+        $type = $request->input('type');
         $id = $request->input('id');
 
         if ($type === 'supplier') {
@@ -76,4 +84,3 @@ class PostReviewController extends Controller
         return back()->with('error', 'Post rejected.');
     }
 }
-

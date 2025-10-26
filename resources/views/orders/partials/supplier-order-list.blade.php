@@ -150,7 +150,7 @@
                                 </th>
                                 <th class="border-0 text-center fw-semibold">Quantity</th>
                                 <th class="border-0 text-center fw-semibold">Current Status</th>
-                                @if(!$hasDeliveredAll && !$isRefunded)
+                                @if(!$hasDeliveredAll && !$isRefunded && !$isCancelled)
                                     <th class="border-0 text-center fw-semibold">Action</th>
                                 @endif
                             </tr>
@@ -202,7 +202,7 @@
                                         </span>
                                     </td>
 
-                                    @if(!$hasDeliveredAll && !$isRefunded)
+                                    @if(!$hasDeliveredAll && !$isRefunded && !$isCancelled)
                                     <td class="border-0 text-center">
                                         <select name="product_statuses[{{ $product->id }}]" 
                                                 class="form-select form-select-sm d-inline-block w-auto"
@@ -220,7 +220,7 @@
                     </table>
                 </div>
 
-                @if(!$hasDeliveredAll && !$isRefunded)
+                @if(!$hasDeliveredAll && !$isRefunded && !$isCancelled)
                     <div class="mt-3 text-end">
                         <select name="product_status" class="form-select d-inline-block w-auto me-2">
                             <option value="">-- Bulk Action --</option>

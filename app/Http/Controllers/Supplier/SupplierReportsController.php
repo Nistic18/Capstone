@@ -1048,21 +1048,15 @@ class SupplierReportsController extends Controller
     
     private function exportDeliveredOrdersPDF($orders, $summary)
 {
-    $data = [
+    $pdf = PDF::loadView('supplier.reports.pdf.delivered-orders', [
         'title' => 'Delivered Orders Report',
-        'date' => date('Y-m-d H:i:s'),
+        'date' => now()->format('F d, Y h:i A'),
+        'supplier' => auth()->user()->name,
         'orders' => $orders,
-        'summary' => [
-            'total_orders' => $summary['total_orders'] ?? count($orders),
-            'total_revenue' => $summary['total_revenue'] ?? collect($orders)->sum('total_amount'),
-            'period' => $summary['period'] ?? 'All Time',
-        ],
-        'supplier' => auth()->user()->name
-    ];
+        'summary' => $summary
+    ]);
 
-    $pdf = PDF::loadView('supplier.reports.pdf.delivered_orders', $data);
-    $pdf->setPaper('a4', 'landscape');
-    return $pdf->download('delivered_orders_' . date('Y-m-d') . '.pdf');
+    return $pdf->download('delivered_orders_' . now()->format('Y-m-d') . '.pdf');
 }
 
     private function exportProductsPDF($products)
