@@ -219,7 +219,7 @@
                         </tbody>
                     </table>
                 </div>
-
+            
                 @if(!$hasDeliveredAll && !$isRefunded && !$isCancelled)
                     <div class="mt-3 text-end">
                         <select name="product_status" class="form-select d-inline-block w-auto me-2">
@@ -233,7 +233,30 @@
                     </div>
                 @endif
             </form>
+            {{-- Refund Request Actions (Supplier Side) --}}
+            @if ($order->refund_status === 'Pending')
+                <div class="mt-3">
+                    {{-- Approve Refund --}}
+                    <form action="{{ route('orders.refund.approve', $order->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="fas fa-check"></i> Accept Refund
+                        </button>
+                    </form>
 
+                    {{-- Reject Refund --}}
+<form action="{{ route('orders.refund.decline', $order->id) }}" method="POST" class="d-inline">
+    @csrf
+    @method('PUT')
+    <button type="submit" class="btn btn-danger btn-sm"
+        onclick="return confirm('Are you sure you want to reject this refund request?');">
+        <i class="fas fa-times"></i> Reject Refund
+    </button>
+</form>
+
+                </div>
+            @endif
             {{-- Footer --}}
             <div class="card-footer border-0 bg-light d-flex justify-content-end gap-2 mt-4 p-3">
                 <a href="{{ route('orders.show', $order->id) }}" 
@@ -249,50 +272,25 @@
                         <i class="fas fa-qrcode me-1"></i> Generate QR
                     </a>
                 @endif
+                {{-- Display Refund Status --}}
+@if ($order->refund_status === 'Approved')
+    <div class="mt-3">
+        <span class="badge bg-success" style="font-size: 0.9rem; padding: 8px 12px; border-radius: 10px;">
+            <i class="fas fa-check-circle me-1"></i> Refund Accepted
+        </span>
+    </div>
+@elseif ($order->refund_status === 'Rejected')
+    <div class="mt-3">
+        <span class="badge bg-danger" style="font-size: 0.9rem; padding: 8px 12px; border-radius: 10px;">
+            <i class="fas fa-times-circle me-1"></i> Refund Rejected
+        </span>
+    </div>
+@endif
             </div>
         
         </div>
     </div>
-    {{-- Refund Request Actions --}}
-@if ($order->refund_status === 'Pending')
-    <div class="mt-3">
-        <form action="{{ route('orders.refund.approve', $order->id) }}" method="POST" class="d-inline">
-            @csrf
-            @method('PUT')
-            <button type="submit" class="btn btn-success btn-sm">
-                <i class="fas fa-check"></i> Accept Refund
-            </button>
-        </form>
-
-        <!-- Decline Refund Button (shows modal for reason) -->
-        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#declineRefundModal{{ $order->id }}">
-            <i class="fas fa-times"></i> Reject Refund
-        </button>
-
-        <!-- Decline Modal -->
-        <div class="modal fade" id="declineRefundModal{{ $order->id }}" tabindex="-1" aria-labelledby="declineRefundModalLabel{{ $order->id }}" aria-hidden="true">
-            <div class="modal-dialog">
-                <form action="{{ route('orders.refund.decline', $order->id) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="declineRefundModalLabel{{ $order->id }}">Reject Refund</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <label for="decline_reason{{ $order->id }}" class="form-label">Reason (optional):</label>
-                            <textarea name="decline_reason" id="decline_reason{{ $order->id }}" class="form-control" rows="3"></textarea>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-danger">Confirm Reject</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-@endif
+    
 @empty
     <div class="text-center py-5">
         <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
