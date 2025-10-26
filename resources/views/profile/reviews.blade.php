@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'My Reviews')
+@section('title', $title)
 
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -8,7 +8,7 @@
 
 @section('content')
 <div class="container mt-4">
-    <h3 class="fw-bold mb-4">My Reviews</h3>
+    <h3 class="fw-bold mb-4">{{ $title }}</h3>
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -40,12 +40,15 @@
                     {{-- Comment --}}
                     <p class="mb-2">{{ $review->comment ?: 'No comment provided.' }}</p>
 
+                    {{-- Show buyer name only if supplier --}}
+                    @if(auth()->user()->role === 'supplier')
+                        <p><strong>Buyer:</strong> {{ $review->user->name ?? 'Anonymous' }}</p>
+                    @endif
+
                     {{-- Order Reference --}}
                     @if($review->order)
                         <small class="text-muted">Order #{{ $review->order->id }}</small>
                     @endif
-
-
                 </div>
             @endforeach
         </div>
@@ -53,7 +56,9 @@
         <div class="text-center py-5">
             <i class="fas fa-star-half-alt text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
             <h5 class="text-muted mb-2">No Reviews Yet</h5>
-            <p class="text-muted">Start reviewing your purchased products!</p>
+            <p class="text-muted">
+                {{ auth()->user()->role === 'buyer' ? 'Start reviewing your purchased products!' : 'No one has reviewed your products yet.' }}
+            </p>
         </div>
     @endif
 </div>
@@ -61,5 +66,4 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @endpush
-
 @endsection

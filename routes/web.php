@@ -323,12 +323,10 @@ Route::post('/locations/save-geocoded', [LocationController::class, 'saveGeocode
     ->middleware('auth');
 Route::get('/api/supplier-locations', [LocationController::class, 'getSupplierLocations'])->name('api.supplier-locations');
 
-// Buyer Reviews Route
 Route::get('/buyer/reviews', [ReviewController::class, 'index'])
     ->name('buyer.reviews')
     ->middleware('auth');
 
-// Or if you want to keep your existing route name, update it:
-Route::get('/profile/me/reviews', [ReviewController::class, 'index'])
-    ->name('buyer.reviews')
-    ->middleware('auth');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/reviews', [ReviewController::class, 'index'])->name('profile.reviews');
+});

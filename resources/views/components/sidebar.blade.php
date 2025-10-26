@@ -223,10 +223,11 @@
                 </a>
             </li>
             <li class="{{ Request::is('profile/reviews') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('profile.reviews') }}">
-                    <i class="fas fa-user-circle"></i><span>Reviews</span>
-                </a>
-            </li>
+    <a class="nav-link" href="{{ route('profile.reviews') }}">
+        <i class="fas fa-star"></i>
+        <span>Reviews</span>
+    </a>
+</li>
                 <li class="{{ Request::is('location-map') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('map') }}">
                     <i class="fas fa-map-marked-alt"></i><span>Map Location</span>

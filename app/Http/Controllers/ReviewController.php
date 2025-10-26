@@ -38,19 +38,47 @@ class ReviewController extends Controller
     // Show user reviews
     // Show user reviews - BUYER ONLY
     public function index()
-    {
-        // Only buyers can access this page
-        if(auth()->user()->role !== 'buyer') {
-            abort(403, 'Only buyers can view this page.');
-        }
+{
+    $user = auth()->user();
 
-        // Show only reviews written by the logged-in buyer
-        $reviews = Review::where('user_id', auth()->id())
-                         ->with(['product', 'order'])
-                         ->latest()
-                         ->get();
-
-        return view('profile.reviews', compact('reviews'));
+    if ($user->role === 'buyer') {
+        // Buyer: show reviews they have written
+        $reviews = \App\Models\Review::where('user_id', $user->id)
+                    ->with(['product', 'order'])
+                    ->latest()
+                    ->get();
+        $title = 'My Reviews';
+    } elseif ($user->role === 'supplier') {
+        // Supplier: show reviews for their products
+        $reviews = \App\Models\Review::whereHas('product', function ($query) use ($user) {
+                        $query->where('user_id', $user->id);
+                    })
+                    ->with(['product', 'order', 'user'])
+                    ->latest()
+                    ->get();
+        $title = 'Product Reviews';
+    } else {
+        abort(403, 'Unauthorized access.');
     }
+
+    return view('profile.reviews', compact('reviews', 'title'));
+}
+    public function supplierReviews()
+{
+    // Only suppliers can access this
+    if (auth()->user()->role !== 'supplier') {
+        abort(403, 'Only suppliers can view this page.');
+    }
+
+    // Get reviews for products owned by this supplier
+    $reviews = \App\Models\Review::whereHas('product', function ($query) {
+        $query->where('user_id', auth()->id());
+    })
+    ->with(['product', 'order', 'user'])
+    ->latest()
+    ->get();
+
+    return view('supplier.reviews', compact('reviews'));
+}
 }
 
