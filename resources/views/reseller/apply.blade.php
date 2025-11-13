@@ -140,92 +140,76 @@
                             @enderror
                         </div>
 
-                        {{-- <div class="mb-3">
-                            <label for="country" class="form-label fw-bold">Country or Region <span class="text-danger">*</span></label>
-                            <select name="country" id="country" class="form-select @error('country') is-invalid @enderror" required>
-                                <option value="">Select</option>
-                                <option value="Philippines" {{ old('country') == 'Philippines' ? 'selected' : '' }}>Philippines</option>
-                                <option value="USA" {{ old('country') == 'USA' ? 'selected' : '' }}>United States</option>
-                                <option value="Singapore" {{ old('country') == 'Singapore' ? 'selected' : '' }}>Singapore</option>
-                                <option value="Malaysia" {{ old('country') == 'Malaysia' ? 'selected' : '' }}>Malaysia</option>
-                                <option value="Thailand" {{ old('country') == 'Thailand' ? 'selected' : '' }}>Thailand</option>
-                            </select>
-                            <small class="text-muted">Select the country or region exactly as it appears on the business qualifications.</small>
-                            @error('country')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div> --}}
-
                         <div class="mb-3">
-                            <label for="address" class="form-label fw-bold">Address<span class="text-danger">*</span></label>
-                            <input type="text" name="address" id="address"
-                                   class="form-control @error('address') is-invalid @enderror"
-                                   placeholder="Business address"
-                                   value="{{ old('address') }}" required>
-                            @error('address')
+                            <label for="phone_number" class="form-label fw-bold">Phone Number <span class="text-danger">*</span></label>
+                            <input type="text" name="phone_number" id="phone_number"
+                                   class="form-control @error('phone_number') is-invalid @enderror"
+                                   placeholder="Business phone number (e.g., 09123456789)"
+                                   value="{{ old('phone_number') }}" 
+                                   pattern="^(09|\+639)\d{9}$"
+                                   maxlength="13"
+                                   required>
+                            <small class="text-muted">Enter a valid Philippine mobile number.</small>
+                            @error('phone_number')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label for="province" class="form-label fw-bold">Province or State <span class="text-danger">*</span></label>
-        <select name="province" id="province" class="form-select @error('province') is-invalid @enderror" required>
-            <option value="">Select Province</option>
-            <!-- Region IV-A - CALABARZON -->
-            <optgroup label="Region IV-A - CALABARZON">
-                <option value="Batangas" {{ old('province') == 'Batangas' ? 'selected' : '' }}>Batangas</option>
-                <option value="Cavite" {{ old('province') == 'Cavite' ? 'selected' : '' }}>Cavite</option>
-                <option value="Laguna" {{ old('province') == 'Laguna' ? 'selected' : '' }}>Laguna</option>
-                <option value="Quezon" {{ old('province') == 'Quezon' ? 'selected' : '' }}>Quezon</option>
-                <option value="Rizal" {{ old('province') == 'Rizal' ? 'selected' : '' }}>Rizal</option>
-            </optgroup>
-        </select>
-        @error('province')
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-geo-alt-fill me-1"></i>Address Details <span class="text-danger">*</span>
+                            </label>
+                            
+                            <!-- Street Address -->
+                            <input type="text" 
+                                   name="street_address" 
+                                   id="street_address"
+                                   class="form-control mb-2 @error('street_address') is-invalid @enderror" 
+                                   placeholder="Street (e.g., Phase 1 Blk 1 Lot 1)"
+                                   value="{{ old('street_address') }}"
+                                   required>
+                            @error('street_address')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            
+                            <!-- Barangay Dropdown -->
+                            <select name="barangay" 
+                                    id="barangay"
+                                    class="form-select @error('barangay') is-invalid @enderror" 
+                                    required>
+                                <option value="" selected>Select Barangay</option>
+                                <option value="Bagbag I" {{ old('barangay') == 'Bagbag I' ? 'selected' : '' }}>Bagbag I</option>
+                                <option value="Bagbag II" {{ old('barangay') == 'Bagbag II' ? 'selected' : '' }}>Bagbag II</option>
+                                <option value="Kanluran" {{ old('barangay') == 'Kanluran' ? 'selected' : '' }}>Kanluran</option>
+                                <option value="Ligtong I" {{ old('barangay') == 'Ligtong I' ? 'selected' : '' }}>Ligtong I</option>
+                                <option value="Ligtong II" {{ old('barangay') == 'Ligtong II' ? 'selected' : '' }}>Ligtong II</option>
+                                <option value="Ligtong III" {{ old('barangay') == 'Ligtong III' ? 'selected' : '' }}>Ligtong III</option>
+                                <option value="Ligtong IV" {{ old('barangay') == 'Ligtong IV' ? 'selected' : '' }}>Ligtong IV</option>
+                                <option value="Muzon I" {{ old('barangay') == 'Muzon I' ? 'selected' : '' }}>Muzon I</option>
+                                <option value="Muzon II" {{ old('barangay') == 'Muzon II' ? 'selected' : '' }}>Muzon II</option>
+                                <option value="Poblacion" {{ old('barangay') == 'Poblacion' ? 'selected' : '' }}>Poblacion</option>
+                                <option value="Sapa I" {{ old('barangay') == 'Sapa I' ? 'selected' : '' }}>Sapa I</option>
+                                <option value="Sapa II" {{ old('barangay') == 'Sapa II' ? 'selected' : '' }}>Sapa II</option>
+                                <option value="Sapa III" {{ old('barangay') == 'Sapa III' ? 'selected' : '' }}>Sapa III</option>
+                                <option value="Sapa IV" {{ old('barangay') == 'Sapa IV' ? 'selected' : '' }}>Sapa IV</option>
+                                <option value="Silangan I" {{ old('barangay') == 'Silangan I' ? 'selected' : '' }}>Silangan I</option>
+                                <option value="Silangan II" {{ old('barangay') == 'Silangan II' ? 'selected' : '' }}>Silangan II</option>
+                                <option value="Tejeros Convention" {{ old('barangay') == 'Tejeros Convention' ? 'selected' : '' }}>Tejeros Convention</option>
+                                <option value="Wawa I" {{ old('barangay') == 'Wawa I' ? 'selected' : '' }}>Wawa I</option>
+                                <option value="Wawa II" {{ old('barangay') == 'Wawa II' ? 'selected' : '' }}>Wawa II</option>
+                                <option value="Wawa III" {{ old('barangay') == 'Wawa III' ? 'selected' : '' }}>Wawa III</option>
+                            </select>
+                            @error('barangay')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
 
-    <div class="col-md-6 mb-3">
-        <label for="city" class="form-label fw-bold">City <span class="text-danger">*</span></label>
-        <select name="city" id="city" class="form-select @error('city') is-invalid @enderror" required>
-            <option value="">Select City/Municipality</option>            
-            <!-- Cavite -->
-            <option value="Bacoor" data-province="Cavite">Bacoor</option>
-            <option value="Cavite City" data-province="Cavite">Cavite City</option>
-            <option value="Dasmariñas" data-province="Cavite">Dasmariñas</option>
-            <option value="General Trias" data-province="Cavite">General Trias</option>
-            <option value="Imus" data-province="Cavite">Imus</option>
-            <option value="Tagaytay" data-province="Cavite">Tagaytay</option>
-            <option value="Trece Martires" data-province="Cavite">Trece Martires</option>
-        </select>
-        @error('city')
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
-</div>
+                            <!-- Hidden field for complete address -->
+                            <input type="hidden" id="address" name="address">
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="zip_code" class="form-label fw-bold">Zip or Postal Code <span class="text-danger">*</span></label>
-                                <input type="text" name="zip_code" id="zip_code"
-                                       class="form-control @error('zip_code') is-invalid @enderror"
-                                       placeholder="Zip or postal code"
-                                       value="{{ old('zip_code') }}" required>
-                                @error('zip_code')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="phone_number" class="form-label fw-bold">Phone Number <span class="text-danger">*</span></label>
-                                <input type="text" name="phone_number" id="phone_number"
-                                       class="form-control @error('phone_number') is-invalid @enderror"
-                                       placeholder="Business phone number (e.g., +63 912 345 6789)"
-                                       value="{{ old('phone_number') }}" required>
-                                @error('phone_number')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                            <!-- Address Preview -->
+                            <div id="address_preview" class="mt-2 p-2 bg-light rounded border" style="display: none;">
+                                <small class="text-muted">Complete Address:</small>
+                                <div class="fw-semibold text-dark" id="preview_text"></div>
                             </div>
                         </div>
 
@@ -242,14 +226,14 @@
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mt-4">
-    <a href="{{ route('landing') }}" class="btn btn-outline-secondary px-5">
-        <i class="bi bi-arrow-left me-1"></i> Back to Landing Page
-    </a>
+                            <a href="{{ route('landing') }}" class="btn btn-outline-secondary px-5">
+                                <i class="bi bi-arrow-left me-1"></i> Back to Landing Page
+                            </a>
 
-    <button type="button" class="btn btn-primary px-5 next-step">
-        Next <i class="bi bi-arrow-right ms-1"></i>
-    </button>
-</div>
+                            <button type="button" class="btn btn-primary px-5 next-step">
+                                Next <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                        </div>
                     </div>
 
                     {{-- STEP 2: Verify Business --}}
@@ -312,28 +296,12 @@
                                         <td id="review_email"></td>
                                     </tr>
                                     <tr>
-                                        <td class="text-muted">Country or region:</td>
-                                        <td id="review_country"></td>
+                                        <td class="text-muted">Phone number:</td>
+                                        <td id="review_phone"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted">Address:</td>
                                         <td id="review_address"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-muted">City:</td>
-                                        <td id="review_city"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-muted">Province or state:</td>
-                                        <td id="review_province"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-muted">Zip or postal code:</td>
-                                        <td id="review_zip"></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-muted">Phone number:</td>
-                                        <td id="review_phone"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted">Business license ID:</td>
@@ -484,53 +452,76 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    const provinceSelect = document.getElementById('province');
-    const citySelect = document.getElementById('city');
-    const allCityOptions = Array.from(citySelect.querySelectorAll('option[data-province]'));
-    
-    // Function to filter cities based on selected province
-    function filterCities() {
-        const selectedProvince = provinceSelect.value;
-        
-        // Remove all city options except the first one (placeholder)
-        citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
-        
-        if (selectedProvince) {
-            // Add only cities that match the selected province
-            allCityOptions.forEach(option => {
-                if (option.dataset.province === selectedProvince) {
-                    citySelect.appendChild(option.cloneNode(true));
-                }
-            });
-        }
-        
-        // Reset city selection
-        citySelect.value = '';
-        
-        // If there's an old value (from validation error), try to select it
-        const oldCity = '{{ old("city") }}';
-        if (oldCity && selectedProvince) {
-            const matchingOption = citySelect.querySelector(`option[value="${oldCity}"]`);
-            if (matchingOption) {
-                citySelect.value = oldCity;
-            }
-        }
-    }
-    
-    // Listen for province changes
-    provinceSelect.addEventListener('change', filterCities);
-    
-    // Initialize on page load if province is already selected
-    const oldProvince = '{{ old("province") }}';
-    if (oldProvince) {
-        provinceSelect.value = oldProvince;
-        filterCities();
-    }
-});
-    document.addEventListener('DOMContentLoaded', function() {
         let currentStep = 1;
         const totalSteps = 3;
         let uploadedFile = null;
+
+        // Address Handling
+        function initializeAddressHandling() {
+            const streetInput = document.getElementById('street_address');
+            const barangaySelect = document.getElementById('barangay');
+            const addressInput = document.getElementById('address');
+            const addressPreview = document.getElementById('address_preview');
+            const previewText = document.getElementById('preview_text');
+
+            function updateAddress() {
+                const street = streetInput.value.trim();
+                const barangay = barangaySelect.value;
+
+                if (street && barangay) {
+                    const completeAddress = `${street}, Barangay ${barangay}, Rosario, Cavite`;
+                    addressInput.value = completeAddress;
+                    previewText.textContent = completeAddress;
+                    addressPreview.style.display = 'block';
+                } else {
+                    addressInput.value = '';
+                    addressPreview.style.display = 'none';
+                }
+            }
+
+            streetInput.addEventListener('input', updateAddress);
+            barangaySelect.addEventListener('change', updateAddress);
+
+            // Trigger update on page load if values exist
+            if (streetInput.value || barangaySelect.value) {
+                updateAddress();
+            }
+        }
+
+        // Phone Number Validation
+        function initializePhoneValidation() {
+            const phoneInput = document.getElementById('phone_number');
+
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^\d+]/g, '');
+                
+                if (value.includes('+')) {
+                    const plusCount = (value.match(/\+/g) || []).length;
+                    if (plusCount > 1 || value.indexOf('+') !== 0) {
+                        value = value.replace(/\+/g, '');
+                    }
+                }
+                
+                if (value.startsWith('+639')) {
+                    value = value.substring(0, 13);
+                } else if (value.startsWith('09')) {
+                    value = value.substring(0, 11);
+                }
+                
+                e.target.value = value;
+            });
+
+            phoneInput.addEventListener('blur', function(e) {
+                const value = e.target.value;
+                const pattern = /^(09|\+639)\d{9}$/;
+                
+                if (value && !pattern.test(value)) {
+                    e.target.setCustomValidity('Please enter a valid Philippine mobile number');
+                } else {
+                    e.target.setCustomValidity('');
+                }
+            });
+        }
 
         // Navigation
         document.querySelectorAll('.next-step').forEach(btn => {
@@ -600,14 +591,12 @@
         function populateReview() {
             document.getElementById('review_business_name').textContent = document.getElementById('business_name').value;
             document.getElementById('review_email').textContent = document.getElementById('email_address').value;
-            document.getElementById('review_country').textContent = document.getElementById('country').value;
-            document.getElementById('review_address').textContent = document.getElementById('address').value;
-            document.getElementById('review_city').textContent = document.getElementById('city').value;
-            document.getElementById('review_province').textContent = document.getElementById('province').value;
-            document.getElementById('review_zip').textContent = document.getElementById('zip_code').value;
             
             const phone = document.getElementById('phone_number').value;
             document.getElementById('review_phone').textContent = phone ? phone : 'Not provided';
+            
+            const address = document.getElementById('address').value;
+            document.getElementById('review_address').textContent = address ? address : 'Not provided';
             
             document.getElementById('review_license').textContent = document.getElementById('business_license_id').value;
             
@@ -692,5 +681,9 @@
                 goToStep(2);
             }
         });
+
+        // Initialize functions
+        initializeAddressHandling();
+        initializePhoneValidation();
     });
 </script>

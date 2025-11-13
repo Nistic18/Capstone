@@ -31,6 +31,7 @@ class OrderStatusUpdated extends Notification implements ShouldQueue
     $orderUrl = url('/orders/' . $this->order->id);
 
     return (new MailMessage)
+        ->from('fishmarketnotification@gmail.com', 'FishMarket')
         ->subject('Your Order Status Updated')
         ->view('emails.order_status_updated', [
             'order' => $this->order,
