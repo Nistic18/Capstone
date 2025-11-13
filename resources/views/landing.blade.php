@@ -227,6 +227,10 @@
         height: 400px !important;
     }
 }
+.justify-text {
+    text-align: justify;
+}
+
     </style>
 </head>
 
@@ -333,9 +337,9 @@
                     <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="#about">About Us</a></li>
                     <li class="nav-item"><a class="nav-link" href="#articles">Articles</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
                     <li class="nav-item"><a class="nav-link" href="#stores">Stores</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('reseller.create') }}">Apply as Supplier</a></li>
                     <li class="nav-item ms-2"><a class="btn btn-login" href="{{ route('login') }}">Login</a></li>
                 </ul>
@@ -372,7 +376,7 @@
                                      class="img-fluid rounded" 
                                      style="border: 2px solid rgba(255,255,255,0.3);"
                                      alt="{{ $product->name }}">
-                                <div class="text-white mt-1">
+                                <div class="text-white mt-1 justify-text">
                                     <h6 class="mb-1">{{ $product->name }}</h6>
                                     <p class="mb-1">
                                         {{ $product->description ?? 'No description' }}
@@ -600,7 +604,7 @@
 
 
     <!-- Stores Section -->
-    <section id="our-locations" class="py-5" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+    <section id="stores" class="py-5" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
     <div class="container">
         <!-- Section Header -->
         <div class="text-center mb-5">

@@ -71,9 +71,17 @@
                     @else
                         {{-- Cart Items Header --}}
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="fw-bold mb-0 " style="color: #2c3e50;">
-                                Cart Items ({{ $cart->count() }})
-                            </h4>
+                            <div class="d-flex align-items-center">
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" id="selectAll" style="width: 20px; height: 20px; cursor: pointer;">
+                                    <label class="form-check-label ms-2" for="selectAll" style="cursor: pointer;">
+                                        Select All
+                                    </label>
+                                </div>
+                                <h4 class="fw-bold mb-0" style="color: #2c3e50;">
+                                    Cart Items ({{ $cart->count() }})
+                                </h4>
+                            </div>
                             <span class="badge" style="background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; padding: 8px 15px; color: #fff;">
                                 🐟 Fresh Selection
                             </span>
@@ -89,9 +97,23 @@
                                 $total += $subtotal;
                             @endphp
                             
-                            <div class="card border-0 mb-3" style="background-color: #f8f9fa; border-radius: 15px;">
+                            <div class="card border-0 mb-3 cart-item" style="background-color: #f8f9fa; border-radius: 15px;">
                                 <div class="card-body p-3">
                                     <div class="row g-3 align-items-center">
+                                        {{-- Checkbox --}}
+                                        <div class="col-auto">
+                                            <div class="form-check">
+                                                <input class="form-check-input product-checkbox" 
+                                                       type="checkbox" 
+                                                       value="{{ $item->product->id }}"
+                                                       data-price="{{ $item->product->price }}"
+                                                       data-quantity="{{ $item->quantity }}"
+                                                       data-subtotal="{{ $subtotal }}"
+                                                       id="product-{{ $item->product->id }}"
+                                                       style="width: 20px; height: 20px; cursor: pointer;">
+                                            </div>
+                                        </div>
+
                                         {{-- Product Image --}}
                                         <div class="col-md-2 col-3">
                                             <div class="position-relative">
@@ -110,7 +132,7 @@
                                         </div>
 
                                         {{-- Product Info --}}
-                                        <div class="col-md-4 col-9">
+                                        <div class="col-md-3 col-8">
                                             <h6 class="fw-bold mb-1" style="color: #2c3e50;">{{ $item->product->name }}</h6>
                                             <p class="text-muted small mb-1">
                                                 <i class="me-1"></i>₱{{ number_format($item->product->price, 2) }} per piece
@@ -186,6 +208,14 @@
                         <i class="fas fa-receipt text-primary me-2"></i>Order Summary
                     </h5>
 
+                    {{-- Selected Items Alert --}}
+                    <div class="alert alert-info border-0 mb-3" style="background: rgba(0, 0, 0, 0.911); border-radius: 10px;">
+                        <small>
+                            <i class="fas fa-info-circle me-1"></i>
+                            <span id="selectedItemsCount">0</span> item(s) selected for checkout
+                        </small>
+                    </div>
+
                     {{-- User Information Display --}}
                     @if($userAddress || $userPhone)
                     <div class="mb-4 p-3 rounded" style="background-color: #f8f9fa; border: 1px solid #dee2e6;">
@@ -220,13 +250,13 @@
                     {{-- Order Details --}}
                     <div class="mb-4">
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Items ({{ $cart->count() }})</span>
-                            <span class="fw-semibold">₱{{ number_format($total, 2) }}</span>
+                            <span class="text-muted">Selected Items</span>
+                            <span class="fw-semibold" id="selectedTotal">₱0.00</span>
                         </div>
                         <hr class="my-3">
                         <div class="d-flex justify-content-between mb-2">
                             <span class="h6 fw-bold">Total Amount</span>
-                            <span class="h5 fw-bold" style="color: #28a745;">₱{{ number_format($total, 2) }}</span>
+                            <span class="h5 fw-bold" style="color: #28a745;" id="grandTotal">₱0.00</span>
                         </div>
                     </div>
 
@@ -255,9 +285,11 @@
     </div>
 
     <button type="button" class="btn btn-lg w-100 mb-3" 
+            id="checkoutButton"
             style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997); border: none; color: white; padding: 12px;"
             data-bs-toggle="modal" 
-            data-bs-target="#checkoutConfirmationModal">
+            data-bs-target="#checkoutConfirmationModal"
+            disabled>
         <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
     </button>
 @else
@@ -370,20 +402,13 @@
                                     <th class="text-end">Subtotal</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach($cart as $item)
-                                <tr>
-                                    <td>{{ $item->product->name }}</td>
-                                    <td class="text-center">{{ $item->quantity }}</td>
-                                    <td class="text-end">₱{{ number_format($item->product->price, 2) }}</td>
-                                    <td class="text-end fw-semibold">₱{{ number_format($item->product->price * $item->quantity, 2) }}</td>
-                                </tr>
-                                @endforeach
+                            <tbody id="modalOrderItems">
+                                {{-- Items will be dynamically inserted here --}}
                             </tbody>
                             <tfoot style="background-color: #f8f9fa;">
                                 <tr>
                                     <td colspan="3" class="text-end fw-bold">Total Amount:</td>
-                                    <td class="text-end fw-bold" style="color: #28a745;">₱{{ number_format($total, 2) }}</td>
+                                    <td class="text-end fw-bold" style="color: #28a745;" id="modalTotalAmount">₱0.00</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -426,6 +451,7 @@
                 <form id="checkoutForm" action="{{ route('cart.checkout') }}" method="POST" style="display: inline;">
                     @csrf
                     <input type="hidden" name="payment_method" id="hiddenPaymentMethod" value="COD">
+                    <input type="hidden" name="selected_products" id="selectedProductsInput">
                     <button type="submit" class="btn btn-success" style="border-radius: 10px;" id="confirmCheckoutBtn" disabled>
                         <i class="fas fa-check me-1"></i>Confirm & Place Order
                     </button>
@@ -461,6 +487,15 @@
         z-index: 1020;
     }
     
+    .cart-item {
+        transition: all 0.3s ease;
+    }
+    
+    .cart-item:has(.product-checkbox:checked) {
+        background-color: #e7f3ff !important;
+        border: 2px solid #667eea !important;
+    }
+    
     @media (max-width: 768px) {
         .sticky-top {
             position: relative;
@@ -484,7 +519,20 @@
 </style>
 
 {{-- JavaScript for quantity controls and modals --}}
-<script>
+<<script>
+    let selectedProducts = [];
+    let cartData = {};
+
+    // Store cart data from server
+    @foreach($cart as $item)
+        cartData[{{ $item->product->id }}] = {
+            name: "{{ $item->product->name }}",
+            quantity: {{ $item->quantity }},
+            price: {{ $item->product->price }},
+            subtotal: {{ $item->product->price * $item->quantity }}
+        };
+    @endforeach
+
     function decreaseQuantity(productId) {
         const input = document.getElementById('quantity-' + productId);
         const currentValue = parseInt(input.value);
@@ -511,9 +559,61 @@
             }, 100);
         });
     });
-    
-    // JavaScript to handle remove from cart modal
+
+    // Calculate selected total
+    function updateSelectedTotal() {
+        const checkboxes = document.querySelectorAll('.product-checkbox:checked');
+        let total = 0;
+        selectedProducts = [];
+
+        checkboxes.forEach(checkbox => {
+            const subtotal = parseFloat(checkbox.dataset.subtotal);
+            total += subtotal;
+            selectedProducts.push(parseInt(checkbox.value));
+        });
+
+        document.getElementById('selectedItemsCount').textContent = checkboxes.length;
+        document.getElementById('selectedTotal').textContent = '₱' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        document.getElementById('grandTotal').textContent = '₱' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+
+        // Enable/disable checkout button
+        const checkoutButton = document.getElementById('checkoutButton');
+        if (checkoutButton) {
+            checkoutButton.disabled = checkboxes.length === 0;
+        }
+    }
+
+    // Select All functionality
     document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const productCheckboxes = document.querySelectorAll('.product-checkbox');
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                productCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateSelectedTotal();
+            });
+        }
+
+        // Individual checkbox change
+        productCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectedTotal();
+                
+                // Update select all checkbox state
+                const allChecked = Array.from(productCheckboxes).every(cb => cb.checked);
+                const someChecked = Array.from(productCheckboxes).some(cb => cb.checked);
+                
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = allChecked;
+                    selectAllCheckbox.indeterminate = someChecked && !allChecked;
+                }
+            });
+        });
+
+        // JavaScript to handle remove from cart modal
         const removeFromCartModal = document.getElementById('removeFromCartModal');
         
         if (removeFromCartModal) {
@@ -534,13 +634,40 @@
         const confirmTermsCheckbox = document.getElementById('confirmTerms');
         const confirmCheckoutBtn = document.getElementById('confirmCheckoutBtn');
         const paymentMethodSelect = document.getElementById('payment_method');
-        
+
         if (checkoutConfirmationModal) {
-            checkoutConfirmationModal.addEventListener('show.bs.modal', function(event) {
+            checkoutConfirmationModal.addEventListener('show.bs.modal', function () {
                 // Update payment method in modal
                 const selectedPaymentMethod = paymentMethodSelect.value;
-                document.getElementById('confirmPaymentMethod').textContent = selectedPaymentMethod === 'COD' ? 'Cash on Delivery' : 'Pickup';
+                document.getElementById('confirmPaymentMethod').textContent =
+                    selectedPaymentMethod === 'COD' ? 'Cash on Delivery' : 'Pickup';
                 document.getElementById('hiddenPaymentMethod').value = selectedPaymentMethod;
+
+                // Populate modal with selected items
+                const modalOrderItems = document.getElementById('modalOrderItems');
+                modalOrderItems.innerHTML = '';
+
+                let modalTotal = 0;
+                selectedProducts.forEach(productId => {
+                    const product = cartData[productId];
+                    if (product) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${product.name}</td>
+                            <td class="text-center">${product.quantity}</td>
+                            <td class="text-end">₱${product.price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}</td>
+                            <td class="text-end fw-semibold">₱${product.subtotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}</td>
+                        `;
+                        modalOrderItems.appendChild(row);
+                        modalTotal += product.subtotal;
+                    }
+                });
+
+                document.getElementById('modalTotalAmount').textContent =
+                    '₱' + modalTotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                
+                // Set selected products in hidden input
+                document.getElementById('selectedProductsInput').value = JSON.stringify(selectedProducts);
                 
                 // Reset checkbox
                 confirmTermsCheckbox.checked = false;
@@ -561,9 +688,11 @@
                 document.getElementById('hiddenPaymentMethod').value = this.value;
             });
         }
+
+        // Initial calculation
+        updateSelectedTotal();
     });
 </script>
-
 {{-- Add Font Awesome if not already included --}}
 @push('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

@@ -45,7 +45,7 @@
         </div>
 
         {{-- FAQ Section --}}
-        <div class="col-lg-4 col-md-6 col-sm-12">
+        {{-- <div class="col-lg-4 col-md-6 col-sm-12">
             <div class="card card-success">
                 <div class="card-header">
                     <h4>FAQ Section</h4>
@@ -54,10 +54,10 @@
                     <a href="{{ route('admin.landing.edit', ['section' => 'faq']) }}" class="btn btn-success btn-block">Edit FAQ</a>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         {{-- Contact Section --}}
-        <div class="col-lg-4 col-md-6 col-sm-12">
+        {{-- <div class="col-lg-4 col-md-6 col-sm-12">
             <div class="card card-dark">
                 <div class="card-header">
                     <h4>Contact Section</h4>
@@ -66,10 +66,10 @@
                     <a href="{{ route('admin.landing.edit', ['section' => 'contact']) }}" class="btn btn-dark btn-block">Edit Contact</a>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         {{-- Final CTA Section --}}
-        <div class="col-lg-4 col-md-6 col-sm-12">
+        {{-- <div class="col-lg-4 col-md-6 col-sm-12">
             <div class="card card-danger">
                 <div class="card-header">
                     <h4>Final CTA Section</h4>
@@ -78,7 +78,7 @@
                     <a href="{{ route('admin.landing.edit', ['section' => 'cta']) }}" class="btn btn-danger btn-block">Edit CTA</a>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 </div>
 @endsection

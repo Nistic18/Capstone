@@ -327,6 +327,5 @@ Route::get('/buyer/reviews', [ReviewController::class, 'index'])
     ->name('buyer.reviews')
     ->middleware('auth');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/profile/reviews', [ReviewController::class, 'index'])->name('profile.reviews');
-});
+Route::middleware('auth')->get('/profile/reviews', [ReviewController::class, 'index'])
+    ->name('profile.reviews');

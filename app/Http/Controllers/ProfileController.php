@@ -59,9 +59,9 @@ public function show($id)
 {
     $user = User::with('products.reviews.user')->findOrFail($id);
 
-    if (auth()->id() !== $user->id && auth()->user()->role !== 'admin') {
-        abort(403, 'Unauthorized access to another user’s profile.');
-    }
+    // if (auth()->id() !== $user->id && auth()->user()->role !== 'admin') {
+    //     abort(403, 'Unauthorized access to another user’s profile.');
+    // }
 
     return view('profile.show', compact('user'));
 }

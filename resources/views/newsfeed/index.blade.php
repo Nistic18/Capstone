@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Community Newsfeed')
 
-{{-- Add Bootstrap 5 CSS --}}
+{{-- Add Bootstrap 5 CSS if not in layout --}}
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -119,33 +119,30 @@
                         @endif
                     </div>
                     
-                    {{-- Post Actions Dropdown --}}
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary btn-sm" type="button" 
+                    {{-- Post Actions Dropdown - SIMPLE VERSION --}}
+                    <div class="position-relative">
+                        <button class="btn btn-outline-secondary btn-sm" 
+                                type="button" 
                                 style="border-radius: 10px; border: none; background: rgba(108, 117, 125, 0.1);"
-                                data-bs-toggle="dropdown" aria-expanded="false">
+                                onclick="toggleDropdown(event, {{ $post->id }})">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
-                        <ul class="dropdown-menu shadow-sm" style="border-radius: 10px;">
-                            <li>
-                                <a class="dropdown-item" href="{{ route('newsfeed.show', $post) }}">
-                                    <i class="fas fa-eye me-2"></i>View Full Post
-                                </a>
-                            </li>
+                        <div id="dropdown-{{ $post->id }}" 
+                             class="dropdown-menu-custom shadow-sm" 
+                             style="display: none; position: absolute; right: 0; top: 100%; min-width: 200px; background: white; border-radius: 10px; z-index: 1000; margin-top: 5px; padding: 5px 0;">
+                            <a class="dropdown-item-custom" href="{{ route('newsfeed.show', $post) }}">
+                                <i class="fas fa-eye me-2"></i>View Full Post
+                            </a>
                             @if(auth()->id() == $post->user_id)
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item text-warning" href="{{ route('newsfeed.edit', $post) }}">
-                                        <i class="fas fa-edit me-2"></i>Edit Post
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item text-danger" href="#" onclick="confirmDeletePost({{ $post->id }})">
-                                        <i class="fas fa-trash me-2"></i>Delete Post
-                                    </a>
-                                </li>
+                                <hr style="margin: 5px 0; border-color: #e9ecef;">
+                                <a class="dropdown-item-custom text-warning" href="{{ route('newsfeed.edit', $post) }}">
+                                    <i class="fas fa-edit me-2"></i>Edit Post
+                                </a>
+                                <a class="dropdown-item-custom text-danger" href="#" onclick="event.preventDefault(); confirmDeletePost({{ $post->id }})">
+                                    <i class="fas fa-trash me-2"></i>Delete Post
+                                </a>
                             @endif
-                        </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -330,6 +327,7 @@
 
 {{-- Custom CSS --}}
 <style>
+    
     .post-card:hover {
         box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
     }
@@ -393,12 +391,21 @@
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
     }
     
-    .dropdown-menu {
-        border: none;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    /* Custom Dropdown Styles */
+    .dropdown-menu-custom {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        border: 1px solid rgba(0,0,0,0.1);
     }
     
-    .dropdown-item:hover {
+    .dropdown-item-custom {
+        display: block;
+        padding: 10px 20px;
+        color: #212529;
+        text-decoration: none;
+        transition: background-color 0.15s ease-in-out;
+    }
+    
+    .dropdown-item-custom:hover {
         background: rgba(102, 126, 234, 0.1);
         color: #667eea;
     }
@@ -464,26 +471,50 @@
 
 {{-- JavaScript --}}
 <script>
+// Custom Dropdown Toggle Function
+function toggleDropdown(event, postId) {
+    event.stopPropagation();
+    const dropdown = document.getElementById('dropdown-' + postId);
+    const allDropdowns = document.querySelectorAll('.dropdown-menu-custom');
+    
+    // Close all other dropdowns
+    allDropdowns.forEach(dd => {
+        if (dd.id !== 'dropdown-' + postId) {
+            dd.style.display = 'none';
+        }
+    });
+    
+    // Toggle current dropdown
+    if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+        dropdown.style.display = 'block';
+    } else {
+        dropdown.style.display = 'none';
+    }
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+    const allDropdowns = document.querySelectorAll('.dropdown-menu-custom');
+    allDropdowns.forEach(dropdown => {
+        dropdown.style.display = 'none';
+    });
+});
+
+// Prevent dropdown from closing when clicking inside it
+document.addEventListener('click', function(event) {
+    if (event.target.closest('.dropdown-menu-custom')) {
+        event.stopPropagation();
+    }
+});
+
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Bootstrap tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-    
-    // Initialize Bootstrap popovers
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-        return new bootstrap.Popover(popoverTriggerEl);
-    });
-    
     // Add loading states to forms
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
         form.addEventListener('submit', function() {
             const submitBtn = form.querySelector('button[type="submit"]');
-            if(submitBtn) {
+            if(submitBtn && !submitBtn.classList.contains('no-loading')) {
                 const originalContent = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Loading...';
                 submitBtn.disabled = true;
@@ -502,54 +533,46 @@ document.addEventListener('DOMContentLoaded', function() {
 function openImageModal(imageSrc) {
     const modalImage = document.getElementById('modalImage');
     modalImage.src = imageSrc;
-    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
-    modal.show();
+    
+    // Check if Bootstrap is loaded
+    if (typeof bootstrap !== 'undefined') {
+        const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+        modal.show();
+    } else {
+        // Fallback: show modal manually
+        const modal = document.getElementById('imageModal');
+        modal.style.display = 'block';
+        modal.classList.add('show');
+        document.body.classList.add('modal-open');
+        
+        // Add backdrop
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+        
+        // Close on backdrop click
+        backdrop.onclick = function() {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.classList.remove('modal-open');
+            backdrop.remove();
+        };
+        
+        // Close on X button click
+        modal.querySelector('.btn-close').onclick = function() {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            document.body.classList.remove('modal-open');
+            backdrop.remove();
+        };
+    }
 }
 
-// Delete Post Confirmation with Bootstrap Modal
+// Delete Post Confirmation
 function confirmDeletePost(postId) {
-    // Create a Bootstrap modal for confirmation
-    const modalHtml = `
-        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header border-0">
-                        <h5 class="modal-title text-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p class="mb-0">Are you sure you want to delete this post? This action cannot be undone.</p>
-                    </div>
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger" onclick="deletePost(${postId})" data-bs-dismiss="modal">
-                            <i class="fas fa-trash me-1"></i>Delete Post
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Remove existing modal if present
-    const existingModal = document.getElementById('deleteConfirmModal');
-    if (existingModal) {
-        existingModal.remove();
+    if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+        deletePost(postId);
     }
-    
-    // Add modal to body
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
-    // Show modal
-    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-    modal.show();
-    
-    // Clean up after modal is hidden
-    modal._element.addEventListener('hidden.bs.modal', function() {
-        this.remove();
-    });
 }
 
 // Delete Post Function
@@ -579,36 +602,6 @@ function deletePost(postId) {
     form.submit();
 }
 
-// Toast notification function
-function showToast(message, type = 'info') {
-    const toastContainer = document.querySelector('.toast-container');
-    const toastId = 'toast-' + Date.now();
-    
-    const toastHtml = `
-        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <i class="fas ${type === 'success' ? 'fa-check-circle text-success' : 'fa-info-circle text-info'} me-2"></i>
-                <strong class="me-auto">Notification</strong>
-                <small class="text-muted">now</small>
-                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body">
-                ${message}
-            </div>
-        </div>
-    `;
-    
-    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-    
-    const toast = new bootstrap.Toast(document.getElementById(toastId));
-    toast.show();
-    
-    // Remove toast element after it's hidden
-    document.getElementById(toastId).addEventListener('hidden.bs.toast', function() {
-        this.remove();
-    });
-}
-
 // Reaction button animation
 document.addEventListener('click', function(e) {
     if(e.target.closest('.reaction-btn')) {
@@ -621,30 +614,13 @@ document.addEventListener('click', function(e) {
 });
 
 // Auto-hide alerts after 5 seconds
-document.addEventListener('DOMContentLoaded', function() {
+setTimeout(() => {
     const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
     alerts.forEach(alert => {
-        setTimeout(() => {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
-        }, 5000);
+        alert.style.transition = 'opacity 0.5s ease';
+        alert.style.opacity = '0';
+        setTimeout(() => alert.remove(), 500);
     });
-});
-
-// Smooth scroll for anchor links
-document.addEventListener('click', function(e) {
-    const target = e.target.closest('a[href^="#"]');
-    if (target) {
-        e.preventDefault();
-        const targetId = target.getAttribute('href').substring(1);
-        const targetElement = document.getElementById(targetId);
-        if (targetElement) {
-            targetElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    }
-});
+}, 5000);
 </script>
 @endsection

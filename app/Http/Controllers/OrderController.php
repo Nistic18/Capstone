@@ -144,49 +144,51 @@ class OrderController extends Controller
         return back()->with('success', 'Product and order status updated.');
     }
 
-    public function bulkUpdateProductStatus(Request $request, $orderId)
-    {
-        if (auth()->user()->role === 'buyer') {
-            abort(403, 'Unauthorized access.');
-        }
-
-        $request->validate([
-            'product_status' => 'required|string',
-            'product_ids' => 'required|array',
-        ]);
-
-        $userId = auth()->id();
-
-        foreach ($request->product_ids as $productId) {
-            $product = Product::where('id', $productId)
-                ->where('user_id', $userId)
-                ->first();
-
-            if ($product) {
-                DB::table('order_product')
-                    ->where('order_id', $orderId)
-                    ->where('product_id', $productId)
-                    ->update(['product_status' => $request->product_status]);
-            }
-        }
-
-        // Update order status
-        $statuses = DB::table('order_product')
-            ->where('order_id', $orderId)
-            ->pluck('product_status');
-
-        if ($statuses->every(fn($status) => $status === 'Delivered')) {
-            Order::where('id', $orderId)->update(['status' => 'Delivered']);
-        } else {
-            Order::where('id', $orderId)->update(['status' => $request->product_status]);
-        }
-
-        // ✅ Notify buyer
-        $order = Order::findOrFail($orderId);
-        $order->user->notify(new OrderStatusUpdated($order));
-
-        return back()->with('success', 'Statuses updated for selected products and order.');
+public function bulkUpdateProductStatus(Request $request, $orderId)
+{
+    if (auth()->user()->role === 'buyer') {
+        abort(403, 'Unauthorized access.');
     }
+
+    $request->validate([
+        'product_status' => 'required|string',
+    ]);
+
+    $userId = auth()->id();
+
+    // Get all products in this order that belong to the supplier
+    $products = Product::whereIn('id', function ($query) use ($orderId, $userId) {
+        $query->select('product_id')
+              ->from('order_product')
+              ->where('order_id', $orderId);
+    })
+    ->where('user_id', $userId)
+    ->get();
+
+    foreach ($products as $product) {
+        DB::table('order_product')
+            ->where('order_id', $orderId)
+            ->where('product_id', $product->id)
+            ->update(['product_status' => $request->product_status]);
+    }
+
+    // Update overall order status
+    $statuses = DB::table('order_product')
+        ->where('order_id', $orderId)
+        ->pluck('product_status');
+
+    if ($statuses->every(fn($status) => $status === 'Delivered')) {
+        Order::where('id', $orderId)->update(['status' => 'Delivered']);
+    } else {
+        Order::where('id', $orderId)->update(['status' => $request->product_status]);
+    }
+
+    // Notify buyer
+    $order = Order::findOrFail($orderId);
+    $order->user->notify(new OrderStatusUpdated($order));
+
+    return back()->with('success', 'All products updated successfully.');
+}
 
 public function show(Order $order)
 {
@@ -290,6 +292,28 @@ public function cancelOrder(Request $request, $orderId)
         ]);
 
         // Update all products in the order to 'Cancelled' in pivot table
+        // AND revert the quantities back to inventory
+        foreach ($order->products as $product) {
+            $orderQuantity = $product->pivot->quantity;
+            $oldQuantity = $product->quantity;
+            $newQuantity = $oldQuantity + $orderQuantity;
+
+            // Update product quantity
+            $product->update(['quantity' => $newQuantity]);
+
+            // Log the inventory restoration
+            $product->inventoryLogs()->create([
+                'user_id' => $product->user_id, // The seller/supplier who owns the product
+                'type' => 'in',
+                'quantity' => $orderQuantity,
+                'old_quantity' => $oldQuantity,
+                'new_quantity' => $newQuantity,
+                'reason' => 'order_cancelled',
+                'notes' => "Order #{$order->id} cancelled by buyer. Reason: {$request->cancel_reason}",
+            ]);
+        }
+
+        // Update pivot table status
         DB::table('order_product')
             ->where('order_id', $order->id)
             ->update(['product_status' => 'Cancelled']);
@@ -300,7 +324,7 @@ public function cancelOrder(Request $request, $orderId)
         $product->user->notify(new OrderStatusUpdated($order));
     });
 
-    return back()->with('success', 'Order and all products cancelled successfully.');
+    return back()->with('success', 'Order cancelled successfully.');
 }
 
 public function seller()

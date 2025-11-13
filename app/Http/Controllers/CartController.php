@@ -96,26 +96,35 @@ public function update(Request $request, $productId)
 public function checkout(Request $request)
 {
     DB::beginTransaction();
-    
 
     try {
-        $cartItems = Cart::where('user_id', Auth::id())->with('product')->get();
+        // Decode selected product IDs from hidden input
+        $selectedProducts = json_decode($request->input('selected_products'), true);
 
-        if ($cartItems->isEmpty()) {
-            return redirect()->back()->with('error', 'Your cart is empty.');
+        if (empty($selectedProducts)) {
+            return redirect()->back()->with('error', 'Please select at least one product to checkout.');
         }
 
-        // Calculate total quantity and delivery fee
+        // Fetch only selected items from the user's cart
+        $cartItems = Cart::where('user_id', Auth::id())
+                        ->whereIn('product_id', $selectedProducts)
+                        ->with('product')
+                        ->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->back()->with('error', 'No valid selected products found in your cart.');
+        }
+
+        // Calculate delivery and totals
         $totalQuantity = $cartItems->sum('quantity');
         $deliveryFee = $totalQuantity >= 10 ? 0 : 0;
-
         $totalProducts = 0;
 
-        // Create order with delivery fee
+        // Create order
         $order = Order::create([
             'user_id' => Auth::id(),
             'status' => 'Pending',
-            'total_price' => 0, // temporary, will update after calculating total
+            'total_price' => 0, // temporary
             'delivery_fee' => $deliveryFee,
             'payment_method' => $request->payment_method
         ]);
@@ -124,32 +133,36 @@ public function checkout(Request $request)
             $product = $item->product;
 
             if (!$product) {
-                throw new \Exception("One of the products in your cart no longer exists.");
+                throw new \Exception("One of the selected products no longer exists.");
             }
 
             if ($item->quantity > $product->quantity) {
                 throw new \Exception("Not enough stock for {$product->name}. Available: {$product->quantity}");
             }
 
-            $totalProducts += $product->price * $item->quantity;
-
+            // Add to order
             $order->products()->attach($product->id, [
                 'quantity' => $item->quantity,
                 'product_status' => 'Pending'
             ]);
 
+            // Notify seller
             if ($product->user) {
                 $product->user->notify(new ProductCheckedOut($order, $product));
             }
 
+            // Update totals & stock
+            $totalProducts += $product->price * $item->quantity;
             $product->decrement('quantity', $item->quantity);
         }
 
-        // Update order total including delivery fee
+        // Finalize order total
         $order->update(['total_price' => $totalProducts + $deliveryFee]);
 
-        // Clear cart
-        Cart::where('user_id', Auth::id())->delete();
+        // Remove only selected items from cart
+        Cart::where('user_id', Auth::id())
+            ->whereIn('product_id', $selectedProducts)
+            ->delete();
 
         DB::commit();
 

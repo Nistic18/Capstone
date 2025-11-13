@@ -281,7 +281,7 @@
             </div>
 
             {{-- Recent Locations --}}
-            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+            {{-- <div class="card border-0 shadow-sm" style="border-radius: 15px;">
                 <div class="card-header border-0 py-3" style="background: rgba(102, 126, 234, 0.05);">
                     <h6 class="mb-0 fw-bold" style="color: #2c3e50;">
                         <i class="fas fa-map-pin me-2" style="color: #667eea;"></i>
@@ -317,7 +317,7 @@
                         </div>
                     @endforelse
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 

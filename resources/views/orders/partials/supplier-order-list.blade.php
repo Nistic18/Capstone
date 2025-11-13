@@ -9,6 +9,7 @@
         $deliveredCount = $products->where('pivot.product_status', 'Delivered')->count();
         $isCancelled = $order->status === 'Cancelled'; 
         $isRefunded = $order->refund_status === 'Approved';
+        $productCount = $products->count();
 
         // Determine overall order status
         if ($isCancelled) {
@@ -130,7 +131,7 @@
             @endif
 
             {{-- Product Table --}}
-            <form method="POST" action="{{ route('supplier.orders.status.bulk-update', $order->id) }}" id="orderForm{{ $order->id }}">
+            <form method="POST" action="{{ route('supplier.orders.status.bulk-update', $order->id) }}">
                 @csrf
                 @method('PUT')
 
@@ -138,16 +139,7 @@
                     <table class="table table-hover align-middle">
                         <thead style="background-color: #f8f9fa;">
                             <tr>
-                                <th class="border-0 fw-semibold">
-                                    <div class="d-flex align-items-center">
-                                        @if(!$hasDeliveredAll && !$isRefunded)
-                                            <input type="checkbox" class="form-check-input me-2"
-                                                id="selectAll{{ $order->id }}"
-                                                onchange="toggleAllProducts({{ $order->id }})">
-                                        @endif
-                                        Product
-                                    </div>
-                                </th>
+                                <th class="border-0 fw-semibold">Product</th>
                                 <th class="border-0 text-center fw-semibold">Quantity</th>
                                 <th class="border-0 text-center fw-semibold">Current Status</th>
                                 @if(!$hasDeliveredAll && !$isRefunded && !$isCancelled)
@@ -161,12 +153,6 @@
                                 <tr>
                                     <td class="border-0 py-3">
                                         <div class="d-flex align-items-center">
-                                            @if(!$hasDeliveredAll && !$isRefunded && $product->pivot->product_status !== 'Delivered')
-                                                <input type="checkbox" class="form-check-input me-3 product-checkbox"
-                                                       name="selected_products[]" value="{{ $product->id }}"
-                                                       data-order="{{ $order->id }}">
-                                            @endif
-
                                             <div class="me-3">
                                                 @if($product->images && $product->images->count() > 0)
                                                     <img src="{{ asset('storage/' . $product->images->first()->image) }}" 
@@ -204,39 +190,58 @@
 
                                     @if(!$hasDeliveredAll && !$isRefunded && !$isCancelled)
                                     <td class="border-0 text-center">
-                                        <select name="product_statuses[{{ $product->id }}]" 
-                                                class="form-select form-select-sm d-inline-block w-auto"
-                                                onchange="updateIndividualStatus({{ $order->id }}, {{ $product->id }}, this.value)">
-                                            <option value="">-- Update --</option>
-                                            <option value="Pending" {{ $product->pivot->product_status === 'Pending' ? 'disabled' : '' }}>Mark as Shipped</option>
-                                            <option value="Shipped" {{ $product->pivot->product_status === 'Shipped' ? 'disabled' : '' }}>Mark as Delivered</option>
-                                            <option value="Delivered" {{ $product->pivot->product_status === 'Delivered' ? 'disabled' : '' }}>Mark as Completed</option>
-                                        </select>
+                                        @if($productCount === 1)
+                                            {{-- Show buttons for single product --}}
+                                            @if($product->pivot->product_status === 'Pending')
+                                                <button type="button" class="btn btn-sm btn-info" 
+                                                        onclick="updateIndividualStatus({{ $order->id }}, {{ $product->id }}, 'Shipped')"
+                                                        style="border-radius: 8px;">
+                                                    <i class="fas fa-truck me-1"></i> Mark as Shipped
+                                                </button>
+                                            @elseif($product->pivot->product_status === 'Shipped')
+                                                <button type="button" class="btn btn-sm btn-success" 
+                                                        onclick="updateIndividualStatus({{ $order->id }}, {{ $product->id }}, 'Delivered')"
+                                                        style="border-radius: 8px;">
+                                                    <i class="fas fa-check-circle me-1"></i> Mark as Delivered
+                                                </button>
+                                            @elseif($product->pivot->product_status === 'Delivered')
+                                                <span class="text-success">
+                                                    <i class="fas fa-check-circle me-1"></i> Completed
+                                                </span>
+                                            @endif
+                                        @endif
                                     </td>
                                     @endif
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+
+                    {{-- Bulk Action for Multiple Products --}}
+                    @if(!$hasDeliveredAll && !$isRefunded && !$isCancelled && $productCount > 1)
+                        @php
+                            $hasPending = $products->contains(fn($p) => $p->pivot->product_status === 'Pending');
+                            $hasShipped = $products->contains(fn($p) => $p->pivot->product_status === 'Shipped');
+                        @endphp
+
+                        @if($hasPending)
+                            <input type="hidden" name="product_status" value="Shipped">
+                            <button type="submit" class="btn btn-sm btn-info" style="border-radius: 10px;">
+                                <i class="fas fa-truck me-1"></i> Mark All as Shipped
+                            </button>
+                        @elseif($hasShipped)
+                            <input type="hidden" name="product_status" value="Delivered">
+                            <button type="submit" class="btn btn-sm btn-success" style="border-radius: 10px;">
+                                <i class="fas fa-check-circle me-1"></i> Mark All as Delivered
+                            </button>
+                        @endif
+                    @endif
                 </div>
-            
-                @if(!$hasDeliveredAll && !$isRefunded && !$isCancelled)
-                    <div class="mt-3 text-end">
-                        <select name="product_status" class="form-select d-inline-block w-auto me-2">
-                            <option value="">-- Bulk Action --</option>
-                            <option value="Shipped">Mark Selected as Shipped</option>
-                            <option value="Delivered">Mark Selected as Delivered</option>
-                        </select>
-                        <button type="submit" class="btn btn-sm btn-primary" style="border-radius: 10px;">
-                            <i class="fas fa-sync-alt me-1"></i> Update Selected
-                        </button>
-                    </div>
-                @endif
             </form>
-            {{-- Refund Request Actions (Supplier Side) --}}
+
+            {{-- Refund Actions --}}
             @if ($order->refund_status === 'Pending')
                 <div class="mt-3">
-                    {{-- Approve Refund --}}
                     <form action="{{ route('orders.refund.approve', $order->id) }}" method="POST" class="d-inline">
                         @csrf
                         @method('PUT')
@@ -245,18 +250,17 @@
                         </button>
                     </form>
 
-                    {{-- Reject Refund --}}
-<form action="{{ route('orders.refund.decline', $order->id) }}" method="POST" class="d-inline">
-    @csrf
-    @method('PUT')
-    <button type="submit" class="btn btn-danger btn-sm"
-        onclick="return confirm('Are you sure you want to reject this refund request?');">
-        <i class="fas fa-times"></i> Reject Refund
-    </button>
-</form>
-
+                    <form action="{{ route('orders.refund.decline', $order->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Are you sure you want to reject this refund request?');">
+                            <i class="fas fa-times"></i> Reject Refund
+                        </button>
+                    </form>
                 </div>
             @endif
+
             {{-- Footer --}}
             <div class="card-footer border-0 bg-light d-flex justify-content-end gap-2 mt-4 p-3">
                 <a href="{{ route('orders.show', $order->id) }}" 
@@ -272,25 +276,20 @@
                         <i class="fas fa-qrcode me-1"></i> Generate QR
                     </a>
                 @endif
-                {{-- Display Refund Status --}}
-@if ($order->refund_status === 'Approved')
-    <div class="mt-3">
-        <span class="badge bg-success" style="font-size: 0.9rem; padding: 8px 12px; border-radius: 10px;">
-            <i class="fas fa-check-circle me-1"></i> Refund Accepted
-        </span>
-    </div>
-@elseif ($order->refund_status === 'Rejected')
-    <div class="mt-3">
-        <span class="badge bg-danger" style="font-size: 0.9rem; padding: 8px 12px; border-radius: 10px;">
-            <i class="fas fa-times-circle me-1"></i> Refund Rejected
-        </span>
-    </div>
-@endif
+
+                @if ($order->refund_status === 'Approved')
+                    <span class="badge bg-success" style="font-size: 0.9rem; padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-check-circle me-1"></i> Refund Accepted
+                    </span>
+                @elseif ($order->refund_status === 'Rejected')
+                    <span class="badge bg-danger" style="font-size: 0.9rem; padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-times-circle me-1"></i> Refund Rejected
+                    </span>
+                @endif
             </div>
-        
+
         </div>
     </div>
-    
 @empty
     <div class="text-center py-5">
         <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
