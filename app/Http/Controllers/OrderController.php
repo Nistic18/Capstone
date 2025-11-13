@@ -233,13 +233,14 @@ public function approveRefund($orderId)
 {
     $order = Order::findOrFail($orderId);
 
-    
     if (!in_array(auth()->user()->role, ['supplier', 'reseller'])) {
         abort(403, 'Unauthorized access.');
     }
 
+    // Update refund_status AND order status
     $order->update([
         'refund_status' => 'Approved',
+        'status' => 'Refunded',
     ]);
 
     // Notify buyer
@@ -262,7 +263,9 @@ public function declineRefund(Request $request, $orderId)
 
     $order->update([
         'refund_status' => 'Rejected',
+        'status' => 'Declined Refund',
         'refund_reason' => 'Seller/Reseller: ' . $request->decline_reason,
+        
     ]);
 
     // Notify buyer
@@ -352,36 +355,30 @@ public function generateQR($orderId)
 
 public function qrDeliver(Request $request, $orderId)
 {
-    // ✅ Ensure the signed link is valid
     if (! $request->hasValidSignature()) {
         abort(403, 'Invalid or expired QR code.');
     }
 
-    $order = Order::findOrFail($orderId);
+    $order = Order::with('products')->findOrFail($orderId);
 
-    // ✅ Ensure the logged-in user is the rightful buyer
     if (Auth::id() !== $order->user_id) {
         Log::warning("Unauthorized QR scan attempt for order {$order->id} by user " . Auth::id());
         abort(403, 'You are not authorized to confirm this delivery.');
     }
 
-    // ✅ Log the scan
-    Log::info("QR scanned for order {$order->id} by buyer " . Auth::id() . " (IP: " . $request->ip() . ")");
+    // ✅ Update all product_status to Delivered
+    DB::table('order_product')
+        ->where('order_id', $orderId)
+        ->update(['product_status' => 'Delivered']);
 
-    if ($order->status !== 'Delivered') {
-        DB::table('order_product')
-            ->where('order_id', $orderId)
-            ->update(['product_status' => 'Delivered']);
+    // ✅ Update order status to Delivered
+    $order->status = 'Delivered';
+    $order->save();
 
-        $order->update(['status' => 'Delivered']);
+    // ✅ Notify buyer (or other logic if needed)
+    $order->user->notify(new OrderDeliveredNotification($order));
 
-        // ✅ Notify buyer (themselves)
-        $order->user->notify(new OrderDeliveredNotification($order));
-
-        Log::info("Order {$order->id} marked as delivered via QR scan by buyer " . Auth::id());
-    } else {
-        Log::warning("QR for order {$order->id} scanned again (already delivered).");
-    }
+    Log::info("Order {$order->id} marked as delivered via QR scan by buyer " . Auth::id());
 
     return view('orders.qr-confirm', compact('order'));
 }

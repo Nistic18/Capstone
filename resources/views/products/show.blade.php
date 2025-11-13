@@ -274,8 +274,9 @@
                         {{-- Navigation Buttons --}}
                         <div class="row g-2 mt-3">
                             <div class="col-6">
-                                <a href="{{ route('home') }}" class="btn btn-outline-secondary w-100" 
-                                   style="border-radius: 15px; border-width: 2px;">
+                                <a href="{{ Auth::user()->role === 'supplier' ? route('profile.myprofile') : route('home') }}" 
+                                    class="btn btn-outline-secondary w-100" 
+                                    style="border-radius: 15px; border-width: 2px;">
                                     <i class="fas fa-arrow-left me-2"></i>Back to Shop
                                 </a>
                             </div>
