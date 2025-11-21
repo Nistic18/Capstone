@@ -262,7 +262,7 @@
 {{-- DOWNLOADABLE REPORTS SECTION --}}
     <div class="row mb-5">
         <div class="col-12">
-            <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #0b3d64 0%, #0bb364 100%);">
                 <div class="card-body text-center py-4">
                     <h5 class="card-title fw-bold mb-1 text-white">
                         <i class="fas fa-file-download me-2"></i>Download My Reports
@@ -282,7 +282,7 @@
                     <p class="text-muted mb-0">Complete order history with details</p>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('buyer.reports.download.purchases') }}" method="GET" class="report-form">
+                    <form id="purchasesForm" action="{{ route('buyer.reports.download.purchases') }}" method="GET" class="report-form">
                         <div class="row mb-3">
                             <div class="col-12 mb-2">
                                 <label class="form-label">From Date</label>
@@ -298,6 +298,9 @@
                             <small><strong>{{ number_format($totalOrders) }}</strong> total orders • <strong>{{ number_format($completedOrders) }}</strong> completed</small>
                         </div>
                         <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-info" onclick="previewReport('purchases', 'pdf')">
+                                <i class="fas fa-eye me-2"></i>Preview PDF
+                            </button>
                             <button type="submit" name="format" value="pdf" class="btn btn-danger">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
@@ -336,6 +339,9 @@
                             <small>Total Spent: <strong>₱{{ number_format($totalSpent, 2) }}</strong></small>
                         </div>
                         <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-info" onclick="previewReport('spending', 'pdf')">
+                                <i class="fas fa-eye me-2"></i>Preview PDF
+                            </button>
                             <button type="submit" name="format" value="pdf" class="btn btn-danger">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
@@ -368,6 +374,9 @@
                             Includes all your product ratings and feedback
                         </p>
                         <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-info" onclick="previewReport('reviews', 'pdf')">
+                                <i class="fas fa-eye me-2"></i>Preview PDF
+                            </button>
                             <button type="submit" name="format" value="pdf" class="btn btn-danger">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
@@ -381,7 +390,35 @@
         </div>
     </div>
 </div>
-
+{{-- Preview Modal --}}
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">
+                    <i class="fas fa-eye me-2"></i>Report Preview
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading preview...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+                <button type="button" class="btn btn-primary" id="downloadFromPreview">
+                    <i class="fas fa-download me-2"></i>Download Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {{-- Custom Styles --}}
 <style>
     .dashboard-container {
@@ -481,7 +518,7 @@
     }
 
     .form-control:focus {
-        border-color: #667eea;
+        border-color: #088a50;
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
     }
 
@@ -559,11 +596,55 @@
             padding: 1rem 0;
         }
     }
+        #previewContent iframe {
+        width: 100%;
+        height: 70vh;
+        border: none;
+        border-radius: 8px;
+    }
+
+    .modal-xl {
+        max-width: 1200px;
+    }
+
+    @media (max-width: 768px) {
+        .metric-value {
+            font-size: 1.4rem;
+        }
+        
+        .metric-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+        
+        .reports-container {
+            padding: 1rem 0;
+        }
+        
+        .display-4 {
+            font-size: 2rem;
+        }
+
+        .info-box {
+            margin-bottom: 1rem;
+        }
+
+        #previewContent iframe {
+            height: 50vh;
+        }
+    }
+body, 
+h1, h2, h3, h4, h5, h6, 
+p, span, a, div, input, select, button, label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
 </style>
 
 {{-- Chart Scripts --}}
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     Chart.defaults.font.family = "'Inter', sans-serif";
@@ -580,12 +661,12 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Amount Spent (₱)',
                 data: monthlySpendingData.map(item => item.amount),
-                borderColor: '#667eea',
+                borderColor: '#088a50',
                 backgroundColor: 'rgba(102, 126, 234, 0.1)',
                 borderWidth: 3,
                 fill: true,
                 tension: 0.4,
-                pointBackgroundColor: '#667eea',
+                pointBackgroundColor: '#088a50',
                 pointBorderColor: '#ffffff',
                 pointBorderWidth: 3,
                 pointRadius: 6
@@ -695,6 +776,138 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+    let currentReportType = '';
+    let currentFormat = '';
+    let currentFormData = null;
+
+    function getFormData(reportType) {
+        // Map report types to correct form IDs
+        let formId;
+        
+        switch(reportType) {
+            case 'purchases':
+                formId = 'purchasesForm';
+                break;
+            case 'spending':
+                formId = 'spendingForm';
+                break;
+            case 'reviews':
+                formId = 'reviewsForm';
+                break;
+            default:
+                console.error('Unknown report type:', reportType);
+                return '';
+        }
+        
+        const form = document.getElementById(formId);
+        
+        if (!form) {
+            console.error('Form not found:', formId);
+            return '';
+        }
+        
+        const formData = new FormData(form);
+        return new URLSearchParams(formData).toString();
+    }
+
+    function previewReport(reportType, format) {
+        currentReportType = reportType;
+        currentFormat = format;
+        currentFormData = getFormData(reportType);
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+        modal.show();
+
+        // Reset content
+        document.getElementById('previewContent').innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading preview...</p>
+            </div>
+        `;
+
+        // Build preview URL
+        const previewUrl = `{{ url('buyer/reports/preview') }}/${reportType}?format=${format}&${currentFormData}`;
+
+        console.log('Preview URL:', previewUrl); // For debugging
+
+        // Load preview
+        fetch(previewUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                if (format === 'pdf') {
+                    document.getElementById('previewContent').innerHTML = `
+                        <iframe src="${url}" type="application/pdf"></iframe>
+                    `;
+                } else {
+                    // For CSV, show in a table format
+                    blob.text().then(text => {
+                        const lines = text.split('\n');
+                        let tableHtml = '<div class="table-responsive"><table class="table table-striped table-hover table-sm">';
+                        
+                        lines.forEach((line, index) => {
+                            if (line.trim()) {
+                                // Handle CSV properly - split by comma but respect quoted values
+                                const cells = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+                                tableHtml += '<tr>';
+                                cells.forEach(cell => {
+                                    const tag = index === 0 ? 'th' : 'td';
+                                    // Remove quotes from CSV cells
+                                    const cleanCell = cell.replace(/^"|"$/g, '').trim();
+                                    tableHtml += `<${tag}>${cleanCell}</${tag}>`;
+                                });
+                                tableHtml += '</tr>';
+                            }
+                        });
+                        
+                        tableHtml += '</table></div>';
+                        document.getElementById('previewContent').innerHTML = tableHtml;
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Preview error:', error);
+                document.getElementById('previewContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Failed to load preview: ${error.message}
+                        <br><small>Please check the console for more details.</small>
+                    </div>
+                `;
+            });
+    }
+
+    function downloadReport(reportType, format) {
+        const formData = getFormData(reportType);
+        const baseUrl = '{{ url("buyer/reports/download") }}';
+        const downloadUrl = `${baseUrl}/${reportType}?format=${format}&${formData}`;
+        
+        console.log('Download URL:', downloadUrl); // For debugging
+        
+        // Create a temporary link and click it to trigger download
+        window.location.href = downloadUrl;
+    }
+
+    // Download from preview modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const downloadBtn = document.getElementById('downloadFromPreview');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', function() {
+                if (currentReportType && currentFormat) {
+                    downloadReport(currentReportType, currentFormat);
+                }
+            });
+        }
+    });
 </script>
 @endpush
 @endsection

@@ -71,13 +71,60 @@ class AdminReportsController extends Controller
     }
 
     /**
-     * Download User Report
+     * Preview Report - Routes to correct method based on type
      */
-    public function downloadUserReport(Request $request)
+    public function preview(Request $request, $type)
     {
         $format = $request->get('format', 'pdf');
-        $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from')) : Carbon::now()->subYear();
-        $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to')) : Carbon::now();
+        
+        // Generate report data based on type
+        switch ($type) {
+            case 'users':
+                return $this->previewUserReport($request, $format);
+            case 'products':
+                return $this->previewProductReport($request, $format);
+            case 'sales':
+                return $this->previewSalesReport($request, $format);
+            case 'feedback':
+                return $this->previewFeedbackReport($request, $format);
+            case 'income-summary':
+                return $this->previewIncomeSummaryReport($request, $format);
+            default:
+                abort(404, 'Report type not found');
+        }
+    }
+
+    /**
+     * Download Report - Routes to correct method based on type
+     */
+    public function download(Request $request, $type)
+    {
+        $format = $request->get('format', 'pdf');
+        
+        // Generate report data based on type
+        switch ($type) {
+            case 'users':
+                return $this->downloadUserReport($request, $format);
+            case 'products':
+                return $this->downloadProductReport($request, $format);
+            case 'sales':
+                return $this->downloadSalesReport($request, $format);
+            case 'feedback':
+                return $this->downloadFeedbackReport($request, $format);
+            case 'income-summary':
+                return $this->downloadIncomeSummaryReport($request, $format);
+            default:
+                abort(404, 'Report type not found');
+        }
+    }
+
+    /**
+     * Preview User Report
+     */
+    private function previewUserReport(Request $request, $format)
+    {
+        $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from'))->startOfDay() : Carbon::now()->subYear()->startOfDay();
+        $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to'))->endOfDay() : Carbon::now()->endOfDay();
 
         $users = User::whereBetween('created_at', [$dateFrom, $dateTo])
             ->with(['orders' => function($query) {
@@ -101,20 +148,16 @@ class AdminReportsController extends Controller
 
         if ($format === 'csv') {
             return $this->exportUserCSV($users, $dateFrom, $dateTo);
-        } elseif ($format === 'excel') {
-            return $this->exportUserExcel($users, $dateFrom, $dateTo);
         } else {
-            return $this->exportUserPDF($users, $dateFrom, $dateTo);
+            return $this->generateUserPDF($users, $dateFrom, $dateTo, true);
         }
     }
 
     /**
-     * Download Product Report
+     * Preview Product Report
      */
-    public function downloadProductReport(Request $request)
+    private function previewProductReport(Request $request, $format)
     {
-        $format = $request->get('format', 'pdf');
-        
         $products = Product::with(['user', 'reviews'])
             ->withCount('reviews')
             ->get()
@@ -156,21 +199,18 @@ class AdminReportsController extends Controller
 
         if ($format === 'csv') {
             return $this->exportProductCSV($products);
-        } elseif ($format === 'excel') {
-            return $this->exportProductExcel($products);
         } else {
-            return $this->exportProductPDF($products);
+            return $this->generateProductPDF($products, true);
         }
     }
 
     /**
-     * Download Sales Report
+     * Preview Sales Report
      */
-    public function downloadSalesReport(Request $request)
+    private function previewSalesReport(Request $request, $format)
     {
-        $format = $request->get('format', 'pdf');
-        $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from')) : Carbon::now()->subMonth();
-        $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to')) : Carbon::now();
+        $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from'))->startOfDay() : Carbon::now()->subMonth()->startOfDay();
+        $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to'))->endOfDay() : Carbon::now()->endOfDay();
 
         $orders = Order::with(['user', 'products'])
             ->whereBetween('created_at', [$dateFrom, $dateTo])
@@ -190,7 +230,6 @@ class AdminReportsController extends Controller
                 ];
             });
 
-        // Calculate summary
         $totalOrders = $orders->count();
         $totalRevenue = $orders->whereIn('status', ['Delivered', 'Completed'])
             ->where('refund_status', '!=', 'Approved')
@@ -210,27 +249,21 @@ class AdminReportsController extends Controller
 
         if ($format === 'csv') {
             return $this->exportSalesCSV($orders, $summary);
-        } elseif ($format === 'excel') {
-            return $this->exportSalesExcel($orders, $summary);
         } else {
-            return $this->exportSalesPDF($orders, $summary);
+            return $this->generateSalesPDF($orders, $summary, true);
         }
     }
 
     /**
-     * Download Feedback/Rating Report
+     * Preview Feedback Report
      */
-    public function downloadFeedbackReport(Request $request)
+    private function previewFeedbackReport(Request $request, $format)
     {
-        $format = $request->get('format', 'pdf');
-        $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from')) : Carbon::now()->subMonth();
-        $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to')) : Carbon::now();
+        $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from'))->startOfDay() : Carbon::now()->subMonth()->startOfDay();
+        $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to'))->endOfDay() : Carbon::now()->endOfDay();
 
         $reviews = Review::with(['user', 'product'])
-            ->whereBetween('created_at', [
-    $dateFrom->startOfDay(),
-    $dateTo->endOfDay()
-])
+            ->whereBetween('created_at', [$dateFrom, $dateTo])
             ->get()
             ->map(function($review) {
                 return [
@@ -243,7 +276,6 @@ class AdminReportsController extends Controller
                 ];
             });
 
-        // Calculate statistics
         $totalReviews = $reviews->count();
         $averageRating = $reviews->avg('rating');
         $ratingDistribution = [
@@ -264,25 +296,21 @@ class AdminReportsController extends Controller
 
         if ($format === 'csv') {
             return $this->exportFeedbackCSV($reviews, $summary);
-        } elseif ($format === 'excel') {
-            return $this->exportFeedbackExcel($reviews, $summary);
         } else {
-            return $this->exportFeedbackPDF($reviews, $summary);
+            return $this->generateFeedbackPDF($reviews, $summary, true);
         }
     }
 
     /**
-     * Download Income Summary Report
+     * Preview Income Summary Report
      */
-    public function downloadIncomeSummaryReport(Request $request)
+    private function previewIncomeSummaryReport(Request $request, $format)
     {
-        $format = $request->get('format', 'pdf');
-        $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from')) : Carbon::now()->subYear();
-        $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to')) : Carbon::now();
+        $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from'))->startOfDay() : Carbon::now()->subYear()->startOfDay();
+        $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to'))->endOfDay() : Carbon::now()->endOfDay();
 
-        // Monthly breakdown
         $monthlyIncome = [];
-        $currentDate = $dateFrom->copy();
+        $currentDate = $dateFrom->copy()->startOfMonth();
         
         while ($currentDate <= $dateTo) {
             $revenue = Order::whereIn('status', ['Delivered', 'Completed'])
@@ -315,7 +343,6 @@ class AdminReportsController extends Controller
             $currentDate->addMonth();
         }
 
-        // Top suppliers
         $topSuppliers = DB::table('order_product')
             ->join('products', 'order_product.product_id', '=', 'products.id')
             ->join('users', 'products.user_id', '=', 'users.id')
@@ -347,10 +374,256 @@ class AdminReportsController extends Controller
 
         if ($format === 'csv') {
             return $this->exportIncomeSummaryCSV($monthlyIncome, $topSuppliers, $summary);
-        } elseif ($format === 'excel') {
-            return $this->exportIncomeSummaryExcel($monthlyIncome, $topSuppliers, $summary);
         } else {
-            return $this->exportIncomeSummaryPDF($monthlyIncome, $topSuppliers, $summary);
+            return $this->generateIncomeSummaryPDF($monthlyIncome, $topSuppliers, $summary, true);
+        }
+    }
+
+    // ==================== DOWNLOAD METHODS ====================
+
+    private function downloadUserReport(Request $request, $format)
+    {
+        $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from'))->startOfDay() : Carbon::now()->subYear()->startOfDay();
+        $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to'))->endOfDay() : Carbon::now()->endOfDay();
+
+        $users = User::whereBetween('created_at', [$dateFrom, $dateTo])
+            ->with(['orders' => function($query) {
+                $query->whereIn('status', ['Delivered', 'Completed']);
+            }])
+            ->get()
+            ->map(function($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'phone' => $user->phone ?? 'N/A',
+                    'address' => $user->address ?? 'N/A',
+                    'total_orders' => $user->orders->count(),
+                    'total_spent' => $user->orders->sum('total_price'),
+                    'registered_date' => $user->created_at->format('Y-m-d'),
+                    'last_order' => $user->orders->max('created_at') ? Carbon::parse($user->orders->max('created_at'))->format('Y-m-d') : 'N/A'
+                ];
+            });
+
+        if ($format === 'csv') {
+            return $this->exportUserCSV($users, $dateFrom, $dateTo);
+        } else {
+            return $this->generateUserPDF($users, $dateFrom, $dateTo, false);
+        }
+    }
+
+    private function downloadProductReport(Request $request, $format)
+    {
+        $products = Product::with(['user', 'reviews'])
+            ->withCount('reviews')
+            ->get()
+            ->map(function($product) {
+                $totalSold = DB::table('order_product')
+                    ->join('orders', 'order_product.order_id', '=', 'orders.id')
+                    ->where('order_product.product_id', $product->id)
+                    ->whereIn('orders.status', ['Delivered', 'Completed'])
+                    ->where(function ($query) {
+                        $query->whereNull('orders.refund_status')
+                              ->orWhere('orders.refund_status', '!=', 'Approved');
+                    })
+                    ->sum('order_product.quantity');
+
+                $totalRevenue = DB::table('order_product')
+                    ->join('orders', 'order_product.order_id', '=', 'orders.id')
+                    ->where('order_product.product_id', $product->id)
+                    ->whereIn('orders.status', ['Delivered', 'Completed'])
+                    ->where(function ($query) {
+                        $query->whereNull('orders.refund_status')
+                              ->orWhere('orders.refund_status', '!=', 'Approved');
+                    })
+                    ->sum(DB::raw('order_product.quantity * ' . $product->price));
+
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'supplier' => $product->user->name,
+                    'price' => $product->price,
+                    'current_stock' => $product->quantity,
+                    'total_sold' => $totalSold,
+                    'total_revenue' => $totalRevenue,
+                    'average_rating' => $product->reviews->avg('rating') ?? 0,
+                    'total_reviews' => $product->reviews_count,
+                    'status' => $product->quantity > 0 ? 'In Stock' : 'Out of Stock',
+                    'created_date' => $product->created_at->format('Y-m-d')
+                ];
+            });
+
+        if ($format === 'csv') {
+            return $this->exportProductCSV($products);
+        } else {
+            return $this->generateProductPDF($products, false);
+        }
+    }
+
+    private function downloadSalesReport(Request $request, $format)
+    {
+        $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from'))->startOfDay() : Carbon::now()->subMonth()->startOfDay();
+        $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to'))->endOfDay() : Carbon::now()->endOfDay();
+
+        $orders = Order::with(['user', 'products'])
+            ->whereBetween('created_at', [$dateFrom, $dateTo])
+            ->get()
+            ->map(function($order) {
+                return [
+                    'order_id' => $order->id,
+                    'customer_name' => $order->user->name,
+                    'customer_email' => $order->user->email,
+                    'products_count' => $order->products->count(),
+                    'total_amount' => $order->total_price,
+                    'status' => $order->status,
+                    'refund_status' => $order->refund_status ?? 'N/A',
+                    'payment_method' => $order->payment_method ?? 'N/A',
+                    'order_date' => $order->created_at->format('Y-m-d H:i:s'),
+                    'delivery_date' => $order->updated_at->format('Y-m-d H:i:s')
+                ];
+            });
+
+        $totalOrders = $orders->count();
+        $totalRevenue = $orders->whereIn('status', ['Delivered', 'Completed'])
+            ->where('refund_status', '!=', 'Approved')
+            ->sum('total_amount');
+        $totalRefunds = $orders->where('refund_status', 'Approved')->sum('total_amount');
+        $averageOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
+
+        $summary = [
+            'total_orders' => $totalOrders,
+            'total_revenue' => $totalRevenue,
+            'total_refunds' => $totalRefunds,
+            'net_revenue' => $totalRevenue - $totalRefunds,
+            'average_order_value' => $averageOrderValue,
+            'date_from' => $dateFrom->format('Y-m-d'),
+            'date_to' => $dateTo->format('Y-m-d')
+        ];
+
+        if ($format === 'csv') {
+            return $this->exportSalesCSV($orders, $summary);
+        } else {
+            return $this->generateSalesPDF($orders, $summary, false);
+        }
+    }
+
+    private function downloadFeedbackReport(Request $request, $format)
+    {
+        $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from'))->startOfDay() : Carbon::now()->subMonth()->startOfDay();
+        $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to'))->endOfDay() : Carbon::now()->endOfDay();
+
+        $reviews = Review::with(['user', 'product'])
+            ->whereBetween('created_at', [$dateFrom, $dateTo])
+            ->get()
+            ->map(function($review) {
+                return [
+                    'review_id' => $review->id,
+                    'product_name' => $review->product->name,
+                    'customer_name' => $review->user->name,
+                    'rating' => $review->rating,
+                    'comment' => $review->comment ?? 'No comment',
+                    'review_date' => $review->created_at->format('Y-m-d H:i:s')
+                ];
+            });
+
+        $totalReviews = $reviews->count();
+        $averageRating = $reviews->avg('rating');
+        $ratingDistribution = [
+            '5_star' => $reviews->where('rating', 5)->count(),
+            '4_star' => $reviews->where('rating', 4)->count(),
+            '3_star' => $reviews->where('rating', 3)->count(),
+            '2_star' => $reviews->where('rating', 2)->count(),
+            '1_star' => $reviews->where('rating', 1)->count(),
+        ];
+
+        $summary = [
+            'total_reviews' => $totalReviews,
+            'average_rating' => round($averageRating, 2),
+            'rating_distribution' => $ratingDistribution,
+            'date_from' => $dateFrom->format('Y-m-d'),
+            'date_to' => $dateTo->format('Y-m-d')
+        ];
+
+        if ($format === 'csv') {
+            return $this->exportFeedbackCSV($reviews, $summary);
+        } else {
+            return $this->generateFeedbackPDF($reviews, $summary, false);
+        }
+    }
+
+    private function downloadIncomeSummaryReport(Request $request, $format)
+    {
+        $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from'))->startOfDay() : Carbon::now()->subYear()->startOfDay();
+        $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to'))->endOfDay() : Carbon::now()->endOfDay();
+
+        $monthlyIncome = [];
+        $currentDate = $dateFrom->copy()->startOfMonth();
+        
+        while ($currentDate <= $dateTo) {
+            $revenue = Order::whereIn('status', ['Delivered', 'Completed'])
+                ->whereYear('created_at', $currentDate->year)
+                ->whereMonth('created_at', $currentDate->month)
+                ->where(function ($query) {
+                    $query->whereNull('refund_status')
+                          ->orWhere('refund_status', '!=', 'Approved');
+                })
+                ->sum('total_price');
+
+            $refunds = Order::where('refund_status', 'Approved')
+                ->whereYear('created_at', $currentDate->year)
+                ->whereMonth('created_at', $currentDate->month)
+                ->sum('total_price');
+
+            $orders = Order::whereYear('created_at', $currentDate->year)
+                ->whereMonth('created_at', $currentDate->month)
+                ->count();
+
+            $monthlyIncome[] = [
+                'month' => $currentDate->format('M Y'),
+                'gross_revenue' => $revenue,
+                'refunds' => $refunds,
+                'net_revenue' => $revenue - $refunds,
+                'orders' => $orders,
+                'average_order_value' => $orders > 0 ? $revenue / $orders : 0
+            ];
+
+            $currentDate->addMonth();
+        }
+
+        $topSuppliers = DB::table('order_product')
+            ->join('products', 'order_product.product_id', '=', 'products.id')
+            ->join('users', 'products.user_id', '=', 'users.id')
+            ->join('orders', 'order_product.order_id', '=', 'orders.id')
+            ->whereBetween('orders.created_at', [$dateFrom, $dateTo])
+            ->whereIn('orders.status', ['Delivered', 'Completed'])
+            ->where(function ($query) {
+                $query->whereNull('orders.refund_status')
+                      ->orWhere('orders.refund_status', '!=', 'Approved');
+            })
+            ->select(
+                'users.name as supplier_name',
+                DB::raw('SUM(order_product.quantity * products.price) as total_revenue'),
+                DB::raw('COUNT(DISTINCT orders.id) as total_orders')
+            )
+            ->groupBy('users.id', 'users.name')
+            ->orderByDesc('total_revenue')
+            ->limit(10)
+            ->get();
+
+        $summary = [
+            'total_gross_revenue' => collect($monthlyIncome)->sum('gross_revenue'),
+            'total_refunds' => collect($monthlyIncome)->sum('refunds'),
+            'total_net_revenue' => collect($monthlyIncome)->sum('net_revenue'),
+            'total_orders' => collect($monthlyIncome)->sum('orders'),
+            'date_from' => $dateFrom->format('Y-m-d'),
+            'date_to' => $dateTo->format('Y-m-d')
+        ];
+
+        if ($format === 'csv') {
+            return $this->exportIncomeSummaryCSV($monthlyIncome, $topSuppliers, $summary);
+        } else {
+            return $this->generateIncomeSummaryPDF($monthlyIncome, $topSuppliers, $summary, false);
         }
     }
 
@@ -368,16 +641,13 @@ class AdminReportsController extends Controller
         $callback = function() use ($users, $dateFrom, $dateTo) {
             $file = fopen('php://output', 'w');
             
-            // Add title and date range
             fputcsv($file, ['User Report']);
             fputcsv($file, ['Generated:', date('Y-m-d H:i:s')]);
             fputcsv($file, ['Period:', $dateFrom->format('Y-m-d') . ' to ' . $dateTo->format('Y-m-d')]);
             fputcsv($file, []);
             
-            // Headers
             fputcsv($file, ['ID', 'Name', 'Email', 'Role', 'Phone', 'Address', 'Total Orders', 'Total Spent', 'Registered Date', 'Last Order']);
             
-            // Data
             foreach($users as $user) {
                 fputcsv($file, [
                     $user['id'],
@@ -579,11 +849,9 @@ class AdminReportsController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    // ==================== PDF EXPORT METHODS ====================
-    // Note: These require barryvdh/laravel-dompdf package
-    // Install: composer require barryvdh/laravel-dompdf
+    // ==================== PDF GENERATION METHODS ====================
     
-    private function exportUserPDF($users, $dateFrom, $dateTo)
+    private function generateUserPDF($users, $dateFrom, $dateTo, $inline = false)
     {
         $data = [
             'title' => 'User Report',
@@ -595,10 +863,15 @@ class AdminReportsController extends Controller
         ];
 
         $pdf = PDF::loadView('admin.reports.pdf.users', $data);
+        
+        if ($inline) {
+            return $pdf->stream('user_report_' . date('Y-m-d') . '.pdf');
+        }
+        
         return $pdf->download('user_report_' . date('Y-m-d') . '.pdf');
     }
 
-    private function exportProductPDF($products)
+    private function generateProductPDF($products, $inline = false)
     {
         $data = [
             'title' => 'Product Report',
@@ -609,10 +882,15 @@ class AdminReportsController extends Controller
         ];
 
         $pdf = PDF::loadView('admin.reports.pdf.products', $data);
+        
+        if ($inline) {
+            return $pdf->stream('product_report_' . date('Y-m-d') . '.pdf');
+        }
+        
         return $pdf->download('product_report_' . date('Y-m-d') . '.pdf');
     }
 
-    private function exportSalesPDF($orders, $summary)
+    private function generateSalesPDF($orders, $summary, $inline = false)
     {
         $data = [
             'title' => 'Sales Report',
@@ -622,10 +900,15 @@ class AdminReportsController extends Controller
         ];
 
         $pdf = PDF::loadView('admin.reports.pdf.sales', $data);
+        
+        if ($inline) {
+            return $pdf->stream('sales_report_' . date('Y-m-d') . '.pdf');
+        }
+        
         return $pdf->download('sales_report_' . date('Y-m-d') . '.pdf');
     }
 
-    private function exportFeedbackPDF($reviews, $summary)
+    private function generateFeedbackPDF($reviews, $summary, $inline = false)
     {
         $data = [
             'title' => 'Feedback & Rating Report',
@@ -635,10 +918,15 @@ class AdminReportsController extends Controller
         ];
 
         $pdf = PDF::loadView('admin.reports.pdf.feedback', $data);
+        
+        if ($inline) {
+            return $pdf->stream('feedback_report_' . date('Y-m-d') . '.pdf');
+        }
+        
         return $pdf->download('feedback_report_' . date('Y-m-d') . '.pdf');
     }
 
-    private function exportIncomeSummaryPDF($monthlyIncome, $topSuppliers, $summary)
+    private function generateIncomeSummaryPDF($monthlyIncome, $topSuppliers, $summary, $inline = false)
     {
         $data = [
             'title' => 'Income Summary Report',
@@ -649,33 +937,11 @@ class AdminReportsController extends Controller
         ];
 
         $pdf = PDF::loadView('admin.reports.pdf.income-summary', $data);
+        
+        if ($inline) {
+            return $pdf->stream('income_summary_' . date('Y-m-d') . '.pdf');
+        }
+        
         return $pdf->download('income_summary_' . date('Y-m-d') . '.pdf');
-    }
-
-    // Excel methods would be similar but using Laravel Excel package
-    // For now, returning CSV as Excel alternative
-    private function exportUserExcel($users, $dateFrom, $dateTo)
-    {
-        return $this->exportUserCSV($users, $dateFrom, $dateTo);
-    }
-
-    private function exportProductExcel($products)
-    {
-        return $this->exportProductCSV($products);
-    }
-
-    private function exportSalesExcel($orders, $summary)
-    {
-        return $this->exportSalesCSV($orders, $summary);
-    }
-
-    private function exportFeedbackExcel($reviews, $summary)
-    {
-        return $this->exportFeedbackCSV($reviews, $summary);
-    }
-
-    private function exportIncomeSummaryExcel($monthlyIncome, $topSuppliers, $summary)
-    {
-        return $this->exportIncomeSummaryCSV($monthlyIncome, $topSuppliers, $summary);
     }
 }

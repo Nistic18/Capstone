@@ -19,7 +19,7 @@
         <div class="col-md-8">
             <div class="card border-0 shadow-lg" style="border-radius: 20px;">
                 <div class="card-header text-center py-4" 
-                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px 20px 0 0;">
+                     style="background: linear-gradient(135deg, #667eea 0%, #088a50 100%); border-radius: 20px 20px 0 0;">
                     <h2 class="text-white fw-bold mb-0">
                         <i class="fas fa-edit me-2"></i>Edit Post
                     </h2>
@@ -144,7 +144,7 @@
                             </a>
                             
                             <button type="submit" class="btn btn-primary btn-lg px-4"
-                                    style="border-radius: 15px; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
+                                    style="border-radius: 15px; background: linear-gradient(45deg, #667eea, #088a50); border: none;">
                                 <i class="fas fa-save me-2"></i>Update Post
                             </button>
                         </div>

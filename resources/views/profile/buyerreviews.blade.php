@@ -95,7 +95,13 @@
         </div>
     @endif
 </div>
-
+<style>
+    body, 
+h1, h2, h3, h4, h5, h6, 
+p, span, a, div, input, select, button, label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+</style>
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @endpush

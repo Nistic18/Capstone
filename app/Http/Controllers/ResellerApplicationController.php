@@ -37,13 +37,16 @@ class ResellerApplicationController extends Controller
             'email_address'       => 'required|email',
             'business_name'       => 'required|string|max:255',
             'address'             => 'required|string|max:255',
-            'country'             => 'required|string|max:100',
-            'province'            => 'required|string|max:100',
-            'city'                => 'required|string|max:100',
-            'zip_code'            => 'required|string|max:20',
+            'street_address'      => 'required|string|max:255',
+            'barangay'            => 'required|string|max:100',
             'business_license_id' => 'required|string|max:100',
             'phone_number'        => 'nullable|string|max:20',
-            'pdf_file'            => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240', // up to 10MB
+            
+            // Document uploads
+            'business_permit'     => 'required|image|mimes:jpg,jpeg,png|max:10240',
+            'sanitation_cert'     => 'required|image|mimes:jpg,jpeg,png|max:10240',
+            'govt_id_1'           => 'required|image|mimes:jpg,jpeg,png|max:10240',
+            'govt_id_2'           => 'required|image|mimes:jpg,jpeg,png|max:10240',
         ]);
 
         // ✅ Check if this email already has a pending application
@@ -58,21 +61,26 @@ class ResellerApplicationController extends Controller
             return back()->with('error', 'You already have a pending reseller application.');
         }
 
-        // ✅ Store uploaded PDF
-        $pdfPath = $request->file('pdf_file')->store('reseller_applications', 'public');
+        // ✅ Store uploaded images
+        $businessPermitPath = $request->file('business_permit')->store('reseller_applications/business_permits', 'public');
+        $sanitationCertPath = $request->file('sanitation_cert')->store('reseller_applications/sanitation_certs', 'public');
+        $govtId1Path = $request->file('govt_id_1')->store('reseller_applications/govt_ids', 'public');
+        $govtId2Path = $request->file('govt_id_2')->store('reseller_applications/govt_ids', 'public');
 
         // ✅ Create new reseller application
         $application = ResellerApplication::create([
             'email_address'       => $validated['email_address'],
             'business_name'       => $validated['business_name'],
             'address'             => $validated['address'],
-            'country'             => $validated['country'],
-            'province'            => $validated['province'],
-            'city'                => $validated['city'],
-            'zip_code'            => $validated['zip_code'],
             'business_license_id' => $validated['business_license_id'],
             'phone_number'        => $validated['phone_number'],
-            'pdf_file'            => $pdfPath,
+            
+            // Store document paths
+            'business_permit_photo' => $businessPermitPath,
+            'sanitation_cert_photo' => $sanitationCertPath,
+            'govt_id_photo_1'       => $govtId1Path,
+            'govt_id_photo_2'       => $govtId2Path,
+            
             'status'              => 'pending',
         ]);
 

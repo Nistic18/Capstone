@@ -19,6 +19,7 @@
     use App\Http\Controllers\InventoryController;
     use App\Http\Controllers\ReviewController;
     use App\Http\Controllers\Supplier\SupplierReportsController;
+    use App\Http\Controllers\Buyer\BuyerReportsController;
 
     Route::get('/', function () {
     if (Auth::check()) {
@@ -151,10 +152,11 @@
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 
 
-
+    Route::middleware(['auth'])->group(function () {
     Route::post('/reseller/apply', [ResellerApplicationController::class, 'store'])->name('reseller.store');
     Route::get('/reseller/apply', [ResellerApplicationController::class, 'create'])->name('reseller.create');
     Route::post('/reseller/apply', [ResellerApplicationController::class, 'store'])->name('reseller.store');
+    });
 
     Route::middleware(['auth', 'admin'])->group(function () {
         Route::post('/users/{id}/approve-reseller', [UserController::class, 'approveReseller'])->name('users.approveReseller');
@@ -242,33 +244,37 @@
         ->name('orders.qrDeliver');
     // Add these routes to your routes/web.php file
 
-    // Admin Reports Routes (requires admin authentication)
-    Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-        
-        // Reports Dashboard
-        Route::get('/reports', [App\Http\Controllers\Admin\AdminReportsController::class, 'index'])
-            ->name('reports.index');
-        
-        // Download User Report
-        Route::get('/reports/download/users', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadUserReport'])
-            ->name('reports.download.users');
-        
-        // Download Product Report
-        Route::get('/reports/download/products', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadProductReport'])
-            ->name('reports.download.products');
-        
-        // Download Sales Report
-        Route::get('/reports/download/sales', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadSalesReport'])
-            ->name('reports.download.sales');
-        
-        // Download Feedback/Rating Report
-        Route::get('/reports/download/feedback', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadFeedbackReport'])
-            ->name('reports.download.feedback');
-        
-        // Download Income Summary Report
-        Route::get('/reports/download/income-summary', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadIncomeSummaryReport'])
-            ->name('reports.download.income-summary');
-    });
+// Admin Reports Routes (requires admin authentication)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    
+    // Reports Dashboard
+    Route::get('/reports', [App\Http\Controllers\Admin\AdminReportsController::class, 'index'])
+        ->name('reports.index');
+    
+    // Preview Routes (NEW)
+    Route::get('/reports/preview/{type}', [App\Http\Controllers\Admin\AdminReportsController::class, 'preview'])
+        ->name('reports.preview');
+    
+    // Download User Report
+    Route::get('/reports/download/users', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadUserReport'])
+        ->name('reports.download.users');
+    
+    // Download Product Report
+    Route::get('/reports/download/products', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadProductReport'])
+        ->name('reports.download.products');
+    
+    // Download Sales Report
+    Route::get('/reports/download/sales', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadSalesReport'])
+        ->name('reports.download.sales');
+    
+    // Download Feedback/Rating Report
+    Route::get('/reports/download/feedback', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadFeedbackReport'])
+        ->name('reports.download.feedback');
+    
+    // Download Income Summary Report
+    Route::get('/reports/download/income-summary', [App\Http\Controllers\Admin\AdminReportsController::class, 'downloadIncomeSummaryReport'])
+        ->name('reports.download.income-summary');
+});
 
     // Buyer Dashboard Route
     Route::middleware(['auth', 'verified'])->group(function () {
@@ -284,14 +290,13 @@
         
         Route::get('/buyer/reports/download/reviews', [App\Http\Controllers\Buyer\BuyerReportsController::class, 'downloadReviewsReport'])
             ->name('buyer.reports.download.reviews');
+            
+        Route::get('/buyer/reports/preview/{type}', [BuyerReportsController::class, 'preview'])
+            ->name('buyer.reports.preview');
+
     });
 
 
-    // Add these routes to your web.php file
-
-
-
-    // Supplier Reports Routes (Protected by auth middleware)
     Route::middleware(['auth'])->group(function () {
         
         // Supplier Reports Dashboard
@@ -317,6 +322,9 @@
         // Customer Feedback Report
         Route::get('/supplier/reports/download/feedback', [SupplierReportsController::class, 'downloadFeedbackReport'])
             ->name('supplier.reports.download.feedback');
+
+        Route::get('/supplier/reports/preview/{type}', [SupplierReportsController::class, 'preview'])
+            ->name('supplier.reports.preview');
     });
 Route::post('/locations/save-geocoded', [LocationController::class, 'saveGeocodedAddress'])
     ->name('locations.save-geocoded')

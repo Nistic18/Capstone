@@ -6,12 +6,12 @@
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb" style="background: transparent; padding: 2%;">
             <li class="breadcrumb-item">
-                <a href="{{ route('home') }}" class="text-decoration-none" style="color: #667eea;">
+                <a href="{{ route('home') }}" class="text-decoration-none" style="color: #0bb364;">
                     <i class="fas fa-home me-1"></i>Home
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a href="#" class="text-decoration-none" style="color: #667eea;">
+                <a href="#" class="text-decoration-none" style="color: #0bb364;">
                     <i class="fas fa-store me-1"></i>Supplier Dashboard
                 </a>
             </li>
@@ -53,7 +53,7 @@
                     <div class="mb-3">
                         <i class="fas fa-shopping-bag text-primary" style="font-size: 2rem;"></i>
                     </div>
-                    <h4 class="fw-bold mb-1" style="color: #667eea;">{{ $totalOrders }}</h4>
+                    <h4 class="fw-bold mb-1" style="color: #0bb364;">{{ $totalOrders }}</h4>
                     <small class="text-muted">Total Orders</small>
                 </div>
             </div>
@@ -211,7 +211,7 @@
 {{-- Custom CSS --}}
 <style>
     :root {
-        --supplier-primary: #667eea;
+        --supplier-primary: #0bb364;
         --supplier-hover: #5a6fd8;
     }
 
@@ -246,17 +246,17 @@
     }
     
     .form-control:focus, .form-select:focus {
-        border-color: #667eea;
+        border-color: #0bb364;
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
     }
     
     .btn-primary {
-        background: linear-gradient(45deg, #667eea, #764ba2);
+        background: linear-gradient(45deg, #0bb364, #764ba2);
         border: none;
     }
     
     .btn-primary:hover {
-        background: linear-gradient(45deg, #5a6fd8, #6a42a0);
+        background: linear-gradient(45deg, #5a6fd8, #0bb364);
         transform: translateY(-1px);
     }
     
@@ -269,8 +269,8 @@
     }
     
     .form-check-input:checked {
-        background-color: #667eea;
-        border-color: #667eea;
+        background-color: #0bb364;
+        border-color: #0bb364;
     }
 
     /* Tab Content - Ensure visibility */
@@ -308,6 +308,11 @@
             font-size: 0.9rem;
         }
     }
+body, 
+h1, h2, h3, h4, h5, h6, 
+p, span, a, div, input, select, button, label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
 </style>
 
 {{-- Add Font Awesome if not already included --}}

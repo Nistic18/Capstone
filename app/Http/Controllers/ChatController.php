@@ -43,6 +43,13 @@ class ChatController extends Controller
                 ->get()
                 ->reverse();
         }
+        if ($receiver_id) {
+    // Mark all messages from selected user as read
+    Message::where('user_id', $receiver_id)
+        ->where('receiver_id', $userId)
+        ->where('is_read', 0)
+        ->update(['is_read' => 1]);
+}
 
         return view('chat', compact('users', 'messages', 'receiver_id'));
     }

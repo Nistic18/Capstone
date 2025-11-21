@@ -1,12 +1,33 @@
 @auth
 <div class="main-sidebar sidebar-style-2">
     <aside id="sidebar-wrapper">
-        <div class="sidebar-brand">
-            <a href="{{ url('home') }}">FISH MARKET</a>
-        </div>
-        <div class="sidebar-brand sidebar-brand-sm">
-            <a href="{{ url('home') }}">FISH</a>
-        </div>
+<div class="sidebar-brand">
+    <a href="
+        @if(auth()->user()->role === 'admin')
+            {{ route('users.index') }}
+        @elseif(auth()->user()->role === 'supplier')
+            {{ route('supplier.dashboard') }}
+        @else
+            {{ url('home') }}
+        @endif
+    ">
+        FISH MARKET
+    </a>
+</div>
+
+<div class="sidebar-brand sidebar-brand-sm">
+    <a href="
+        @if(auth()->user()->role === 'admin')
+            {{ route('users.index') }}
+        @elseif(auth()->user()->role === 'supplier')
+            {{ route('supplier.dashboard') }}
+        @else
+            {{ url('home') }}
+        @endif
+    ">
+        FISH
+    </a>
+</div>
 
         <ul class="sidebar-menu">
 
@@ -48,6 +69,11 @@
                     <a class="nav-link" href="{{ route('buyer.reviews') }}">
                         <i class="fas fa-star"></i><span>My Reviews</span>
                     </a> 
+                </li>
+                <li class="{{ Request::is('reseller/apply') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('reseller.create') }}">
+                        <i class="fas fa-user-plus"></i><span>Apply as Supplier</span>
+                    </a>
                 </li>
             @endif
 

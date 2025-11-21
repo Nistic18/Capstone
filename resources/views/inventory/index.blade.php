@@ -12,7 +12,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-1" style="color: #2c3e50;">
-                <i class="fas fa-boxes me-2" style="color: #667eea;"></i>
+                <i class="fas fa-boxes me-2" style="color: #0bb364;"></i>
                 Inventory Management
             </h2>
             <p class="text-muted mb-0">Track and manage your product stock levels</p>
@@ -25,7 +25,7 @@
     {{-- Statistics Cards --}}
     <div class="row mb-4">
         <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px; background: linear-gradient(135deg, #667eea 0%, #0bb364 100%);">
                 <div class="card-body text-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -222,12 +222,12 @@
         </div>
     </div>
 
-    {{-- Pagination --}}
-    @if($products->hasPages())
-    <div class="d-flex justify-content-center mt-4">
-        {{ $products->appends(request()->query())->links() }}
+    {{-- Enhanced Pagination --}}
+    <div class="d-flex justify-content-center mt-5">
+        <nav aria-label="Product pagination">
+            {{ $products->appends(request()->query())->links('pagination::bootstrap-4') }}
+        </nav>
     </div>
-    @endif
 </div>
 
 {{-- Adjust Stock Modal --}}

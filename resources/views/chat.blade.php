@@ -15,7 +15,7 @@
 @section('content')
 <div class="mt-5">
     {{-- Hero Section --}}
-    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #0bb364 0%, #764ba2 100%); border-radius: 20px;">
         <div class="card-body text-center py-5">
             <div class="mb-3">
                 <i class="fas fa-comments text-white" style="font-size: 3rem;"></i>
@@ -32,7 +32,7 @@
             <div class="card border-0 shadow-lg h-100" style="border-radius: 20px;">
                 <div class="card-header border-0 py-3" style="background: linear-gradient(45deg, #f8f9fa, #e9ecef); border-radius: 20px 20px 0 0;">
                     <h5 class="mb-0 fw-bold d-flex align-items-center" style="color: #2c3e50;">
-                        <i class="fas fa-users me-2" style="color: #667eea;"></i>
+                        <i class="fas fa-users me-2" style="color: #0bb364;"></i>
                         Active Users
                     </h5>
                 </div>
@@ -49,7 +49,7 @@
                                     {{-- User Avatar --}}
                                     <div class="position-relative me-3">
                                         <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                             style="width: 45px; height: 45px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; font-weight: bold;">
+                                             style="width: 45px; height: 45px; background: linear-gradient(45deg, #0bb364, #764ba2); color: white; font-weight: bold;">
                                             {{ strtoupper(substr($user->name, 0, 1)) }}
                                         </div>
                                         {{-- Online status indicator --}}
@@ -96,7 +96,7 @@
 
                     @if($receiver)
                         <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-                             style="width: 40px; height: 40px; background: linear-gradient(45deg, #667eea, #764ba2); color: white; font-weight: bold;">
+                             style="width: 40px; height: 40px; background: linear-gradient(45deg, #0bb364, #764ba2); color: white; font-weight: bold;">
                             {{ strtoupper(substr($receiver->name, 0, 1)) }}
                         </div>
                         <div>
@@ -120,7 +120,7 @@
                                         {{-- Sender (me) --}}
                                         <div class="d-flex justify-content-end mb-3">
                                             <div class="p-3 rounded-4 position-relative" 
-                                                 style="background: linear-gradient(45deg, #667eea, #764ba2); 
+                                                 style="background: linear-gradient(45deg, #0bb364, #764ba2); 
                                                         color: white; 
                                                         max-width: 70%; 
                                                         box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
@@ -143,7 +143,7 @@
                                                 {{-- Message tail --}}
                                                 <div class="position-absolute top-50 translate-middle-y"
                                                      style="right: -8px; width: 0; height: 0; 
-                                                            border-left: 8px solid #667eea; 
+                                                            border-left: 8px solid #0bb364; 
                                                             border-top: 8px solid transparent; 
                                                             border-bottom: 8px solid transparent;"></div>
                                             </div>
@@ -165,7 +165,7 @@
                                                             word-wrap: break-word;
                                                             overflow-wrap: break-word;
                                                             hyphens: none;">
-                                                    <div class="fw-semibold mb-1" style="font-size: 0.8rem; color: #667eea;">
+                                                    <div class="fw-semibold mb-1" style="font-size: 0.8rem; color: #0bb364;">
                                                         {{ $message->user->name }}
                                                     </div>
                                                     <div style="line-height: 1.4;">
@@ -232,7 +232,7 @@
                             <p class="text-muted mb-4">Select a user from the sidebar to begin chatting</p>
                             <div class="d-flex justify-content-center gap-3">
                                 <div class="d-flex align-items-center px-3 py-2 rounded-pill" 
-                                     style="background: rgba(102, 126, 234, 0.1); color: #667eea;">
+                                     style="background: rgba(102, 126, 234, 0.1); color: #0bb364;">
                                     <i class="fas fa-users me-2"></i>
                                     <span class="fw-semibold">{{ $users->count() }} Users Online</span>
                                 </div>
@@ -258,7 +258,7 @@
     
     .user-item.active {
         background: rgba(102, 126, 234, 0.1) !important;
-        border-left: 4px solid #667eea !important;
+        border-left: 4px solid #0bb364 !important;
     }
     
     .user-item:hover {
@@ -289,7 +289,7 @@
 
     /* Form styling */
     .form-control:focus {
-        border-color: #667eea;
+        border-color: #0bb364;
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
     }
 
@@ -318,7 +318,7 @@
 
     .user-list::-webkit-scrollbar-thumb:hover,
     #messages::-webkit-scrollbar-thumb:hover {
-        background: #667eea;
+        background: #0bb364;
     }
 
     /* Responsive design */

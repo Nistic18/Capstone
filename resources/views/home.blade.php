@@ -22,7 +22,7 @@
 @section('content')
 <div class="mt-5">
     {{-- Hero Section --}}
-    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #0bb364 0%, #0bb364 100%); border-radius: 20px;">
         <div class="card-body text-center py-5">
             <div class="mb-3">
                 <i class="fas fa-fish text-white" style="font-size: 3rem;"></i>
@@ -34,7 +34,7 @@
 
     {{-- Enhanced Search & Filter Section --}}
 <div class="card border-0 shadow-sm mb-5" style="border-radius: 20px; overflow: hidden;">
-    <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #088a50 0%, #0bb364 100%);">
         <h5 class="text-white mb-0 d-flex align-items-center">
             <i class="fas fa-filter me-2"></i>
             Search & Filter Products
@@ -58,7 +58,7 @@
                                style="font-size: 1rem;">
                         <button type="submit" 
                                 class="btn btn-primary px-4" 
-                                style="border-radius: 0 50px 50px 0; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
+                                style="border-radius: 0 50px 50px 0; background: linear-gradient(45deg, #0bb364, #0bb364); border: none;">
                             <i class="fas fa-search me-2"></i>Search
                         </button>
                     </div>
@@ -104,7 +104,7 @@
                 </div>
 
                 {{-- Price Range --}}
-                <div class="col-lg-3 col-md-6">
+                {{-- <div class="col-lg-3 col-md-6">
                     <label class="form-label small fw-semibold text-muted mb-2">
                         <i class="fas fa-peso-sign me-1"></i>Min Price
                     </label>
@@ -132,7 +132,7 @@
                                value="{{ request('max_price') }}"
                                style="border-radius: 0 15px 15px 0;">
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             {{-- Sort and Actions Row --}}
@@ -147,16 +147,16 @@
                             style="border-radius: 15px; border: 2px solid #e9ecef;">
                         <option value="">Default</option>
                         <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>
-                            💰 Price: Low to High
+                            Price: Low to High
                         </option>
                         <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>
-                            💸 Price: High to Low
+                            Price: High to Low
                         </option>
                         <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>
-                            🔤 Name: A to Z
+                            Name: A to Z
                         </option>
                         <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>
-                            🔤 Name: Z to A
+                            Name: Z to A
                         </option>
                     </select>
                 </div>
@@ -166,7 +166,7 @@
                     <div class="d-flex gap-2 justify-content-end">
                         <button type="submit" 
                                 class="btn btn-primary px-4 shadow-sm" 
-                                style="border-radius: 15px; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
+                                style="border-radius: 15px; background: linear-gradient(45deg, #0bb364, #0bb364); border: none;">
                             <i class="fas fa-filter me-2"></i>Apply Filters
                         </button>
                         <a href="{{ route('home') }}" 
@@ -364,11 +364,11 @@
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <h5 class="card-title fw-bold mb-0" style="color: #2c3e50;">{{ $product->name }}</h5>
                         @if($product->productCategory)
-                            <span class="badge" style="background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; color: #fff;">
+                            <span class="badge" style="background: linear-gradient(45deg, #0bb364, #0bb364); border-radius: 15px; color: #fff;">
                                 {{ $product->productCategory->name }}
                             </span>
                         @else
-                            <span class="badge" style="background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; color: #fff;">
+                            <span class="badge" style="background: linear-gradient(45deg, #0bb364, #0bb364); border-radius: 15px; color: #fff;">
                                 Fresh
                             </span>
                         @endif
@@ -415,12 +415,12 @@
                     @if($product->user)
                         <div class="mb-3">
                             <div class="d-flex align-items-center p-2 rounded" 
-                                 style="background-color: #f8f9fa; border-left: 3px solid #667eea;">
+                                 style="background-color: #f8f9fa; border-left: 3px solid #0bb364;">
                                 <i class="fas fa-user-circle text-primary me-2"></i>
                                 <div>
                                     <small class="text-muted d-block">Seller</small>
                                     <a href="{{ route('profile.show', $product->user->id) }}" 
-                                       class="fw-semibold text-decoration-none" style="color: #667eea;">
+                                       class="fw-semibold text-decoration-none" style="color: #0bb364;">
                                         {{ $product->user->name }}
                                     </a>
                                 </div>
@@ -521,12 +521,12 @@
     }
     
     .form-control:focus, .form-select:focus {
-        border-color: #667eea;
+        border-color: #0bb364;
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
     }
     
     .btn-primary {
-        background: linear-gradient(45deg, #667eea, #764ba2);
+        background: linear-gradient(45deg, #0bb364, #0bb364);
         border: none;
     }
     
@@ -539,12 +539,12 @@
         border-radius: 10px;
         margin: 0 2px;
         border: 2px solid #e9ecef;
-        color: #667eea;
+        color: #0bb364;
     }
     
     .pagination .page-item.active .page-link {
-        background: linear-gradient(45deg, #667eea, #764ba2);
-        border-color: #667eea;
+        background: linear-gradient(45deg, #0bb364, #0bb364);
+        border-color: #0bb364;
     }
     
     .alert {
@@ -562,7 +562,7 @@
     }
         .form-control:focus, 
     .form-select:focus {
-        border-color: #667eea !important;
+        border-color: #0bb364 !important;
         box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15) !important;
     }
 
@@ -572,7 +572,7 @@
     }
 
     .input-group:focus-within .input-group-text {
-        border-color: #667eea;
+        border-color: #0bb364;
     }
 
     .input-group:focus-within {
@@ -601,6 +601,11 @@
             width: 100%;
         }
     }
+body, 
+h1, h2, h3, h4, h5, h6, 
+p, span, a, div, input, select, button, label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
 </style>
 
 {{-- Add Font Awesome if not already included --}}

@@ -130,7 +130,7 @@
                     <div class="row mt-3 pt-3 border-top">
                         <div class="col-12 text-end">
                             <span class="text-muted me-2">Order Total:</span>
-                            <span class="fw-bold" style="color: #764ba2; font-size: 1.3rem;">
+                            <span class="fw-bold" style="color: #0bb364; font-size: 1.3rem;">
                                 ₱{{ number_format($order->total_price, 2) }}
                             </span>
                         </div>

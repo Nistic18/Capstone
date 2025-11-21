@@ -14,7 +14,7 @@
 @section('content')
 <div class="mt-5">
     {{-- Header Section --}}
-    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #015f4b 0%, #0bb364 100%); border-radius: 20px;">
         <div class="card-body text-center py-5">
             <div class="mb-3">
                 <i class="fas fa-fish text-white" style="font-size: 3rem;"></i>
@@ -44,7 +44,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
             <h2 class="fw-bold mb-1" style="color: #2c3e50;">
-                <i class="fas fa-inventory me-2" style="color: #667eea;"></i>
+                <i class="fas fa-inventory me-2" style="color: #015f4b;"></i>
                 My Products
             </h2>
             <p class="text-muted mb-0">Manage your fish market listings</p>
@@ -88,7 +88,7 @@
                 {{-- Search Button --}}
                 <div class="col-lg-3 col-md-12">
                     <button type="submit" class="btn btn-primary w-100" 
-                            style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
+                            style="border-radius: 25px; background: linear-gradient(45deg, #015f4b, #0bb364); border: none;">
                         <i class="fas fa-search me-1"></i> Search & Filter
                     </button>
                 </div>
@@ -211,7 +211,7 @@
                     <div class="card-body d-flex flex-column p-4">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title fw-bold mb-0" style="color: #2c3e50;">{{ $product->name }}</h5>
-                            <span class="badge" style="background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; color: #fff;">
+                            <span class="badge" style="background: linear-gradient(45deg, #015f4b, #0bb364); border-radius: 15px; color: #fff;">
                                 🐟 Fresh
                             </span>
                         </div>
@@ -232,11 +232,11 @@
                         @if(isset($product->user))
                             <div class="mb-3">
                                 <div class="d-flex align-items-center p-2 rounded" 
-                                     style="background-color: #f8f9fa; border-left: 3px solid #667eea;">
+                                     style="background-color: #f8f9fa; border-left: 3px solid #015f4b;">
                                     <i class="fas fa-user-tie text-primary me-2"></i>
                                     <div>
                                         <small class="text-muted d-block">Supplier</small>
-                                        <span class="fw-semibold" style="color: #667eea;">
+                                        <span class="fw-semibold" style="color: #015f4b;">
                                             {{ $product->user->name }}
                                         </span>
                                     </div>
@@ -366,7 +366,7 @@
     }
     
     .form-control:focus, .form-select:focus {
-        border-color: #667eea;
+        border-color: #015f4b;
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
     }
     
@@ -408,7 +408,7 @@
     }
     
     .btn-primary {
-        background: linear-gradient(45deg, #667eea, #764ba2);
+        background: linear-gradient(45deg, #015f4b, #0bb364);
         border: none;
         transition: all 0.3s ease;
     }
@@ -422,12 +422,12 @@
         border-radius: 10px;
         margin: 0 2px;
         border: 2px solid #e9ecef;
-        color: #667eea;
+        color: #015f4b;
     }
     
     .pagination .page-item.active .page-link {
-        background: linear-gradient(45deg, #667eea, #764ba2);
-        border-color: #667eea;
+        background: linear-gradient(45deg, #015f4b, #0bb364);
+        border-color: #015f4b;
     }
     
     .alert {
@@ -485,6 +485,11 @@
             padding: 6px 10px !important;
         }
     }
+body, 
+h1, h2, h3, h4, h5, h6, 
+p, span, a, div, input, select, button, label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
 </style>
 
 {{-- JavaScript --}}

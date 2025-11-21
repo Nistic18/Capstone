@@ -1,5 +1,3 @@
-
-
 @section('title', 'Login - Fish Market')
 
 <head>
@@ -57,7 +55,7 @@
                     </div>
 
                     {{-- Right Section - Login Form --}}
-                    <div class="col-lg-4 col-md-6">
+                    <div class="col-lg-5 col-md-5 mb-4 mb-md-0">
                         <div class="login-box mx-auto">
                             <form method="POST" action="{{ route('login') }}">
                                 @csrf
@@ -72,7 +70,7 @@
                                            required 
                                            autocomplete="email" 
                                            autofocus
-                                           placeholder="Email or phone number">
+                                           placeholder="Email">
 
                                     @error('email')
                                         <div class="invalid-feedback">
@@ -131,12 +129,12 @@
                         </div>
 
                         {{-- Security Badge --}}
-                        <div class="text-center mt-4">
+                        {{-- <div class="text-center mt-4">
                             <p class="security-text">
                                 <i class="fas fa-shield-alt me-2"></i>
                                 <span class="fw-semibold">Secure & Safe</span> - Your data is protected
                             </p>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -147,7 +145,7 @@
 {{-- Custom CSS --}}
 <style>
     body {
-        background: linear-gradient(135deg, #f3e7fd 0%, #e8eaf6 100%);
+        background: linear-gradient(135deg, #d4f1e5 0%, #c8e6c9 100%);
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
         margin: 0;
         padding: 0;
@@ -168,7 +166,7 @@
 
     .brand-logo i {
         font-size: 4rem;
-        color: #7c4dff;
+        color: #0bb364;
         animation: float 3s ease-in-out infinite;
     }
 
@@ -182,7 +180,7 @@
     }
 
     .brand-title {
-        color: #7c4dff;
+        color: #0bb364;
         font-size: 3.5rem;
         font-weight: 700;
         line-height: 1.2;
@@ -202,7 +200,7 @@
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 10px 20px rgba(0, 0, 0, 0.1);
         padding: 2rem;
-        max-width: 420px;
+        max-width: 520px;
         margin: 0 auto;
     }
 
@@ -216,8 +214,8 @@
     }
 
     .form-control:focus {
-        border-color: #7c4dff;
-        box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.1);
+        border-color: #0bb364;
+        box-shadow: 0 0 0 3px rgba(11, 179, 100, 0.1);
         outline: none;
         background-color: #fafafa;
     }
@@ -254,24 +252,24 @@
     }
 
     .password-toggle:hover {
-        color: #7c4dff;
+        color: #0bb364;
     }
 
     /* Primary Button (Log In) */
     .btn-primary {
-        background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);
+        background: linear-gradient(135deg, #66d88e 0%, #0bb364 100%);
         border: none;
         border-radius: 8px;
         font-size: 1.125rem;
         padding: 0.875rem 1rem;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(124, 77, 255, 0.3);
+        box-shadow: 0 2px 8px rgba(11, 179, 100, 0.3);
     }
 
     .btn-primary:hover {
-        background: linear-gradient(135deg, #651fff 0%, #6200ea 100%);
+        background: linear-gradient(135deg, #0bb364 0%, #289c58 100%);
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(124, 77, 255, 0.4);
+        box-shadow: 0 4px 12px rgba(11, 179, 100, 0.4);
     }
 
     .btn-primary:active {
@@ -280,14 +278,14 @@
 
     /* Forgot Password Link */
     .forgot-link {
-        color: #7c4dff;
+        color: #0bb364;
         font-size: 0.938rem;
         text-decoration: none;
         transition: color 0.2s;
     }
 
     .forgot-link:hover {
-        color: #651fff;
+        color: #289c58;
         text-decoration: underline;
     }
 
@@ -365,6 +363,11 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
     }
+body, 
+h1, h2, h3, h4, h5, h6, 
+p, span, a, div, input, select, button, label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
 </style>
 
 {{-- Custom JavaScript --}}
@@ -441,4 +444,3 @@ document.addEventListener("DOMContentLoaded", function() {
     setTimeout(initCountdown, 300);
 });
 </script>
-

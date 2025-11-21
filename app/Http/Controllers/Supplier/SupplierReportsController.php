@@ -1048,7 +1048,7 @@ class SupplierReportsController extends Controller
     
     private function exportDeliveredOrdersPDF($orders, $summary)
 {
-    $pdf = PDF::loadView('supplier.reports.pdf.delivered-orders', [
+    $pdf = PDF::loadView('supplier.reports.pdf.delivered_orders', [
         'title' => 'Delivered Orders Report',
         'date' => now()->format('F d, Y h:i A'),
         'supplier' => auth()->user()->name,
@@ -1119,4 +1119,468 @@ class SupplierReportsController extends Controller
         $pdf->setPaper('a4', 'portrait');
         return $pdf->download('customer_feedback_' . date('Y-m-d') . '.pdf');
     }
+    /**
+ * Preview report before downloading
+ */
+public function preview(Request $request, $type)
+{
+    $request->validate([
+        'format' => 'required|in:pdf,csv',
+        'date_from' => 'nullable|date',
+        'date_to' => 'nullable|date|after_or_equal:date_from',
+    ]);
+
+    $format = $request->get('format', 'pdf');
+
+    // Set headers for inline display (preview)
+    $headers = [
+        'Content-Type' => $format === 'pdf' ? 'application/pdf' : 'text/csv',
+        'Content-Disposition' => 'inline', // This makes it display in browser instead of download
+    ];
+
+    // Call the appropriate download method but with inline display
+    switch ($type) {
+        case 'delivered-orders':
+            return $this->generateDeliveredOrdersReport($request, true);
+        case 'products':
+            return $this->generateProductsReport($request, true);
+        case 'inventory':
+            return $this->generateInventoryReport($request, true);
+        case 'sales-revenue':
+            return $this->generateSalesRevenueReport($request, true);
+        case 'feedback':
+            return $this->generateFeedbackReport($request, true);
+        default:
+            abort(404, 'Report type not found');
+    }
+}
+
+/**
+ * Download report
+ */
+public function download(Request $request, $type)
+{
+    $request->validate([
+        'format' => 'required|in:pdf,csv',
+        'date_from' => 'nullable|date',
+        'date_to' => 'nullable|date|after_or_equal:date_from',
+    ]);
+
+    switch ($type) {
+        case 'delivered-orders':
+            return $this->generateDeliveredOrdersReport($request, false);
+        case 'products':
+            return $this->generateProductsReport($request, false);
+        case 'inventory':
+            return $this->generateInventoryReport($request, false);
+        case 'sales-revenue':
+            return $this->generateSalesRevenueReport($request, false);
+        case 'feedback':
+            return $this->generateFeedbackReport($request, false);
+        default:
+            abort(404, 'Report type not found');
+    }
+}
+
+/**
+ * Generate Delivered Orders Report (for both preview and download)
+ */
+private function generateDeliveredOrdersReport(Request $request, $isPreview = false)
+{
+    $format = $request->get('format', 'pdf');
+    
+    $dateFrom = $request->get('date_from') 
+        ? Carbon::parse($request->get('date_from'))->startOfDay() 
+        : Carbon::now()->subYear()->startOfDay();
+        
+    $dateTo = $request->get('date_to') 
+        ? Carbon::parse($request->get('date_to'))->endOfDay() 
+        : Carbon::now()->endOfDay();
+
+    $supplierId = auth()->id();
+
+    $orders = Order::whereHas('products', function ($query) use ($supplierId) {
+            $query->where('user_id', $supplierId);
+        })
+        ->with(['products' => function ($query) use ($supplierId) {
+            $query->where('user_id', $supplierId);
+        }, 'user'])
+        ->where('status', 'Delivered')
+        ->whereBetween('created_at', [$dateFrom, $dateTo])
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function($order) use ($supplierId) {
+            $supplierProducts = $order->products->where('user_id', $supplierId);
+            $totalAmount = $supplierProducts->sum(fn($p) => $p->pivot->quantity * $p->price);
+            
+            return [
+                'order_id' => $order->id,
+                'customer_name' => $order->user->name,
+                'customer_email' => $order->user->email,
+                'customer_phone' => $order->user->phone ?? 'N/A',
+                'products_count' => $supplierProducts->count(),
+                'products_list' => $supplierProducts->pluck('name')->implode(', '),
+                'total_quantity' => $supplierProducts->sum('pivot.quantity'),
+                'total_amount' => $totalAmount,
+                'payment_method' => $order->payment_method ?? 'N/A',
+                'order_date' => $order->created_at->format('Y-m-d H:i:s'),
+                'delivery_date' => $order->updated_at->format('Y-m-d H:i:s'),
+            ];
+        });
+
+    $summary = [
+        'total_orders' => $orders->count(),
+        'total_revenue' => $orders->sum('total_amount'),
+        'total_products_sold' => $orders->sum('total_quantity'),
+        'date_from' => $dateFrom->format('Y-m-d'),
+        'date_to' => $dateTo->format('Y-m-d')
+    ];
+
+    if ($format === 'pdf') {
+        $pdf = PDF::loadView('supplier.reports.pdf.delivered_orders', [
+            'title' => 'Delivered Orders Report',
+            'date' => now()->format('F d, Y h:i A'),
+            'supplier' => auth()->user()->name,
+            'orders' => $orders,
+            'summary' => $summary
+        ]);
+
+        if ($isPreview) {
+            return $pdf->stream(); // Display inline
+        } else {
+            return $pdf->download('delivered_orders_' . now()->format('Y-m-d') . '.pdf');
+        }
+    } else {
+        return $this->exportDeliveredOrdersCSV($orders, $summary);
+    }
+}
+
+/**
+ * Generate Products Report (for both preview and download)
+ */
+private function generateProductsReport(Request $request, $isPreview = false)
+{
+    $format = $request->get('format', 'pdf');
+    $supplierId = auth()->id();
+
+    $products = Product::where('user_id', $supplierId)
+        ->with(['reviews'])
+        ->withCount('reviews')
+        ->get()
+        ->map(function($product) {
+            $totalSold = DB::table('order_product')
+                ->join('orders', 'order_product.order_id', '=', 'orders.id')
+                ->where('order_product.product_id', $product->id)
+                ->whereIn('orders.status', ['Delivered', 'Completed'])
+                ->where(function ($query) {
+                    $query->whereNull('orders.refund_status')
+                          ->orWhere('orders.refund_status', '!=', 'Approved');
+                })
+                ->sum('order_product.quantity');
+
+            $totalRevenue = DB::table('order_product')
+                ->join('orders', 'order_product.order_id', '=', 'orders.id')
+                ->where('order_product.product_id', $product->id)
+                ->whereIn('orders.status', ['Delivered', 'Completed'])
+                ->where(function ($query) {
+                    $query->whereNull('orders.refund_status')
+                          ->orWhere('orders.refund_status', '!=', 'Approved');
+                })
+                ->sum(DB::raw('order_product.quantity * ' . $product->price));
+
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'category' => $product->category->name ?? 'N/A',
+                'price' => $product->price,
+                'current_stock' => $product->quantity,
+                'total_sold' => $totalSold ?? 0,
+                'total_revenue' => $totalRevenue ?? 0,
+                'average_rating' => $product->reviews->avg('rating') ?? 0,
+                'total_reviews' => $product->reviews_count,
+                'status' => $product->quantity > 0 ? 'In Stock' : 'Out of Stock',
+                'created_date' => $product->created_at->format('Y-m-d')
+            ];
+        });
+
+    if ($format === 'pdf') {
+        $pdf = PDF::loadView('supplier.reports.pdf.products', [
+            'title' => 'Products Report',
+            'date' => date('Y-m-d H:i:s'),
+            'products' => $products,
+            'supplier' => auth()->user()->name
+        ]);
+        $pdf->setPaper('a4', 'landscape');
+
+        if ($isPreview) {
+            return $pdf->stream();
+        } else {
+            return $pdf->download('products_report_' . date('Y-m-d') . '.pdf');
+        }
+    } else {
+        return $this->exportProductsCSV($products);
+    }
+}
+
+/**
+ * Generate Inventory Report (for both preview and download)
+ */
+private function generateInventoryReport(Request $request, $isPreview = false)
+{
+    $format = $request->get('format', 'pdf');
+    $supplierId = auth()->id();
+
+    $products = Product::where('user_id', $supplierId)
+        ->get()
+        ->map(function($product) {
+            $totalSold = DB::table('order_product')
+                ->join('orders', 'order_product.order_id', '=', 'orders.id')
+                ->where('order_product.product_id', $product->id)
+                ->whereIn('orders.status', ['Delivered', 'Completed'])
+                ->where(function ($query) {
+                    $query->whereNull('orders.refund_status')
+                          ->orWhere('orders.refund_status', '!=', 'Approved');
+                })
+                ->sum('order_product.quantity');
+
+            $pendingOrders = DB::table('order_product')
+                ->join('orders', 'order_product.order_id', '=', 'orders.id')
+                ->where('order_product.product_id', $product->id)
+                ->whereIn('orders.status', ['Pending', 'Processing', 'Shipped'])
+                ->sum('order_product.quantity');
+
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'sku' => $product->sku ?? 'N/A',
+                'category' => $product->category ? $product->category->name : 'N/A',
+                'current_stock' => $product->quantity,
+                'total_sold' => $totalSold ?? 0,
+                'pending_orders' => $pendingOrders ?? 0,
+                'available_stock' => max(0, $product->quantity - ($pendingOrders ?? 0)),
+                'stock_value' => $product->quantity * $product->price,
+                'status' => $product->quantity > 10 ? 'Good Stock' : ($product->quantity > 0 ? 'Low Stock' : 'Out of Stock'),
+                'reorder_needed' => $product->quantity <= 10 ? 'Yes' : 'No',
+                'last_updated' => $product->updated_at->format('Y-m-d H:i:s')
+            ];
+        });
+
+    $summary = [
+        'total_products' => $products->count(),
+        'total_stock_value' => $products->sum('stock_value'),
+        'in_stock' => $products->where('current_stock', '>', 0)->count(),
+        'out_of_stock' => $products->where('current_stock', '<=', 0)->count(),
+        'low_stock' => $products->where('reorder_needed', 'Yes')->count()
+    ];
+
+    if ($format === 'pdf') {
+        $pdf = PDF::loadView('supplier.reports.pdf.inventory', [
+            'title' => 'Product Inventory Report',
+            'date' => date('Y-m-d H:i:s'),
+            'products' => $products,
+            'summary' => $summary,
+            'supplier' => auth()->user()->name
+        ]);
+        $pdf->setPaper('a4', 'landscape');
+
+        if ($isPreview) {
+            return $pdf->stream();
+        } else {
+            return $pdf->download('inventory_report_' . date('Y-m-d') . '.pdf');
+        }
+    } else {
+        return $this->exportInventoryCSV($products, $summary);
+    }
+}
+
+/**
+ * Generate Sales Revenue Report (for both preview and download)
+ */
+private function generateSalesRevenueReport(Request $request, $isPreview = false)
+{
+    $format = $request->get('format', 'pdf');
+    
+    $dateFrom = $request->get('date_from') 
+        ? Carbon::parse($request->get('date_from'))->startOfDay() 
+        : Carbon::now()->subYear()->startOfDay();
+        
+    $dateTo = $request->get('date_to') 
+        ? Carbon::parse($request->get('date_to'))->endOfDay() 
+        : Carbon::now()->endOfDay();
+
+    $supplierId = auth()->id();
+
+    // Monthly breakdown
+    $monthlySales = [];
+    $currentDate = $dateFrom->copy()->startOfMonth();
+    $endDate = $dateTo->copy()->endOfMonth();
+    
+    while ($currentDate <= $endDate) {
+        $revenue = DB::table('order_product')
+            ->join('products', 'order_product.product_id', '=', 'products.id')
+            ->join('orders', 'order_product.order_id', '=', 'orders.id')
+            ->where('products.user_id', $supplierId)
+            ->whereYear('orders.created_at', $currentDate->year)
+            ->whereMonth('orders.created_at', $currentDate->month)
+            ->whereIn('orders.status', ['Delivered', 'Completed'])
+            ->where(function ($query) {
+                $query->whereNull('orders.refund_status')
+                      ->orWhere('orders.refund_status', '!=', 'Approved');
+            })
+            ->sum(DB::raw('order_product.quantity * products.price'));
+
+        $orders = Order::whereHas('products', function ($query) use ($supplierId) {
+                $query->where('user_id', $supplierId);
+            })
+            ->whereYear('created_at', $currentDate->year)
+            ->whereMonth('created_at', $currentDate->month)
+            ->whereIn('status', ['Delivered', 'Completed'])
+            ->count();
+
+        $itemsSold = DB::table('order_product')
+            ->join('products', 'order_product.product_id', '=', 'products.id')
+            ->join('orders', 'order_product.order_id', '=', 'orders.id')
+            ->where('products.user_id', $supplierId)
+            ->whereYear('orders.created_at', $currentDate->year)
+            ->whereMonth('orders.created_at', $currentDate->month)
+            ->whereIn('orders.status', ['Delivered', 'Completed'])
+            ->sum('order_product.quantity');
+
+        $monthlySales[] = [
+            'month' => $currentDate->format('M Y'),
+            'revenue' => $revenue ?? 0,
+            'orders' => $orders,
+            'items_sold' => $itemsSold ?? 0,
+            'average_order_value' => $orders > 0 ? ($revenue / $orders) : 0
+        ];
+
+        $currentDate->addMonth();
+    }
+
+    // Top selling products
+    $topProducts = DB::table('order_product')
+        ->join('products', 'order_product.product_id', '=', 'products.id')
+        ->join('orders', 'order_product.order_id', '=', 'orders.id')
+        ->where('products.user_id', $supplierId)
+        ->whereBetween('orders.created_at', [$dateFrom, $dateTo])
+        ->whereIn('orders.status', ['Delivered', 'Completed'])
+        ->where(function ($query) {
+            $query->whereNull('orders.refund_status')
+                  ->orWhere('orders.refund_status', '!=', 'Approved');
+        })
+        ->select(
+            'products.name as product_name',
+            DB::raw('SUM(order_product.quantity) as total_quantity'),
+            DB::raw('SUM(order_product.quantity * products.price) as total_revenue')
+        )
+        ->groupBy('products.id', 'products.name')
+        ->orderByDesc('total_revenue')
+        ->limit(10)
+        ->get();
+
+    $summary = [
+        'total_revenue' => collect($monthlySales)->sum('revenue'),
+        'total_orders' => collect($monthlySales)->sum('orders'),
+        'total_items_sold' => collect($monthlySales)->sum('items_sold'),
+        'average_order_value' => collect($monthlySales)->where('average_order_value', '>', 0)->avg('average_order_value') ?? 0,
+        'date_from' => $dateFrom->format('Y-m-d'),
+        'date_to' => $dateTo->format('Y-m-d')
+    ];
+
+    if ($format === 'pdf') {
+        $pdf = PDF::loadView('supplier.reports.pdf.sales-revenue', [
+            'title' => 'Sales Revenue Report',
+            'date' => date('Y-m-d H:i:s'),
+            'monthlySales' => $monthlySales,
+            'topProducts' => $topProducts,
+            'summary' => $summary,
+            'supplier' => auth()->user()->name
+        ]);
+        $pdf->setPaper('a4', 'landscape');
+
+        if ($isPreview) {
+            return $pdf->stream();
+        } else {
+            return $pdf->download('sales_revenue_' . date('Y-m-d') . '.pdf');
+        }
+    } else {
+        return $this->exportSalesRevenueCSV($monthlySales, $topProducts, $summary);
+    }
+}
+
+/**
+ * Generate Feedback Report (for both preview and download)
+ */
+private function generateFeedbackReport(Request $request, $isPreview = false)
+{
+    $format = $request->get('format', 'pdf');
+    
+    $dateFrom = $request->get('date_from') 
+        ? Carbon::parse($request->get('date_from'))->startOfDay() 
+        : Carbon::now()->subYear()->startOfDay();
+        
+    $dateTo = $request->get('date_to') 
+        ? Carbon::parse($request->get('date_to'))->endOfDay() 
+        : Carbon::now()->endOfDay();
+
+    $supplierId = auth()->id();
+
+    $reviews = Review::whereHas('product', function ($query) use ($supplierId) {
+            $query->where('user_id', $supplierId);
+        })
+        ->with(['user', 'product'])
+        ->whereBetween('created_at', [$dateFrom, $dateTo])
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function($review) {
+            return [
+                'review_id' => $review->id,
+                'product_name' => $review->product->name,
+                'customer_name' => $review->user->name,
+                'customer_email' => $review->user->email,
+                'rating' => $review->rating,
+                'comment' => $review->comment ?? 'No comment',
+                'review_date' => $review->created_at->format('Y-m-d H:i:s')
+            ];
+        });
+
+    $totalReviews = $reviews->count();
+    $averageRating = $totalReviews > 0 ? $reviews->avg('rating') : 0;
+    $ratingDistribution = [
+        '5_star' => $reviews->where('rating', 5)->count(),
+        '4_star' => $reviews->where('rating', 4)->count(),
+        '3_star' => $reviews->where('rating', 3)->count(),
+        '2_star' => $reviews->where('rating', 2)->count(),
+        '1_star' => $reviews->where('rating', 1)->count(),
+    ];
+
+    $summary = [
+        'total_reviews' => $totalReviews,
+        'average_rating' => round($averageRating, 2),
+        'rating_distribution' => $ratingDistribution,
+        'positive_reviews' => $reviews->whereIn('rating', [4, 5])->count(),
+        'negative_reviews' => $reviews->whereIn('rating', [1, 2])->count(),
+        'date_from' => $dateFrom->format('Y-m-d'),
+        'date_to' => $dateTo->format('Y-m-d')
+    ];
+
+    if ($format === 'pdf') {
+        $pdf = PDF::loadView('supplier.reports.pdf.feedback', [
+            'title' => 'Customer Feedback Report',
+            'date' => date('Y-m-d H:i:s'),
+            'reviews' => $reviews,
+            'summary' => $summary,
+            'supplier' => auth()->user()->name
+        ]);
+        $pdf->setPaper('a4', 'portrait');
+
+        if ($isPreview) {
+            return $pdf->stream();
+        } else {
+            return $pdf->download('customer_feedback_' . date('Y-m-d') . '.pdf');
+        }
+    } else {
+        return $this->exportFeedbackCSV($reviews, $summary);
+    }
+}
 }

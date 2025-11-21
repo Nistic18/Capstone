@@ -78,12 +78,12 @@ class ProductController extends Controller
     }
 
     public function create()
-{
-    $productCategories = ProductCategory::all();
-    $productTypes = ProductType::all();
+    {
+        $productCategories = ProductCategory::all();
+        $productTypes = ProductType::all();
 
-    return view('products.create', compact('productCategories', 'productTypes'));
-}
+        return view('products.create', compact('productCategories', 'productTypes'));
+    }
 
     public function store(Request $request)
     {
@@ -96,6 +96,8 @@ class ProductController extends Controller
             'product_category_id' => 'required|exists:product_categories,id',
             'product_type_id' => 'required|exists:product_types,id',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            'unit_type' => 'required|in:pack,kilo,box,piece',
+            'unit_value' => 'required|numeric|min:0.01',
         ]);
 
         $product = Product::create([
@@ -107,6 +109,8 @@ class ProductController extends Controller
             'product_category_id' => $request->product_category_id,
             'product_type_id' => $request->product_type_id,
             'user_id' => auth()->id(),
+            'unit_type' => $request->unit_type,
+            'unit_value' => $request->unit_value,
         ]);
 
         // Log initial stock
@@ -134,16 +138,16 @@ class ProductController extends Controller
     }
 
     public function edit(Product $product)
-{
-    if (auth()->id() !== $product->user_id && auth()->user()->role !== 'admin') {
-        abort(403, 'Unauthorized access.');
+    {
+        if (auth()->id() !== $product->user_id && auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $productCategories = ProductCategory::all();
+        $productTypes = ProductType::all();
+
+        return view('products.create', compact('product', 'productCategories', 'productTypes'));
     }
-
-    $productCategories = ProductCategory::all();
-    $productTypes = ProductType::all();
-
-    return view('products.create', compact('product', 'productCategories', 'productTypes'));
-}
 
     public function update(Request $request, Product $product)
     {
@@ -160,6 +164,8 @@ class ProductController extends Controller
             'product_category_id' => 'required|exists:product_categories,id',
             'product_type_id' => 'required|exists:product_types,id',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            'unit_type' => 'required|in:pack,kilo,box,piece',
+            'unit_value' => 'required|numeric|min:0.01',
         ]);
 
         $oldQuantity = $product->quantity;
@@ -173,6 +179,8 @@ class ProductController extends Controller
             'description' => $request->description,
             'product_category_id' => $request->product_category_id,
             'product_type_id' => $request->product_type_id,
+            'unit_type' => $request->unit_type,
+            'unit_value' => $request->unit_value,
         ]);
 
         if ($oldQuantity != $newQuantity) {
@@ -207,15 +215,17 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted!');
     }
+
     public function show(Product $product)
     {
         $product->load('images', 'user', 'reviews', 'category', 'type');
         
         return view('products.show', compact('product'));
     }
-public function landing()
-{
-    $heroProducts = Product::inRandomOrder()->take(4)->get();
-    return view('landing', compact('heroProducts'));
-}
+
+    public function landing()
+    {
+        $heroProducts = Product::inRandomOrder()->take(4)->get();
+        return view('landing', compact('heroProducts'));
+    }
 }

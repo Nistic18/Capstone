@@ -12,17 +12,7 @@
     <div class="alert alert-danger text-center">
         <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
     </div>
-@endif
-    {{-- Header --}}    
-    {{-- <div class="card border-0 shadow-lg mb-5 header-card">
-        <div class="card-body text-center py-5">
-            <div class="mb-3">
-                <i class="fas fa-chart-line header-icon"></i>
-            </div>
-            <h1 class="display-4 fw-bold text-white mb-3">📊 Supplier Reports & Analytics</h1>
-            <p class="lead text-white-50 mb-0">Track your sales performance and business insights</p>
-        </div>
-    </div> --}}
+    @endif
 
     {{-- Summary Statistics --}}
     <div class="row mb-5">
@@ -109,7 +99,7 @@
                     <p class="text-muted mb-0">Export all successfully delivered orders</p>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('supplier.reports.download.delivered-orders') }}" method="GET" class="report-form">
+                    <form id="deliveredOrdersForm" class="report-form">
                         <div class="row mb-3">
                             <div class="col-md-6 mb-2">
                                 <label class="form-label">From Date</label>
@@ -125,10 +115,13 @@
                             <small>Includes customer details and order information</small>
                         </div>
                         <div class="d-grid gap-2">
-                            <button type="submit" name="format" value="pdf" class="btn btn-danger">
+                            <button type="button" class="btn btn-info" onclick="previewReport('delivered-orders', 'pdf')">
+                                <i class="fas fa-eye me-2"></i>Preview PDF
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="downloadReport('delivered-orders', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
-                            <button type="submit" name="format" value="csv" class="btn btn-success">
+                            <button type="button" class="btn btn-success" onclick="downloadReport('delivered-orders', 'csv')">
                                 <i class="fas fa-file-csv me-2"></i>Download CSV
                             </button>
                         </div>
@@ -147,16 +140,19 @@
                     <p class="text-muted mb-0">Complete list of all your products and performance</p>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('supplier.reports.download.products') }}" method="GET" class="report-form">
+                    <form id="productsForm" class="report-form">
                         <div class="alert alert-info mb-3">
                             <i class="fas fa-info-circle me-2"></i>
                             <small>Includes sales metrics, ratings, and revenue data</small>
                         </div>
                         <div class="d-grid gap-2">
-                            <button type="submit" name="format" value="pdf" class="btn btn-danger">
+                            <button type="button" class="btn btn-info" onclick="previewReport('products', 'pdf')">
+                                <i class="fas fa-eye me-2"></i>Preview PDF
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="downloadReport('products', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
-                            <button type="submit" name="format" value="csv" class="btn btn-success">
+                            <button type="button" class="btn btn-success" onclick="downloadReport('products', 'csv')">
                                 <i class="fas fa-file-csv me-2"></i>Download CSV
                             </button>
                         </div>
@@ -175,16 +171,19 @@
                     <p class="text-muted mb-0">Stock levels, reorder status, and inventory value</p>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('supplier.reports.download.inventory') }}" method="GET" class="report-form">
+                    <form id="inventoryForm" class="report-form">
                         <div class="alert alert-warning mb-3">
                             <i class="fas fa-exclamation-triangle me-2"></i>
                             <small>Identifies low stock items and reorder needs</small>
                         </div>
                         <div class="d-grid gap-2">
-                            <button type="submit" name="format" value="pdf" class="btn btn-danger">
+                            <button type="button" class="btn btn-info" onclick="previewReport('inventory', 'pdf')">
+                                <i class="fas fa-eye me-2"></i>Preview PDF
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="downloadReport('inventory', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
-                            <button type="submit" name="format" value="csv" class="btn btn-success">
+                            <button type="button" class="btn btn-success" onclick="downloadReport('inventory', 'csv')">
                                 <i class="fas fa-file-csv me-2"></i>Download CSV
                             </button>
                         </div>
@@ -203,7 +202,7 @@
                     <p class="text-muted mb-0">Monthly breakdown and top selling products</p>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('supplier.reports.download.sales-revenue') }}" method="GET" class="report-form">
+                    <form id="salesRevenueForm" class="report-form">
                         <div class="row mb-3">
                             <div class="col-md-6 mb-2">
                                 <label class="form-label">From Date</label>
@@ -215,10 +214,13 @@
                             </div>
                         </div>
                         <div class="d-grid gap-2">
-                            <button type="submit" name="format" value="pdf" class="btn btn-danger">
+                            <button type="button" class="btn btn-info" onclick="previewReport('sales-revenue', 'pdf')">
+                                <i class="fas fa-eye me-2"></i>Preview PDF
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="downloadReport('sales-revenue', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
-                            <button type="submit" name="format" value="csv" class="btn btn-success">
+                            <button type="button" class="btn btn-success" onclick="downloadReport('sales-revenue', 'csv')">
                                 <i class="fas fa-file-csv me-2"></i>Download CSV
                             </button>
                         </div>
@@ -237,7 +239,7 @@
                     <p class="text-muted mb-0">Reviews, ratings, and customer satisfaction analysis</p>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('supplier.reports.download.feedback') }}" method="GET" class="report-form">
+                    <form id="feedbackForm" class="report-form">
                         <div class="row mb-3">
                             <div class="col-md-6 mb-2">
                                 <label class="form-label">From Date</label>
@@ -269,10 +271,13 @@
                             </div>
                         </div>
                         <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                            <button type="submit" name="format" value="pdf" class="btn btn-danger flex-fill">
+                            <button type="button" class="btn btn-info flex-fill" onclick="previewReport('feedback', 'pdf')">
+                                <i class="fas fa-eye me-2"></i>Preview PDF
+                            </button>
+                            <button type="button" class="btn btn-danger flex-fill" onclick="downloadReport('feedback', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
-                            <button type="submit" name="format" value="csv" class="btn btn-success flex-fill">
+                            <button type="button" class="btn btn-success flex-fill" onclick="downloadReport('feedback', 'csv')">
                                 <i class="fas fa-file-csv me-2"></i>Download CSV
                             </button>
                         </div>
@@ -323,6 +328,36 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Preview Modal --}}
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">
+                    <i class="fas fa-eye me-2"></i>Report Preview
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading preview...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+                <button type="button" class="btn btn-primary" id="downloadFromPreview">
+                    <i class="fas fa-download me-2"></i>Download Report
+                </button>
             </div>
         </div>
     </div>
@@ -456,6 +491,17 @@
         border: none;
     }
 
+    #previewContent iframe {
+        width: 100%;
+        height: 70vh;
+        border: none;
+        border-radius: 8px;
+    }
+
+    .modal-xl {
+        max-width: 1200px;
+    }
+
     @media (max-width: 768px) {
         .metric-value {
             font-size: 1.4rem;
@@ -478,6 +524,161 @@
         .info-box {
             margin-bottom: 1rem;
         }
+
+        #previewContent iframe {
+            height: 50vh;
+        }
     }
+body, 
+h1, h2, h3, h4, h5, h6, 
+p, span, a, div, input, select, button, label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
 </style>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentReportType = '';
+    let currentFormat = '';
+    let currentFormData = null;
+
+    function getFormData(reportType) {
+        // Map report types to correct form IDs
+        let formId;
+        
+        switch(reportType) {
+            case 'delivered-orders':
+                formId = 'deliveredOrdersForm';
+                break;
+            case 'products':
+                formId = 'productsForm';
+                break;
+            case 'inventory':
+                formId = 'inventoryForm';
+                break;
+            case 'sales-revenue':
+                formId = 'salesRevenueForm';
+                break;
+            case 'feedback':
+                formId = 'feedbackForm';
+                break;
+            default:
+                console.error('Unknown report type:', reportType);
+                return '';
+        }
+        
+        const form = document.getElementById(formId);
+        
+        if (!form) {
+            console.error('Form not found:', formId);
+            return '';
+        }
+        
+        const formData = new FormData(form);
+        return new URLSearchParams(formData).toString();
+    }
+
+    function previewReport(reportType, format) {
+        currentReportType = reportType;
+        currentFormat = format;
+        currentFormData = getFormData(reportType);
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+        modal.show();
+
+        // Reset content
+        document.getElementById('previewContent').innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading preview...</p>
+            </div>
+        `;
+
+        // Build preview URL (adjust this to match your routes)
+        const previewUrl = `{{ url('supplier/reports/preview') }}/${reportType}?format=${format}&${currentFormData}`;
+
+        console.log('Preview URL:', previewUrl); // For debugging
+
+        // Load preview
+        fetch(previewUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                if (format === 'pdf') {
+                    document.getElementById('previewContent').innerHTML = `
+                        <iframe src="${url}" type="application/pdf"></iframe>
+                    `;
+                } else {
+                    // For CSV, show in a table format
+                    blob.text().then(text => {
+                        const lines = text.split('\n');
+                        let tableHtml = '<div class="table-responsive"><table class="table table-striped table-hover table-sm">';
+                        
+                        lines.forEach((line, index) => {
+                            if (line.trim()) {
+                                // Handle CSV properly - split by comma but respect quoted values
+                                const cells = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+                                tableHtml += '<tr>';
+                                cells.forEach(cell => {
+                                    const tag = index === 0 ? 'th' : 'td';
+                                    // Remove quotes from CSV cells
+                                    const cleanCell = cell.replace(/^"|"$/g, '').trim();
+                                    tableHtml += `<${tag}>${cleanCell}</${tag}>`;
+                                });
+                                tableHtml += '</tr>';
+                            }
+                        });
+                        
+                        tableHtml += '</table></div>';
+                        document.getElementById('previewContent').innerHTML = tableHtml;
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Preview error:', error);
+                document.getElementById('previewContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Failed to load preview: ${error.message}
+                        <br><small>Please check the console for more details.</small>
+                    </div>
+                `;
+            });
+    }
+
+    function downloadReport(reportType, format) {
+        const formData = getFormData(reportType);
+        
+        // Build the download URL dynamically
+        const baseUrl = '{{ url("supplier/reports/download") }}';
+        const downloadUrl = `${baseUrl}/${reportType}?format=${format}&${formData}`;
+        
+        console.log('Download URL:', downloadUrl); // For debugging
+        
+        // Create a temporary link and click it to trigger download
+        window.location.href = downloadUrl;
+    }
+
+    // Download from preview modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const downloadBtn = document.getElementById('downloadFromPreview');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', function() {
+                if (currentReportType && currentFormat) {
+                    downloadReport(currentReportType, currentFormat);
+                }
+            });
+        }
+    });
+</script>
+@endpush
 @endsection

@@ -17,40 +17,12 @@
 @endpush
 @section('content')
 <div class="mt-5">
-    {{-- Header Section --}}
-    <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
-        <div class="card-body text-center py-5">
-            <div class="mb-3">
-                <i class="fas fa-map-marked-alt text-white" style="font-size: 3rem;"></i>
-            </div>
-            <h1 class="display-4 fw-bold text-white mb-3">
-                {{ $role === 'buyer' ? '🗺️ Shop Locations' : '📍 Set Your Location' }}
-            </h1>
-            <p class="lead text-white-50 mb-4">
-                {{ $role === 'buyer' ? 'Discover fish suppliers and stores in your area' : 'Mark your store location for customers to find you' }}
-            </p>
-            
-            {{-- Quick Stats --}}
-            <div class="d-flex justify-content-center gap-4 flex-wrap">
-                <div class="d-flex align-items-center px-3 py-2 rounded-pill" 
-                     style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
-                    <i class="fas fa-store text-white me-2"></i>
-                    <span class="text-white">{{ $locations->count() }} Locations</span>
-                </div>
-                <div class="d-flex align-items-center px-3 py-2 rounded-pill" 
-                     style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
-                    <i class="fas fa-users text-white me-2"></i>
-                    <span class="text-white">{{ $users->count() }} Active Users</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     {{-- Map Controls Bar --}}
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
             <h2 class="fw-bold mb-1" style="color: #2c3e50;">
-                <i class="fas fa-compass me-2" style="color: #667eea;"></i>
+                <i class="fas fa-compass me-2" style="color: #0bb364;"></i>
                 Interactive Map
             </h2>
             <p class="text-muted mb-0">
@@ -77,7 +49,7 @@
                 <div class="card-header border-0 py-3" style="background: linear-gradient(45deg, #f8f9fa, #e9ecef);">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 fw-bold" style="color: #2c3e50;">
-                            <i class="fas fa-map me-2" style="color: #667eea;"></i>
+                            <i class="fas fa-map me-2" style="color: #0bb364;"></i>
                             Fish Market Locations
                         </h5>
                         
@@ -100,6 +72,22 @@
                                         <i class="fas fa-circle text-info me-2"></i>Buyers
                                     </a></li>
                                 </ul>
+                            </div>
+                             <div class="map-controls-wrapper">
+                                <!-- Enhanced Search Input -->
+                                <div class="map-search-container" style="width: 250px;">
+                                    <input 
+                                        type="text" 
+                                        id="map-search-input" 
+                                        class="form-control map-search-input" 
+                                        placeholder="Search location in PH..."
+                                        autocomplete="off"
+                                    >
+                                    <button class="map-search-btn" onclick="performSearch()">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <div id="search-suggestions" class="search-suggestions"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -158,7 +146,7 @@
             <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
                 <div class="card-header border-0 py-3" style="background: rgba(102, 126, 234, 0.05);">
                     <h6 class="mb-0 fw-bold" style="color: #2c3e50;">
-                        <i class="fas fa-list me-2" style="color: #667eea;"></i>
+                        <i class="fas fa-list me-2" style="color: #0bb364;"></i>
                         Map Legend
                     </h6>
                 </div>
@@ -167,10 +155,10 @@
                         <div class="legend-marker bg-success rounded-circle me-3" style="width: 16px; height: 16px;"></div>
                         <span class="small fw-semibold">Suppliers</span>
                     </div>
-                    <div class="legend-item d-flex align-items-center mb-2">
+                    {{-- <div class="legend-item d-flex align-items-center mb-2">
                         <div class="legend-marker bg-info rounded-circle me-3" style="width: 16px; height: 16px;"></div>
                         <span class="small fw-semibold">Buyers</span>
-                    </div>
+                    </div> --}}
                     <div class="legend-item d-flex align-items-center">
                         <div class="legend-marker bg-warning rounded-circle me-3" style="width: 16px; height: 16px;"></div>
                         <span class="small fw-semibold">Your Location</span>
@@ -183,7 +171,7 @@
             <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
                 <div class="card-header border-0 py-3" style="background: rgba(102, 126, 234, 0.05);">
                     <h6 class="mb-0 fw-bold" style="color: #2c3e50;">
-                        <i class="fas fa-map-pin me-2" style="color: #667eea;"></i>
+                        <i class="fas fa-map-pin me-2" style="color: #0bb364;"></i>
                         My Locations
                     </h6>
                 </div>
@@ -251,7 +239,7 @@
             <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
                 <div class="card-header border-0 py-3" style="background: rgba(102, 126, 234, 0.05);">
                     <h6 class="mb-0 fw-bold" style="color: #2c3e50;">
-                        <i class="fas fa-chart-pie me-2" style="color: #667eea;"></i>
+                        <i class="fas fa-chart-pie me-2" style="color: #0bb364;"></i>
                         Location Statistics
                     </h6>
                 </div>
@@ -270,13 +258,13 @@
                     </div>
                     
                     
-                    <div class="stat-item d-flex justify-content-between align-items-center">
+                    {{-- <div class="stat-item d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <i class="fas fa-user text-info me-2"></i>
                             <span class="small">Buyers</span>
                         </div>
                         <span class="badge bg-info">{{ $buyerCount }}</span>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
 
@@ -284,7 +272,7 @@
             {{-- <div class="card border-0 shadow-sm" style="border-radius: 15px;">
                 <div class="card-header border-0 py-3" style="background: rgba(102, 126, 234, 0.05);">
                     <h6 class="mb-0 fw-bold" style="color: #2c3e50;">
-                        <i class="fas fa-map-pin me-2" style="color: #667eea;"></i>
+                        <i class="fas fa-map-pin me-2" style="color: #0bb364;"></i>
                         Recent Locations
                     </h6>
                 </div>
@@ -511,7 +499,7 @@
     }
     
     .form-control:focus {
-        border-color: #667eea;
+        border-color: #0bb364;
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
     }
     
@@ -578,6 +566,162 @@
             width: 100%;
         }
     }
+    .map-search-container {
+    position: relative;
+}
+
+.map-search-input {
+    border-radius: 25px;
+    border: 2px solid #e0e0e0;
+    padding: 0.6rem 2.5rem 0.6rem 1rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.map-search-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    outline: none;
+}
+
+.map-search-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(45deg, #667eea, #0bb364);
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.map-search-btn:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.map-search-btn i {
+    color: white;
+    font-size: 0.9rem;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    margin-top: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.search-suggestions.active {
+    display: block;
+}
+
+.suggestion-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.suggestion-item:hover {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.1), rgba(11, 179, 100, 0.1));
+    padding-left: 20px;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+    border-radius: 0 0 15px 15px;
+}
+
+.suggestion-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #667eea, #0bb364);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.suggestion-icon i {
+    color: white;
+    font-size: 0.8rem;
+}
+
+.suggestion-text {
+    flex: 1;
+}
+
+.suggestion-title {
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.suggestion-subtitle {
+    color: #7f8c8d;
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+.search-loading {
+    padding: 16px;
+    text-align: center;
+    color: #7f8c8d;
+}
+
+.search-loading .spinner-border {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.map-controls-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .map-search-container {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    
+    .map-controls-wrapper {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .map-controls-wrapper > * {
+        width: 100%;
+    }
+}
+body, 
+h1, h2, h3, h4, h5, h6, 
+p, span, a, div, input, select, button, label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
 </style>
 
 <script>
@@ -612,17 +756,6 @@
             } 
         });
         
-        // Add geocoder control
-        L.Control.geocoder({ 
-            defaultMarkGeocode: false, 
-            geocoder,
-            placeholder: 'Search locations...',
-            collapsed: false
-        })
-        .on('markgeocode', function(e) { 
-            map.setView(e.geocode.center, 16); 
-        })
-        .addTo(map);
     }
 
     // Role-based icons with modern colors
@@ -1076,7 +1209,176 @@ function showNotification(type, message) {
         @endforeach
     ];
 });
+// Enhanced search functionality
+let searchTimeout;
+let currentSearchMarker;
 
+document.getElementById('map-search-input').addEventListener('input', function(e) {
+    const query = e.target.value.trim();
+    
+    clearTimeout(searchTimeout);
+    
+    if (query.length < 2) {
+        document.getElementById('search-suggestions').classList.remove('active');
+        return;
+    }
+    
+    searchTimeout = setTimeout(() => {
+        searchLocations(query);
+    }, 300);
+});
+
+document.getElementById('map-search-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        performSearch();
+    }
+});
+
+// Close suggestions when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.map-search-container')) {
+        document.getElementById('search-suggestions').classList.remove('active');
+    }
+});
+
+function searchLocations(query) {
+    const suggestionsDiv = document.getElementById('search-suggestions');
+    
+    suggestionsDiv.innerHTML = `
+        <div class="search-loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    `;
+    suggestionsDiv.classList.add('active');
+    
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=ph&limit=5`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                displaySuggestions(data);
+            } else {
+                suggestionsDiv.innerHTML = `
+                    <div class="suggestion-item">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div class="suggestion-text">
+                            <p class="suggestion-title">No results found</p>
+                            <p class="suggestion-subtitle">Try a different location</p>
+                        </div>
+                    </div>
+                `;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            suggestionsDiv.innerHTML = `
+                <div class="suggestion-item">
+                    <div class="suggestion-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="suggestion-text">
+                        <p class="suggestion-title">Error searching</p>
+                        <p class="suggestion-subtitle">Please try again</p>
+                    </div>
+                </div>
+            `;
+        });
+}
+
+function displaySuggestions(locations) {
+    const suggestionsDiv = document.getElementById('search-suggestions');
+    
+    suggestionsDiv.innerHTML = locations.map(location => {
+        const type = location.type || 'place';
+        const icon = getLocationIcon(type);
+        
+        return `
+            <div class="suggestion-item" onclick="selectLocation(${location.lat}, ${location.lon}, '${location.display_name.replace(/'/g, "\\'")}')">
+                <div class="suggestion-icon">
+                    <i class="${icon}"></i>
+                </div>
+                <div class="suggestion-text">
+                    <p class="suggestion-title">${location.display_name.split(',')[0]}</p>
+                    <p class="suggestion-subtitle">${location.display_name}</p>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    suggestionsDiv.classList.add('active');
+}
+
+function getLocationIcon(type) {
+    const icons = {
+        'city': 'fas fa-city',
+        'town': 'fas fa-building',
+        'village': 'fas fa-home',
+        'municipality': 'fas fa-map-signs',
+        'province': 'fas fa-map',
+        'region': 'fas fa-globe-asia'
+    };
+    return icons[type] || 'fas fa-map-marker-alt';
+}
+
+function selectLocation(lat, lon, name) {
+    map.setView([lat, lon], 14);
+    
+    // Remove previous search marker if exists
+    if (currentSearchMarker) {
+        map.removeLayer(currentSearchMarker);
+    }
+    
+    // Add new search marker with custom icon
+    const searchIcon = L.divIcon({
+        // html: '<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #ff6b6b, #ee5a6f); display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 12px rgba(238, 90, 111, 0.4); animation: bounce 1s ease infinite;"><i class="" style="color: white; font-size: 1rem;"></i></div>',
+        className: '',
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+    });
+    
+    currentSearchMarker = L.marker([lat, lon], { icon: searchIcon }).addTo(map);
+    currentSearchMarker.bindPopup(`<strong>${name}</strong><br><small class="text-muted">Search Result</small>`).openPopup();
+    
+    // Close suggestions
+    document.getElementById('search-suggestions').classList.remove('active');
+    document.getElementById('map-search-input').value = name.split(',')[0];
+}
+
+function performSearch() {
+    const query = document.getElementById('map-search-input').value.trim();
+    if (!query) return;
+    
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=ph&limit=1`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                selectLocation(data[0].lat, data[0].lon, data[0].display_name);
+            } else {
+                alert('Location not found in the Philippines. Please try a different search term.');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Error searching location. Please try again.');
+        });
+}
+
+// Add bounce animation for search marker
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+`;
+document.head.appendChild(style);
 </script>
 
 {{-- Add Font Awesome if not already included --}}

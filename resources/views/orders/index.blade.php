@@ -6,7 +6,7 @@
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb" style="background: transparent; padding: 2%;">
             <li class="breadcrumb-item">
-                <a href="{{ route('home') }}" class="text-decoration-none" style="color: #764ba2;">
+                <a href="{{ route('home') }}" class="text-decoration-none" style="color: #0bb364;">
                     <i class="fas fa-home me-1"></i>Home
                 </a>
             </li>
@@ -148,8 +148,8 @@
                 <div class="row g-4 text-center">
                     <div class="col-md-4">
                         <div class="p-3">
-                            <i class="fas fa-shopping-bag mb-2" style="font-size: 2rem; color: #764ba2;"></i>
-                            <h4 class="fw-bold mb-1" style="color: #764ba2;">{{ $totalOrders }}</h4>
+                            <i class="fas fa-shopping-bag mb-2" style="font-size: 2rem; color: #0bb364;"></i>
+                            <h4 class="fw-bold mb-1" style="color: #0bb364;">{{ $totalOrders }}</h4>
                             <small class="text-muted">Total Orders</small>
                         </div>
                     </div>
@@ -176,8 +176,8 @@
 {{-- Custom CSS --}}
 <style>
     :root {
-        --shopee-primary: #764ba2;
-        --shopee-hover: #764ba2;
+        --shopee-primary: #0bb364;
+        --shopee-hover: #0bb364;
     }
 
     /* Tab Styling */
@@ -264,6 +264,11 @@
             padding: 1rem;
         }
     }
+body, 
+h1, h2, h3, h4, h5, h6, 
+p, span, a, div, input, select, button, label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
 </style>
 
 {{-- Add Font Awesome if not already included --}}

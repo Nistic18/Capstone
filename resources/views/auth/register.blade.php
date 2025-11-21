@@ -20,7 +20,7 @@
 
     <style>
         body {
-            background: linear-gradient(135deg, #f3e7fd 0%, #e8eaf6 100%);
+            background: linear-gradient(135deg, #d4f1e5 0%, #c8e6c9 100%);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
             margin: 0;
             padding: 0;
@@ -41,7 +41,7 @@
 
         .brand-logo i {
             font-size: 4rem;
-            color: #7c4dff;
+            color: #0bb364;
             animation: float 3s ease-in-out infinite;
         }
 
@@ -55,7 +55,7 @@
         }
 
         .brand-title {
-            color: #7c4dff;
+            color: #0bb364;
             font-size: 3rem;
             font-weight: 700;
             line-height: 1.2;
@@ -84,7 +84,7 @@
         }
 
         .feature-item i {
-            color: #7c4dff;
+            color: #0bb364;
             font-size: 1.25rem;
         }
 
@@ -94,7 +94,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 10px 20px rgba(0, 0, 0, 0.1);
             padding: 2rem;
-            max-width: 500px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -110,8 +110,8 @@
 
         .form-control:focus,
         .form-select:focus {
-            border-color: #7c4dff;
-            box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.1);
+            border-color: #0bb364;
+            box-shadow: 0 0 0 3px rgba(11, 179, 100, 0.1);
             outline: none;
             background-color: #fafafa;
         }
@@ -164,24 +164,24 @@
         }
 
         .password-toggle:hover {
-            color: #7c4dff;
+            color: #0bb364;
         }
 
         /* Primary Button */
         .btn-primary {
-            background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);
+            background: linear-gradient(135deg, #66d88e 0%, #0bb364 100%);
             border: none;
             border-radius: 8px;
             font-size: 1.125rem;
             padding: 0.875rem 1rem;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(124, 77, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(11, 179, 100, 0.3);
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #651fff 0%, #6200ea 100%);
+            background: linear-gradient(135deg, #0bb364 0%, #289c58 100%);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(124, 77, 255, 0.4);
+            box-shadow: 0 4px 12px rgba(11, 179, 100, 0.4);
         }
 
         .btn-primary:active {
@@ -205,15 +205,15 @@
         }
 
         .btn-outline-primary {
-            border: 1.5px solid #7c4dff;
-            color: #7c4dff;
+            border: 1.5px solid #0bb364;
+            color: #0bb364;
             border-radius: 8px;
             transition: all 0.2s ease;
         }
 
         .btn-outline-primary:hover {
-            background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);
-            border-color: #7c4dff;
+            background: linear-gradient(135deg, #66d88e 0%, #0bb364 100%);
+            border-color: #0bb364;
             color: white;
         }
 
@@ -249,25 +249,25 @@
         }
 
         .terms-link {
-            color: #7c4dff;
+            color: #0bb364;
             text-decoration: none;
             font-weight: 600;
             transition: color 0.2s;
         }
 
         .terms-link:hover {
-            color: #651fff;
+            color: #289c58;
             text-decoration: underline;
         }
 
         .form-check-input:checked {
-            background-color: #7c4dff;
-            border-color: #7c4dff;
+            background-color: #0bb364;
+            border-color: #0bb364;
         }
 
         .form-check-input:focus {
-            border-color: #7c4dff;
-            box-shadow: 0 0 0 0.25rem rgba(124, 77, 255, 0.25);
+            border-color: #0bb364;
+            box-shadow: 0 0 0 0.25rem rgba(11, 179, 100, 0.25);
         }
 
         /* Modal Styles */
@@ -367,6 +367,11 @@
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
         }
+        body, 
+h1, h2, h3, h4, h5, h6, 
+p, span, a, div, input, select, button, label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
     </style>
 </head>
 <body>
@@ -401,265 +406,195 @@
                             </div>
                         </div>
 
-                        <!-- Right Section - Registration Form -->
-                        <div class="col-lg-6 col-md-6">
-                            <div class="register-box mx-auto">
-                                <form method="POST" action="#" class="needs-validation" novalidate>
-                                    <!-- Name Fields -->
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold">
-                                            <i class="fas fa-user me-1"></i>Full Name
-                                        </label>
-                                        
-                                        <div class="row g-2">
-                                            <!-- First Name -->
-                                            <div class="col-md-4">
-                                                <input id="first_name" 
-                                                       type="text" 
-                                                       class="form-control form-control-lg" 
-                                                       required 
-                                                       autocomplete="given-name" 
-                                                       autofocus
-                                                       placeholder="First name">
-                                            </div>
+<!-- Right Section - Registration Form -->
+<div class="col-lg-7 col-md-8">
+    <div class="register-box mx-auto">
+        <form method="POST" action="#" class="needs-validation" novalidate>
+            <div class="row g-4">
 
-                                            <!-- Middle Name -->
-                                            <div class="col-md-4">
-                                                <input id="middle_name" 
-                                                       type="text" 
-                                                       class="form-control form-control-lg" 
-                                                       autocomplete="additional-name"
-                                                       placeholder="Middle name (optional)">
-                                            </div>
-
-                                            <!-- Last Name -->
-                                            <div class="col-md-4">
-                                                <input id="last_name" 
-                                                       type="text" 
-                                                       class="form-control form-control-lg" 
-                                                       required 
-                                                       autocomplete="family-name"
-                                                       placeholder="Last name">
-                                            </div>
-                                        </div>
-
-                                        <!-- Hidden field for combined name -->
-                                        <input type="hidden" id="name" name="name">
-
-                                        <!-- Name Preview -->
-                                        <div id="name_preview" class="mt-2 p-2 bg-light rounded" style="display: none;">
-                                            <small class="text-muted">Full Name:</small>
-                                            <div class="fw-semibold text-dark" id="name_preview_text"></div>
-                                        </div>
-
-                                        <div class="invalid-feedback d-block" id="name_error" style="display: none !important;">
-                                            Please enter your first and last name
-                                        </div>
-                                    </div>
-
-                                    <!-- Email Field -->
-                                    <div class="mb-3">
-                                        <input id="email" 
-                                               type="email" 
-                                               class="form-control form-control-lg" 
-                                               name="email" 
-                                               required 
-                                               autocomplete="email"
-                                               placeholder="Email address">
-                                        <div class="invalid-feedback">
-                                            Please enter a valid email address
-                                        </div>
-                                    </div>
-
-                                    <!-- Phone Field -->
-                                    <div class="mb-3">
-                                        <input id="phone" 
-                                               type="tel" 
-                                               class="form-control form-control-lg" 
-                                               name="phone" 
-                                               required 
-                                               autocomplete="tel"
-                                               placeholder="Phone number (e.g., 09123456789)"
-                                               pattern="^(09|\+639)\d{9}$"
-                                               maxlength="13">
-                                        <div class="invalid-feedback">
-                                            Please enter a valid Philippine mobile number (e.g., 09123456789)
-                                        </div>
-                                    </div>
-
-                                    <!-- Address Section -->
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold">
-                                            <i class="fas fa-map-marker-alt me-1"></i>Address Details
-                                        </label>
-                                        
-                                        <!-- Street Address -->
-                                        <input id="street_address" 
-                                               type="text" 
-                                               class="form-control form-control-lg mb-2" 
-                                               placeholder="Street (e.g., Phase 1 Blk 1 Lot 1)"
-                                               required>
-                                        
-                                        <!-- Barangay Dropdown -->
-                                        <select id="barangay" 
-                                                class="form-select form-select-lg" 
-                                                required>
-                                            <option value="" selected>Select Barangay</option>
-                                            <option value="Bagbag I">Bagbag I</option>
-                                            <option value="Bagbag II">Bagbag II</option>
-                                            <option value="Kanluran">Kanluran</option>
-                                            <option value="Ligtong I">Ligtong I</option>
-                                            <option value="Ligtong II">Ligtong II</option>
-                                            <option value="Ligtong III">Ligtong III</option>
-                                            <option value="Ligtong IV">Ligtong IV</option>
-                                            <option value="Muzon I">Muzon I</option>
-                                            <option value="Muzon II">Muzon II</option>
-                                            <option value="Poblacion">Poblacion</option>
-                                            <option value="Sapa I">Sapa I</option>
-                                            <option value="Sapa II">Sapa II</option>
-                                            <option value="Sapa III">Sapa III</option>
-                                            <option value="Sapa IV">Sapa IV</option>
-                                            <option value="Silangan I">Silangan I</option>
-                                            <option value="Silangan II">Silangan II</option>
-                                            <option value="Tejeros Convention">Tejeros Convention</option>
-                                            <option value="Wawa I">Wawa I</option>
-                                            <option value="Wawa II">Wawa II</option>
-                                            <option value="Wawa III">Wawa III</option>
-                                        </select>
-
-                                        <!-- Hidden field for complete address -->
-                                        <input type="hidden" id="address" name="address">
-
-                                        <!-- Address Preview -->
-                                        <div id="address_preview" class="mt-2 p-2 bg-light rounded" style="display: none;">
-                                            <small class="text-muted">Complete Address:</small>
-                                            <div class="fw-semibold text-dark" id="preview_text"></div>
-                                        </div>
-
-                                        <div class="invalid-feedback d-block" id="address_error" style="display: none !important;">
-                                            Please enter your complete address
-                                        </div>
-                                    </div>
-
-                                    <!-- Password Field -->
-                                    <div class="mb-3">
-                                        <div class="password-wrapper">
-                                            <input id="password" 
-                                                   type="password" 
-                                                   class="form-control form-control-lg" 
-                                                   name="password" 
-                                                   required 
-                                                   autocomplete="new-password"
-                                                   placeholder="Password">
-                                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
-                                                <i class="fas fa-eye" id="togglePasswordIcon"></i>
-                                            </button>
-                                        </div>
-                                        
-                                        <!-- Password Requirements -->
-                                        <div class="password-requirements mt-2 p-2 bg-light rounded">
-                                            <small class="text-muted d-block mb-2 fw-semibold">Password must contain:</small>
-                                            <div class="requirement-item" id="req-length">
-                                                <i class="fas fa-circle requirement-icon"></i>
-                                                <span class="requirement-text">At least 8 characters</span>
-                                            </div>
-                                            <div class="requirement-item" id="req-uppercase">
-                                                <i class="fas fa-circle requirement-icon"></i>
-                                                <span class="requirement-text">One uppercase letter (A-Z)</span>
-                                            </div>
-                                            <div class="requirement-item" id="req-number">
-                                                <i class="fas fa-circle requirement-icon"></i>
-                                                <span class="requirement-text">One number (0-9)</span>
-                                            </div>
-                                            <div class="requirement-item" id="req-special">
-                                                <i class="fas fa-circle requirement-icon"></i>
-                                                <span class="requirement-text">One special character (!@#$%^&*)</span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Password Strength Indicator -->
-                                        <div id="password-strength" class="mt-2">
-                                            <small id="password-strength-text" class="fw-semibold"></small>
-                                            <div class="progress mt-1" style="height: 6px;">
-                                                <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0;"></div>
-                                            </div>
-                                        </div>
-                                        <div class="invalid-feedback">
-                                            Please meet all password requirements
-                                        </div>
-                                    </div>
-
-                                    <!-- Confirm Password Field -->
-                                    <div class="mb-3">
-                                        <div class="password-wrapper">
-                                            <input id="password-confirm" 
-                                                   type="password" 
-                                                   class="form-control form-control-lg" 
-                                                   name="password_confirmation" 
-                                                   required 
-                                                   autocomplete="new-password"
-                                                   placeholder="Confirm password">
-                                            <button type="button" class="password-toggle" onclick="togglePassword('password-confirm')">
-                                                <i class="fas fa-eye" id="togglePasswordConfirmIcon"></i>
-                                            </button>
-                                        </div>
-                                        <div class="invalid-feedback">
-                                            Passwords do not match
-                                        </div>
-                                    </div>
-
-                                    <!-- Terms and Conditions -->
-                                    <div class="mb-4">
-                                        <div class="terms-box">
-                                            <div class="form-check">
-                                                <input class="form-check-input" 
-                                                       type="checkbox" 
-                                                       name="terms" 
-                                                       id="terms" 
-                                                       required>
-                                                <label class="form-check-label" for="terms">
-                                                    I agree to the <a href="#" class="terms-link" data-bs-toggle="modal" data-bs-target="#privacyModal">Terms and Conditions & Privacy Policy</a>
-                                                </label>
-                                                <div class="invalid-feedback">
-                                                    You must agree to the terms and conditions
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Register Button -->
-                                    <div class="mb-3">
-                                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold">
-                                            Create Account
-                                        </button>
-                                    </div>
-
-                                    <!-- Divider -->
-                                    <div class="divider"></div>
-
-                                    <!-- Login Link -->
-                                    <div class="text-center">
-                                        <p class="text-muted mb-2">Already have an account?</p>
-                                        <a href="{{ route('login') }}" class="btn btn-outline-primary btn-lg fw-semibold px-4">
-                                            Sign In
-                                        </a>
-                                    </div>
-                                </form>
+                <!-- Left Column -->
+                <div class="col-md-6">
+                    <!-- Full Name -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-user me-1"></i>Full Name
+                        </label>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <input id="first_name" type="text" class="form-control form-control-lg" required autocomplete="given-name" autofocus placeholder="First name">
                             </div>
-
-                            <!-- Security Badge -->
-                            <div class="text-center mt-4">
-                                <p class="security-text">
-                                    <i class="fas fa-shield-alt me-2"></i>
-                                    <span class="fw-semibold">Secure Registration</span> - Your data is encrypted
-                                </p>
+                            <div class="col-md-4">
+                                <input id="middle_name" type="text" class="form-control form-control-lg" autocomplete="additional-name" placeholder="Middle name (optional)">
                             </div>
+                            <div class="col-md-4">
+                                <input id="last_name" type="text" class="form-control form-control-lg" required autocomplete="family-name" placeholder="Last name">
+                            </div>
+                        </div>
+                        <input type="hidden" id="name" name="name">
+                        <div id="name_preview" class="mt-2 p-2 bg-light rounded" style="display: none;">
+                            <small class="text-muted">Full Name:</small>
+                            <div class="fw-semibold text-dark" id="name_preview_text"></div>
+                        </div>
+                        <div class="invalid-feedback d-block" id="name_error" style="display: none !important;">
+                            Please enter your first and last name
+                        </div>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="mb-3">
+                        <input id="email" type="email" class="form-control form-control-lg" name="email" required autocomplete="email" placeholder="Email address">
+                        <div class="invalid-feedback">
+                            Please enter a valid email address
+                        </div>
+                    </div>
+
+                    <!-- Phone Field -->
+                    <div class="mb-3">
+                        <input id="phone" type="tel" class="form-control form-control-lg" name="phone" required autocomplete="tel" placeholder="Phone number (e.g., 09123456789)" pattern="^(09|\+639)\d{9}$" maxlength="13">
+                        <div class="invalid-feedback">
+                            Please enter a valid Philippine mobile number (e.g., 09123456789)
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="mb-3">
+                        <div class="password-wrapper">
+                            <input id="password" type="password" class="form-control form-control-lg" name="password" required autocomplete="new-password" placeholder="Password">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                            </button>
+                        </div>
+                        <div class="password-requirements mt-2 p-2 bg-light rounded">
+                            <small class="text-muted d-block mb-2 fw-semibold">Password must contain:</small>
+                            <div class="requirement-item" id="req-length">
+                                <i class="fas fa-circle requirement-icon"></i>
+                                <span class="requirement-text">At least 8 characters</span>
+                            </div>
+                            <div class="requirement-item" id="req-uppercase">
+                                <i class="fas fa-circle requirement-icon"></i>
+                                <span class="requirement-text">One uppercase letter (A-Z)</span>
+                            </div>
+                            <div class="requirement-item" id="req-number">
+                                <i class="fas fa-circle requirement-icon"></i>
+                                <span class="requirement-text">One number (0-9)</span>
+                            </div>
+                            <div class="requirement-item" id="req-special">
+                                <i class="fas fa-circle requirement-icon"></i>
+                                <span class="requirement-text">One special character (!@#$%^&*)</span>
+                            </div>
+                        </div>
+                        <div id="password-strength" class="mt-2">
+                            <small id="password-strength-text" class="fw-semibold"></small>
+                            <div class="progress mt-1" style="height: 6px;">
+                                <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0;"></div>
+                            </div>
+                        </div>
+                        <div class="invalid-feedback">
+                            Please meet all password requirements
                         </div>
                     </div>
                 </div>
+
+                <!-- Right Column -->
+                <div class="col-md-6">
+                    <!-- Address Section -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-map-marker-alt me-1"></i>Address Details
+                        </label>
+                        <input id="street_address" type="text" class="form-control form-control-lg mb-2" placeholder="Street (e.g., Phase 1 Blk 1 Lot 1)" required>
+                        <select id="barangay" class="form-select form-select-lg" required>
+                            <option value="" selected>Select Barangay</option>
+                            <option value="Bagbag I">Bagbag I</option>
+                            <option value="Bagbag II">Bagbag II</option>
+                            <option value="Kanluran">Kanluran</option>
+                            <option value="Ligtong I">Ligtong I</option>
+                            <option value="Ligtong II">Ligtong II</option>
+                            <option value="Ligtong III">Ligtong III</option>
+                            <option value="Ligtong IV">Ligtong IV</option>
+                            <option value="Muzon I">Muzon I</option>
+                            <option value="Muzon II">Muzon II</option>
+                            <option value="Poblacion">Poblacion</option>
+                            <option value="Sapa I">Sapa I</option>
+                            <option value="Sapa II">Sapa II</option>
+                            <option value="Sapa III">Sapa III</option>
+                            <option value="Sapa IV">Sapa IV</option>
+                            <option value="Silangan I">Silangan I</option>
+                            <option value="Silangan II">Silangan II</option>
+                            <option value="Tejeros Convention">Tejeros Convention</option>
+                            <option value="Wawa I">Wawa I</option>
+                            <option value="Wawa II">Wawa II</option>
+                            <option value="Wawa III">Wawa III</option>
+                        </select>
+                        <input type="hidden" id="address" name="address">
+                        <div id="address_preview" class="mt-2 p-2 bg-light rounded" style="display: none;">
+                            <small class="text-muted">Complete Address:</small>
+                            <div class="fw-semibold text-dark" id="preview_text"></div>
+                        </div>
+                        <div class="invalid-feedback d-block" id="address_error" style="display: none !important;">
+                            Please enter your complete address
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div class="mb-3">
+                        <div class="password-wrapper">
+                            <input id="password-confirm" type="password" class="form-control form-control-lg" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm password">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password-confirm')">
+                                <i class="fas fa-eye" id="togglePasswordConfirmIcon"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            Passwords do not match
+                        </div>
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    <div class="mb-4">
+                        <div class="terms-box">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="terms" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="#" class="terms-link" data-bs-toggle="modal" data-bs-target="#privacyModal">Terms and Conditions & Privacy Policy</a>
+                                </label>
+                                <div class="invalid-feedback">
+                                    You must agree to the terms and conditions
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Register Button -->
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold">
+                            Create Account
+                        </button>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="divider"></div>
+
+                    <!-- Login Link -->
+                    <div class="text-center">
+                        <p class="text-muted mb-2">Already have an account?</p>
+                        <a href="{{ route('login') }}" class="btn btn-outline-primary btn-lg fw-semibold px-4">
+                            Sign In
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
+
+    <!-- Security Badge -->
+    <div class="text-center mt-4">
+        <p class="security-text">
+            <i class="fas fa-shield-alt me-2"></i>
+            <span class="fw-semibold">Secure Registration</span> - Your data is encrypted
+        </p>
+    </div>
+</div>
+
 
     <!-- Privacy & Terms Modal -->
     <div class="modal fade" id="privacyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
@@ -749,8 +684,6 @@
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Leaflet JavaScript -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
         // Password Strength Indicator

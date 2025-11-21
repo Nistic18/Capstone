@@ -42,16 +42,16 @@
         </div>
     @endif
     {{-- Header Section --}}
-    <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #0bb364 0%, #088a50 100%); border-radius: 20px;">
         <div class="card-body text-center py-5">
             <div class="mb-3">
                 <i class="fas fa-users text-white" style="font-size: 3rem;"></i>
             </div>
             <h1 class="display-4 fw-bold text-white mb-3">🐟 Supplier Community Newsfeed</h1>
-            <p class="lead text-white-50 mb-4">Stay connected with the fish market community</p>
+            <p class="lead text-white-50 mb-4">Stay connected with the fish market community</p> --}}
             
             {{-- Quick Stats --}}
-            <div class="d-flex justify-content-center gap-4 flex-wrap">
+            {{-- <div class="d-flex justify-content-center gap-4 flex-wrap">
                 <div class="d-flex align-items-center px-3 py-2 rounded-pill" 
                      style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
                     <i class="fas fa-newspaper text-white me-2"></i>
@@ -64,13 +64,13 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Action Bar --}}
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
             <h2 class="fw-bold mb-1" style="color: #2c3e50;">
-                <i class="fas fa-stream me-2" style="color: #667eea;"></i>
+                <i class="fas fa-stream me-2" style="color: #0bb364;"></i>
                 Latest Posts
             </h2>
             <p class="text-muted mb-0">What's happening in the community</p>
@@ -97,7 +97,7 @@
                         {{-- User Avatar --}}
                         <div class="me-3">
                             <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 50px; height: 50px; background: linear-gradient(45deg, #667eea, #764ba2) !important;">
+                                 style="width: 50px; height: 50px; background: linear-gradient(45deg, #0bb364, #088a50) !important;">
                                 <i class="fas fa-user text-white"></i>
                             </div>
                         </div>
@@ -202,9 +202,9 @@
                             <button type="submit"
                                     class="btn w-100 reaction-btn {{ $userReaction && $userReaction->type == $type ? 'active' : '' }}"
                                     style="border-radius: 15px; 
-                                           border: 2px solid {{ $userReaction && $userReaction->type == $type ? '#667eea' : '#e9ecef' }};
+                                           border: 2px solid {{ $userReaction && $userReaction->type == $type ? '#0bb364' : '#e9ecef' }};
                                            background: {{ $userReaction && $userReaction->type == $type ? 'rgba(102, 126, 234, 0.1)' : 'white' }};
-                                           color: {{ $userReaction && $userReaction->type == $type ? '#667eea' : '#6c757d' }};">
+                                           color: {{ $userReaction && $userReaction->type == $type ? '#0bb364' : '#6c757d' }};">
                                 <span class="me-1" style="font-size: 1.1em;">{{ $emoji }}</span>
                                 <span class="fw-semibold reaction-count">{{ $post->reactions->where('type',$type)->count() }}</span>
                             </button>
@@ -216,7 +216,7 @@
                 <div class="comments-section">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="fw-bold mb-0" style="color: #2c3e50;">
-                            <i class="fas fa-comments me-2" style="color: #667eea;"></i>
+                            <i class="fas fa-comments me-2" style="color: #0bb364;"></i>
                             Comments ({{ $post->comments->count() }})
                         </h6>
                         @if($post->comments->count() > 3)
@@ -260,7 +260,7 @@
                             @csrf
                             <div class="me-2">
                                 <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 35px; height: 35px; background: linear-gradient(45deg, #667eea, #764ba2) !important;">
+                                     style="width: 35px; height: 35px; background: linear-gradient(45deg, #0bb364, #088a50) !important;">
                                     <i class="fas fa-user text-white" style="font-size: 0.8rem;"></i>
                                 </div>
                             </div>
@@ -271,7 +271,7 @@
                                            style="border-radius: 20px 0 0 20px; border: 2px solid #e9ecef;"
                                            required>
                                     <button class="btn btn-primary" type="submit"
-                                            style="border-radius: 0 20px 20px 0; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
+                                            style="border-radius: 0 20px 20px 0; background: linear-gradient(45deg, #0bb364, #088a50); border: none;">
                                         <i class="fas fa-paper-plane"></i>
                                     </button>
                                 </div>
@@ -289,7 +289,7 @@
             <h3 class="text-muted mb-3">No Posts Yet</h3>
             <p class="text-muted mb-4">Be the first to share something with the community!</p>
             <a href="{{ route('newsfeedsupplier.create') }}" class="btn btn-primary btn-lg" 
-               style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
+               style="border-radius: 25px; background: linear-gradient(45deg, #0bb364, #088a50); border: none;">
                 <i class="fas fa-plus me-2"></i>Create Your First Post
             </a>
         </div>
@@ -338,9 +338,9 @@
     
     .reaction-btn:hover {
         transform: translateY(-1px);
-        border-color: #667eea !important;
+        border-color: #0bb364 !important;
         background: rgba(102, 126, 234, 0.1) !important;
-        color: #667eea !important;
+        color: #0bb364 !important;
     }
     
     .reaction-btn.active {
@@ -375,7 +375,7 @@
     }
     
     .btn-primary {
-        background: linear-gradient(45deg, #667eea, #764ba2);
+        background: linear-gradient(45deg, #0bb364, #088a50);
         border: none;
         transition: all 0.3s ease;
     }
@@ -386,7 +386,7 @@
     }
     
     .form-control:focus {
-        border-color: #667eea;
+        border-color: #0bb364;
         box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
     }
     
@@ -406,7 +406,7 @@
     
     .dropdown-item-custom:hover {
         background: rgba(102, 126, 234, 0.1);
-        color: #667eea;
+        color: #0bb364;
     }
     
     /* Bootstrap 5 Pagination Styles */
@@ -414,20 +414,20 @@
         border-radius: 10px;
         margin: 0 2px;
         border: 2px solid #e9ecef;
-        color: #667eea;
+        color: #0bb364;
         padding: 0.5rem 0.75rem;
     }
     
     .pagination .page-item.active .page-link {
-        background: linear-gradient(45deg, #667eea, #764ba2);
-        border-color: #667eea;
+        background: linear-gradient(45deg, #0bb364, #088a50);
+        border-color: #0bb364;
         color: white;
     }
     
     .pagination .page-link:hover {
         background-color: rgba(102, 126, 234, 0.1);
-        border-color: #667eea;
-        color: #667eea;
+        border-color: #0bb364;
+        color: #0bb364;
     }
     
     /* Responsive Design */

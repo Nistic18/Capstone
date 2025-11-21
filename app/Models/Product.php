@@ -7,12 +7,25 @@ use App\Models\User;
 
 class Product extends Model
 {
-    protected $fillable = ['name', 'description', 'price', 'quantity', 'user_id', 'image', 'status', 'low_stock_threshold','product_category_id',
-    'product_type_id'];
+    protected $fillable = [
+        'name', 
+        'description', 
+        'price', 
+        'quantity', 
+        'user_id', 
+        'image', 
+        'status', 
+        'low_stock_threshold',
+        'product_category_id',
+        'product_type_id',
+        'unit_type',
+        'unit_value'
+    ];
 
     protected $casts = [
         'low_stock_threshold' => 'integer',
         'quantity' => 'integer',
+        'unit_value' => 'decimal:2',
     ];
 
     // Each product belongs to one user (Reseller)
@@ -45,6 +58,27 @@ class Product extends Model
     public function inventoryLogs()
     {
         return $this->hasMany(InventoryLog::class)->orderBy('created_at', 'desc');
+    }
+
+    // Unit Display Helper
+    public function getUnitDisplay()
+    {
+        if (!$this->unit_type || !$this->unit_value) {
+            return '';
+        }
+
+        switch ($this->unit_type) {
+            case 'pack':
+                return $this->unit_value . ' pieces per pack';
+            case 'kilo':
+                return $this->unit_value . ' kg';
+            case 'box':
+                return $this->unit_value . ' kg per box';
+            case 'piece':
+                return 'per piece';
+            default:
+                return '';
+        }
     }
 
     // Inventory Management Methods
@@ -140,17 +174,19 @@ class Product extends Model
                 return '<span class="badge bg-success">In Stock</span>';
         }
     }
-    public function type()
-{
-    return $this->belongsTo(ProductType::class, 'product_type_id');
-}
 
-public function category()
-{
-    return $this->belongsTo(ProductCategory::class, 'product_category_id');
-}
-public function productCategory()
-{
-    return $this->belongsTo(ProductCategory::class);
-}
+    public function type()
+    {
+        return $this->belongsTo(ProductType::class, 'product_type_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(ProductCategory::class, 'product_category_id');
+    }
+
+    public function productCategory()
+    {
+        return $this->belongsTo(ProductCategory::class);
+    }
 }

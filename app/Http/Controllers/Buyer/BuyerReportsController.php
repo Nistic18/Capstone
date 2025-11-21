@@ -410,4 +410,266 @@ $dateTo = $request->get('date_to')
     {
         return $this->exportReviewsCSV($reviews, $summary);
     }
+    /**
+ * Preview report before downloading
+ */
+public function preview(Request $request, $type)
+{
+    $request->validate([
+        'format' => 'required|in:pdf,csv',
+        'date_from' => 'nullable|date',
+        'date_to' => 'nullable|date|after_or_equal:date_from',
+    ]);
+
+    $format = $request->get('format', 'pdf');
+
+    switch ($type) {
+        case 'purchases':
+            return $this->generatePurchaseReport($request, true);
+        case 'spending':
+            return $this->generateSpendingReport($request, true);
+        case 'reviews':
+            return $this->generateReviewsReport($request, true);
+        default:
+            abort(404, 'Report type not found');
+    }
+}
+
+/**
+ * Download report
+ */
+public function download(Request $request, $type)
+{
+    $request->validate([
+        'format' => 'required|in:pdf,csv',
+        'date_from' => 'nullable|date',
+        'date_to' => 'nullable|date|after_or_equal:date_from',
+    ]);
+
+    switch ($type) {
+        case 'purchases':
+            return $this->generatePurchaseReport($request, false);
+        case 'spending':
+            return $this->generateSpendingReport($request, false);
+        case 'reviews':
+            return $this->generateReviewsReport($request, false);
+        default:
+            abort(404, 'Report type not found');
+    }
+}
+
+/**
+ * Generate Purchase Report (for both preview and download)
+ */
+private function generatePurchaseReport(Request $request, $isPreview = false)
+{
+    $format = $request->get('format', 'pdf');
+    $dateFrom = $request->get('date_from') 
+        ? Carbon::parse($request->get('date_from'))->startOfDay()
+        : Carbon::minValue();
+
+    $dateTo = $request->get('date_to') 
+        ? Carbon::parse($request->get('date_to'))->endOfDay()
+        : Carbon::maxValue();
+
+    $userId = auth()->id();
+
+    $orders = Order::with(['products'])
+        ->where('user_id', $userId)
+        ->whereBetween('created_at', [$dateFrom, $dateTo])
+        ->get()
+        ->map(function($order) {
+            return [
+                'order_id' => $order->id,
+                'order_date' => $order->created_at->format('Y-m-d H:i:s'),
+                'products_count' => $order->products->count(),
+                'product_names' => $order->products->pluck('name')->join(', '),
+                'total_amount' => $order->total_price,
+                'payment_method' => $order->payment_method ?? 'N/A',
+                'status' => $order->status,
+                'refund_status' => $order->refund_status ?? 'N/A',
+                'delivery_date' => $order->updated_at->format('Y-m-d H:i:s')
+            ];
+        });
+
+    $totalOrders = $orders->count();
+    $completedOrders = $orders->whereIn('status', ['Delivered', 'Completed'])->count();
+    $ongoingOrders = $orders->whereIn('status', ['Pending', 'Shipped'])->count();
+    $cancelledOrders = $orders->where('status', 'Cancelled')->count();
+    
+    $totalSpent = $orders->whereIn('status', ['Delivered', 'Completed'])
+        ->where('refund_status', '!=', 'Approved')
+        ->sum('total_amount');
+    
+    $totalRefunds = $orders->where('refund_status', 'Approved')->sum('total_amount');
+    $averageOrderValue = $totalOrders > 0 ? $totalSpent / $totalOrders : 0;
+
+    $summary = [
+        'user_name' => auth()->user()->name,
+        'user_email' => auth()->user()->email,
+        'total_orders' => $totalOrders,
+        'completed_orders' => $completedOrders,
+        'ongoing_orders' => $ongoingOrders,
+        'cancelled_orders' => $cancelledOrders,
+        'total_spent' => $totalSpent,
+        'total_refunds' => $totalRefunds,
+        'net_spent' => $totalSpent - $totalRefunds,
+        'average_order_value' => $averageOrderValue,
+        'date_from' => $dateFrom->format('Y-m-d'),
+        'date_to' => $dateTo->format('Y-m-d')
+    ];
+
+    if ($format === 'pdf') {
+        $pdf = PDF::loadView('buyer.reports.pdf.purchases', [
+            'title' => 'My Purchase Report',
+            'date' => date('Y-m-d H:i:s'),
+            'orders' => $orders,
+            'summary' => $summary
+        ]);
+
+        if ($isPreview) {
+            return $pdf->stream();
+        } else {
+            return $pdf->download('my_purchase_report_' . date('Y-m-d') . '.pdf');
+        }
+    } else {
+        return $this->exportPurchaseCSV($orders, $summary);
+    }
+}
+
+/**
+ * Generate Spending Report (for both preview and download)
+ */
+private function generateSpendingReport(Request $request, $isPreview = false)
+{
+    $format = $request->get('format', 'pdf');
+    $dateFrom = $request->get('date_from') ? Carbon::parse($request->get('date_from')) : Carbon::now()->subYear();
+    $dateTo = $request->get('date_to') ? Carbon::parse($request->get('date_to')) : Carbon::now();
+
+    $userId = auth()->id();
+
+    $monthlySpending = [];
+    $currentDate = $dateFrom->copy();
+    
+    while ($currentDate <= $dateTo) {
+        $spent = Order::where('user_id', $userId)
+            ->whereIn('status', ['Delivered', 'Completed'])
+            ->whereYear('created_at', $currentDate->year)
+            ->whereMonth('created_at', $currentDate->month)
+            ->where(function ($query) {
+                $query->whereNull('refund_status')
+                      ->orWhere('refund_status', '!=', 'Approved');
+            })
+            ->sum('total_price');
+
+        $orders = Order::where('user_id', $userId)
+            ->whereYear('created_at', $currentDate->year)
+            ->whereMonth('created_at', $currentDate->month)
+            ->count();
+
+        $monthlySpending[] = [
+            'month' => $currentDate->format('M Y'),
+            'total_spent' => $spent,
+            'orders' => $orders,
+            'average_order_value' => $orders > 0 ? $spent / $orders : 0
+        ];
+
+        $currentDate->addMonth();
+    }
+
+    $topProducts = DB::table('order_product')
+        ->join('products', 'order_product.product_id', '=', 'products.id')
+        ->join('orders', 'order_product.order_id', '=', 'orders.id')
+        ->where('orders.user_id', $userId)
+        ->whereBetween('orders.created_at', [$dateFrom, $dateTo])
+        ->whereIn('orders.status', ['Delivered', 'Completed'])
+        ->select(
+            'products.name as product_name',
+            DB::raw('SUM(order_product.quantity) as total_quantity'),
+            DB::raw('SUM(order_product.quantity * products.price) as total_spent')
+        )
+        ->groupBy('products.id', 'products.name')
+        ->orderByDesc('total_quantity')
+        ->limit(10)
+        ->get();
+
+    $paymentMethods = Order::where('user_id', $userId)
+        ->whereBetween('created_at', [$dateFrom, $dateTo])
+        ->whereIn('status', ['Delivered', 'Completed'])
+        ->select('payment_method', DB::raw('count(*) as count'), DB::raw('sum(total_price) as total'))
+        ->groupBy('payment_method')
+        ->get();
+
+    $summary = [
+        'user_name' => auth()->user()->name,
+        'total_spent' => collect($monthlySpending)->sum('total_spent'),
+        'total_orders' => collect($monthlySpending)->sum('orders'),
+        'date_from' => $dateFrom->format('Y-m-d'),
+        'date_to' => $dateTo->format('Y-m-d')
+    ];
+
+    if ($format === 'pdf') {
+        $pdf = PDF::loadView('buyer.reports.pdf.spending', [
+            'title' => 'My Spending Analysis',
+            'date' => date('Y-m-d H:i:s'),
+            'monthlySpending' => $monthlySpending,
+            'topProducts' => $topProducts,
+            'paymentMethods' => $paymentMethods,
+            'summary' => $summary
+        ]);
+
+        if ($isPreview) {
+            return $pdf->stream();
+        } else {
+            return $pdf->download('my_spending_analysis_' . date('Y-m-d') . '.pdf');
+        }
+    } else {
+        return $this->exportSpendingCSV($monthlySpending, $topProducts, $paymentMethods, $summary);
+    }
+}
+
+/**
+ * Generate Reviews Report (for both preview and download)
+ */
+private function generateReviewsReport(Request $request, $isPreview = false)
+{
+    $format = $request->get('format', 'pdf');
+    $userId = auth()->id();
+
+    $reviews = Review::with(['product'])
+        ->where('user_id', $userId)
+        ->get()
+        ->map(function($review) {
+            return [
+                'review_id' => $review->id,
+                'product_name' => $review->product->name,
+                'rating' => $review->rating,
+                'comment' => $review->comment ?? 'No comment',
+                'review_date' => $review->created_at->format('Y-m-d H:i:s')
+            ];
+        });
+
+    $summary = [
+        'user_name' => auth()->user()->name,
+        'total_reviews' => $reviews->count(),
+        'average_rating' => $reviews->avg('rating')
+    ];
+
+    if ($format === 'pdf') {
+        $pdf = PDF::loadView('buyer.reports.pdf.reviews', [
+            'title' => 'My Reviews Report',
+            'date' => date('Y-m-d H:i:s'),
+            'reviews' => $reviews,
+            'summary' => $summary
+        ]);
+
+        if ($isPreview) {
+            return $pdf->stream();
+        } else {
+            return $pdf->download('my_reviews_' . date('Y-m-d') . '.pdf');
+        }
+    } else {
+        return $this->exportReviewsCSV($reviews, $summary);
+    }
+}
 }

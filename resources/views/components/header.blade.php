@@ -16,6 +16,9 @@
             $cart = session()->get('cart', []);
             $cartCount = \App\Models\Cart::where('user_id', auth()->id())->sum('quantity');
             $unread = auth()->user()->unreadNotifications()->count();
+            $chatUnread = \App\Models\Message::where('receiver_id', auth()->id())
+                                 ->where('is_read', 0)
+                                 ->count();
         @endphp
 
         <!-- Cart -->
@@ -34,10 +37,17 @@
         @endif
         <!-- Chat Icon Only (No Text) -->
         <li class="nav-item {{ Request::is('chat') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('chat.index') }}">
-                <i class="fas fa-comments fa-lg"></i> <!-- Added fa-lg for consistent icon size -->
-            </a>
-        </li>
+    <a class="nav-link position-relative" href="{{ route('chat.index') }}">
+        <i class="fas fa-comments fa-lg"></i>
+
+        @if($chatUnread > 0)
+            <span class="badge badge-danger position-absolute top-0 start-100 translate-middle rounded-circle"
+                  style="font-size: 0.6rem; padding: 5px 7px;">
+                {{ $chatUnread }}
+            </span>
+        @endif
+    </a>
+</li>
 
         <!-- Notifications -->
         <li class="dropdown">

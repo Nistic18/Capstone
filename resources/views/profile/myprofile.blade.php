@@ -3,7 +3,7 @@
 @section('content')
 <div class="mt-5">
     {{-- Profile Header Section --}}
-    <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #0bb364 0%, #088a50 100%); border-radius: 20px;">
         <div class="card-body text-center py-5">
             <div class="mb-4">
                 <div class="rounded-circle mx-auto d-flex align-items-center justify-content-center" 
@@ -78,7 +78,7 @@
                 <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
                     <div class="card-body text-center">
                         <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
-                             style="width: 60px; height: 60px; background: linear-gradient(45deg, #667eea, #764ba2);">
+                             style="width: 60px; height: 60px; background: linear-gradient(45deg, #0bb364, #088a50);">
                             <i class="fas fa-fish text-white" style="font-size: 1.5rem;"></i>
                         </div>
                         <h3 class="fw-bold mb-1" style="color: #2c3e50;">{{ auth()->user()->products->count() }}</h3>
@@ -159,7 +159,7 @@
                     <div class="tab-pane fade show active" id="orders" role="tabpanel">
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <h4 class="fw-bold mb-0" style="color: #2c3e50;">
-                                <i class="fas fa-shopping-bag me-2" style="color: #667eea;"></i>
+                                <i class="fas fa-shopping-bag me-2" style="color: #0bb364;"></i>
                                 Order History
                             </h4>
                            <span class="badge bg-primary">{{ auth()->user()->orders ? auth()->user()->orders->count() : 0 }} orders</span>
@@ -291,7 +291,7 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div>
                                 <h4 class="fw-bold mb-1" style="color: #2c3e50;">
-                                    <i class="fas fa-fish me-2" style="color: #667eea;"></i>
+                                    <i class="fas fa-fish me-2" style="color: #0bb364;"></i>
                                     My Products
                                 </h4>
                                 <p class="text-muted mb-0">
@@ -423,7 +423,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <div>
                             <h4 class="fw-bold mb-1" style="color: #2c3e50;">
-                                <i class="fas fa-newspaper me-2" style="color: #667eea;"></i>
+                                <i class="fas fa-newspaper me-2" style="color: #0bb364;"></i>
                                 My Posts
                             </h4>
                             <p class="text-muted mb-0">
@@ -462,7 +462,7 @@
                                     <div class="card-body">
                                         <div class="d-flex align-items-start mb-3">
                                             <div class="rounded-circle me-3 d-flex align-items-center justify-content-center" 
-                                                 style="width: 45px; height: 45px; background: linear-gradient(45deg, #667eea, #764ba2);">
+                                                 style="width: 45px; height: 45px; background: linear-gradient(45deg, #0bb364, #088a50);">
                                                 <i class="fas fa-user text-white"></i>
                                             </div>
                                             <div class="flex-grow-1">
@@ -549,7 +549,7 @@
     }
     
     .nav-tabs .nav-link.active {
-        background: linear-gradient(45deg, #667eea, #764ba2);
+        background: linear-gradient(45deg, #0bb364, #088a50);
         color: white;
         border: none;
     }
@@ -580,7 +580,7 @@
     }
     
     .order-items::-webkit-scrollbar-thumb {
-        background: #667eea;
+        background: #0bb364;
         border-radius: 10px;
     }
 
@@ -600,6 +600,11 @@
             font-size: 1.8rem;
         }
     }
+body, 
+h1, h2, h3, h4, h5, h6, 
+p, span, a, div, input, select, button, label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
 </style>
 
 {{-- Add Bootstrap JS if not already included --}}

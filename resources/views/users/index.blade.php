@@ -39,7 +39,6 @@
                             <th class="border-0 py-3 px-4">Email</th>
                             <th class="border-0 py-3 px-4">Phone</th>
                             <th class="border-0 py-3 px-4">Location</th>
-                            <th class="border-0 py-3 px-4">Documents</th>
                             <th class="border-0 py-3 px-4 text-center">Actions</th>
                         </tr>
                     </thead>
@@ -55,16 +54,18 @@
                             <td class="px-4 py-4">{{ $app->email_address }}</td>
                             <td class="px-4 py-4">{{ $app->phone_number ?? 'N/A' }}</td>
                             <td class="px-4 py-4">
-                                <small>{{ $app->city }}, {{ $app->province }}<br>{{ $app->country }}</small>
-                            </td>
-                            <td class="px-4 py-4">
-                                <a href="{{ asset('storage/' . $app->pdf_file) }}" target="_blank" 
-                                   class="btn btn-sm btn-outline-info" style="border-radius: 10px;">
-                                    <i class="fas fa-file-pdf me-1"></i>View Documents
-                                </a>
+                                <small>{{ $app->address }}</small>
                             </td>
                             <td class="px-4 py-4">
                                 <div class="d-flex justify-content-center gap-2">
+                                    {{-- View Documents Button --}}
+                                    <button type="button" class="btn btn-sm btn-outline-info" 
+                                            style="border-radius: 10px;"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#viewDocsModal{{ $app->id }}">
+                                        <i class="fas fa-file-image me-1"></i>View Documents
+                                    </button>
+
                                     {{-- Approve Button --}}
                                     <form action="{{ route('users.approveSupplier', $app->id) }}" method="POST" 
                                           onsubmit="return confirm('Approve this supplier application? A new account will be created with default password.')">
@@ -83,6 +84,150 @@
                                             title="Reject Application">
                                         <i class="fas fa-times me-1"></i>Reject
                                     </button>
+                                </div>
+
+                                {{-- View Documents Modal --}}
+                                <div class="modal fade" id="viewDocsModal{{ $app->id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                                        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                                            <div class="modal-header border-0" style="background: linear-gradient(45deg, #667eea, #764ba2);">
+                                                <h5 class="modal-title fw-bold text-white">
+                                                    <i class="fas fa-folder-open me-2"></i>
+                                                    Application Documents - {{ $app->business_name }}
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body p-4">
+                                                {{-- Application Info Summary --}}
+                                                <div class="alert alert-light border mb-4">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <strong><i class="fas fa-building me-2 text-primary"></i>Business Name:</strong>
+                                                            <p class="mb-0 ms-4">{{ $app->business_name }}</p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <strong><i class="fas fa-envelope me-2 text-primary"></i>Email:</strong>
+                                                            <p class="mb-0 ms-4">{{ $app->email_address }}</p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <strong><i class="fas fa-phone me-2 text-primary"></i>Phone:</strong>
+                                                            <p class="mb-0 ms-4">{{ $app->phone_number ?? 'N/A' }}</p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <strong><i class="fas fa-id-card me-2 text-primary"></i>License ID:</strong>
+                                                            <p class="mb-0 ms-4">{{ $app->business_license_id }}</p>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <strong><i class="fas fa-map-marker-alt me-2 text-primary"></i>Address:</strong>
+                                                            <p class="mb-0 ms-4">{{ $app->address }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {{-- Documents Grid --}}
+                                                <h6 class="mb-3 fw-bold text-secondary">
+                                                    <i class="fas fa-images me-2"></i>Submitted Documents
+                                                </h6>
+
+                                                <div class="row g-4">
+                                                    {{-- Business Permit --}}
+                                                    @if($app->business_permit_photo)
+                                                    <div class="col-md-6">
+                                                        <div class="document-card">
+                                                            <div class="document-header">
+                                                                <i class="fas fa-file-contract me-2"></i>
+                                                                <span>Business Permit</span>
+                                                            </div>
+                                                            <div class="document-body">
+                                                                <img src="{{ asset('storage/' . $app->business_permit_photo) }}" 
+                                                                     alt="Business Permit"
+                                                                     class="document-image"
+                                                                     onclick="openImageModal('{{ asset('storage/' . $app->business_permit_photo) }}', 'Business Permit')">
+                                                                <a href="{{ asset('storage/' . $app->business_permit_photo) }}" 
+                                                                   target="_blank" 
+                                                                   class="btn btn-sm btn-outline-primary mt-2 w-100">
+                                                                    <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @endif
+
+                                                    {{-- Sanitation Certificate --}}
+                                                    @if($app->sanitation_cert_photo)
+                                                    <div class="col-md-6">
+                                                        <div class="document-card">
+                                                            <div class="document-header">
+                                                                <i class="fas fa-file-medical me-2"></i>
+                                                                <span>Sanitation Certificate</span>
+                                                            </div>
+                                                            <div class="document-body">
+                                                                <img src="{{ asset('storage/' . $app->sanitation_cert_photo) }}" 
+                                                                     alt="Sanitation Certificate"
+                                                                     class="document-image"
+                                                                     onclick="openImageModal('{{ asset('storage/' . $app->sanitation_cert_photo) }}', 'Sanitation Certificate')">
+                                                                <a href="{{ asset('storage/' . $app->sanitation_cert_photo) }}" 
+                                                                   target="_blank" 
+                                                                   class="btn btn-sm btn-outline-primary mt-2 w-100">
+                                                                    <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @endif
+
+                                                    {{-- Government ID 1 --}}
+                                                    @if($app->govt_id_photo_1)
+                                                    <div class="col-md-6">
+                                                        <div class="document-card">
+                                                            <div class="document-header">
+                                                                <i class="fas fa-id-card me-2"></i>
+                                                                <span>Government ID #1</span>
+                                                            </div>
+                                                            <div class="document-body">
+                                                                <img src="{{ asset('storage/' . $app->govt_id_photo_1) }}" 
+                                                                     alt="Government ID 1"
+                                                                     class="document-image"
+                                                                     onclick="openImageModal('{{ asset('storage/' . $app->govt_id_photo_1) }}', 'Government ID #1')">
+                                                                <a href="{{ asset('storage/' . $app->govt_id_photo_1) }}" 
+                                                                   target="_blank" 
+                                                                   class="btn btn-sm btn-outline-primary mt-2 w-100">
+                                                                    <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @endif
+
+                                                    {{-- Government ID 2 --}}
+                                                    @if($app->govt_id_photo_2)
+                                                    <div class="col-md-6">
+                                                        <div class="document-card">
+                                                            <div class="document-header">
+                                                                <i class="fas fa-id-card me-2"></i>
+                                                                <span>Government ID #2</span>
+                                                            </div>
+                                                            <div class="document-body">
+                                                                <img src="{{ asset('storage/' . $app->govt_id_photo_2) }}" 
+                                                                     alt="Government ID 2"
+                                                                     class="document-image"
+                                                                     onclick="openImageModal('{{ asset('storage/' . $app->govt_id_photo_2) }}', 'Government ID #2')">
+                                                                <a href="{{ asset('storage/' . $app->govt_id_photo_2) }}" 
+                                                                   target="_blank" 
+                                                                   class="btn btn-sm btn-outline-primary mt-2 w-100">
+                                                                    <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-0 bg-light">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {{-- Reject Modal --}}
@@ -122,61 +267,6 @@
         </div>
     </div>
     @endif
-
-    {{-- Stats Cards --}}
-    <div class="row mb-5">
-        @php
-            $totalUsers = $users->total();
-            $adminCount = $users->where('role', 'admin')->count();
-            $buyerCount = $users->where('role', 'buyer')->count();
-            $resellerCount = $users->where('role', 'reseller')->count();
-            $supplierCount = $users->where('role', 'supplier')->count();
-        @endphp
-
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100" 
-                 style="border-radius: 20px; background: linear-gradient(45deg, #667eea, #764ba2);">
-                <div class="card-body text-center text-white p-4">
-                    <i class="fas fa-users mb-3" style="font-size: 2.5rem;"></i>
-                    <h3 class="fw-bold mb-1">{{ $totalUsers }}</h3>
-                    <p class="mb-0 text-white-50">Total Users</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100" 
-                 style="border-radius: 20px; background: linear-gradient(45deg, #28a745, #20c997);">
-                <div class="card-body text-center text-white p-4">
-                    <i class="fas fa-shield-alt mb-3" style="font-size: 2.5rem;"></i>
-                    <h3 class="fw-bold mb-1">{{ $adminCount }}</h3>
-                    <p class="mb-0 text-white-50">Administrators</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100" 
-                 style="border-radius: 20px; background: linear-gradient(45deg, #17a2b8, #138496);">
-                <div class="card-body text-center text-white p-4">
-                    <i class="fas fa-truck mb-3" style="font-size: 2.5rem;"></i>
-                    <h3 class="fw-bold mb-1">{{ $supplierCount }}</h3>
-                    <p class="mb-0 text-white-50">Suppliers</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100" 
-                 style="border-radius: 20px; background: linear-gradient(45deg, #fd7e14, #e0a800);">
-                <div class="card-body text-center text-white p-4">
-                    <i class="fas fa-shopping-cart mb-3" style="font-size: 2.5rem;"></i>
-                    <h3 class="fw-bold mb-1">{{ $buyerCount + $resellerCount }}</h3>
-                    <p class="mb-0 text-white-50">Buyers</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
     {{-- Users Table Card --}}
     <div class="card border-0 shadow-sm" style="border-radius: 20px;">
@@ -300,19 +390,64 @@
     @endif
 </div>
 
+{{-- Image Preview Modal --}}
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white" id="imagePreviewTitle"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img id="imagePreviewSrc" src="" alt="Document Preview" style="max-width: 100%; max-height: 85vh; border-radius: 10px; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{{-- CSS --}}
 <style>
-    .table tbody tr:hover {
-        background-color: #f8f9fa;
-        transform: translateX(5px);
-        transition: all 0.2s ease;
-    }
+.table tbody tr:hover { background-color: #f8f9fa; transition: none; }
+.document-card { border:2px solid #e9ecef; border-radius:15px; overflow:hidden; transition: none; background:#fff; }
+.document-header { background: linear-gradient(45deg,#667eea,#764ba2); color:white; padding:12px 15px; font-weight:600; font-size:14px; }
+.document-body { padding:15px; }
+.document-image { width:100%; height:300px; object-fit:contain; border-radius:10px; cursor:pointer; border:2px solid #e9ecef; }
+.modal-xl { max-width:1200px; }
+#imagePreviewModal .modal-content { background: rgba(0,0,0,0.95) !important; }
+#imagePreviewModal { z-index:1060; }
+.modal[id^="viewDocsModal"] { z-index:1050; }
+.modal-backdrop.show + .modal-backdrop.show { opacity:0 !important; }
+.modal-backdrop { opacity:0.6 !important; }
+body.modal-open { overflow:hidden; }
+body, 
+h1, h2, h3, h4, h5, h6, 
+p, span, a, div, input, select, button, label {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
 </style>
 
+{{-- JS --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (el) {
-        return new bootstrap.Tooltip(el);
+    tooltipTriggerList.map(function(el){ return new bootstrap.Tooltip(el); });
+
+    // Image Preview Modal
+    window.openImageModal = function(imageSrc, title){
+        event.stopPropagation();
+        document.getElementById('imagePreviewSrc').src = imageSrc;
+        document.getElementById('imagePreviewTitle').textContent = title;
+        const previewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'), {backdrop:true, keyboard:true});
+        previewModal.show();
+    }
+
+    // Close modal on click outside image
+    document.getElementById('imagePreviewModal').addEventListener('click', function(e){
+        if(e.target === this || e.target.classList.contains('modal-body')){
+            bootstrap.Modal.getInstance(this).hide();
+        }
     });
 });
 </script>
