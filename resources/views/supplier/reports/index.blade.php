@@ -92,7 +92,7 @@
         {{-- Delivered Orders Report --}}
         <div class="col-lg-6 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-truck me-2 text-success"></i>Delivered Orders Report
                     </h5>
@@ -118,7 +118,7 @@
                             <button type="button" class="btn btn-info" onclick="previewReport('delivered-orders', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="button" class="btn btn-danger" onclick="downloadReport('delivered-orders', 'pdf')">
+                            <button type="button" class="btn" style="background-color: #ff9800; color: #fff;" onclick="downloadReport('delivered-orders', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="button" class="btn btn-success" onclick="downloadReport('delivered-orders', 'csv')">
@@ -133,7 +133,7 @@
         {{-- Products Report --}}
         <div class="col-lg-6 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-boxes me-2 text-primary"></i>Products/Items Report
                     </h5>
@@ -149,7 +149,7 @@
                             <button type="button" class="btn btn-info" onclick="previewReport('products', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="button" class="btn btn-danger" onclick="downloadReport('products', 'pdf')">
+                            <button type="button" class="btn" style="background-color: #ff9800; color: #fff;" onclick="downloadReport('products', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="button" class="btn btn-success" onclick="downloadReport('products', 'csv')">
@@ -164,7 +164,7 @@
         {{-- Inventory Report --}}
         <div class="col-lg-6 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-warehouse me-2 text-warning"></i>Product Inventory Report
                     </h5>
@@ -180,7 +180,7 @@
                             <button type="button" class="btn btn-info" onclick="previewReport('inventory', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="button" class="btn btn-danger" onclick="downloadReport('inventory', 'pdf')">
+                            <button type="button" class="btn" style="background-color: #ff9800; color: #fff;" onclick="downloadReport('inventory', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="button" class="btn btn-success" onclick="downloadReport('inventory', 'csv')">
@@ -195,7 +195,7 @@
         {{-- Sales Revenue Report --}}
         <div class="col-lg-6 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-money-bill-wave me-2 text-info"></i>Total Sales Revenue Report
                     </h5>
@@ -217,7 +217,7 @@
                             <button type="button" class="btn btn-info" onclick="previewReport('sales-revenue', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="button" class="btn btn-danger" onclick="downloadReport('sales-revenue', 'pdf')">
+                            <button type="button" class="btn" style="background-color: #ff9800; color: #fff;" onclick="downloadReport('sales-revenue', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="button" class="btn btn-success" onclick="downloadReport('sales-revenue', 'csv')">
@@ -232,7 +232,7 @@
         {{-- Customer Feedback Report --}}
         <div class="col-lg-12 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-comments me-2 text-danger"></i>Customer Feedback Report
                     </h5>
@@ -253,19 +253,19 @@
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <div class="alert alert-primary mb-0">
-                                    <small class="d-block text-muted">Average Rating</small>
+                                    <small class="d-block">Average Rating</small>
                                     <strong>{{ number_format($averageRating ?? 0, 2) }}/5.0</strong>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="alert alert-success mb-0">
-                                    <small class="d-block text-muted">Total Reviews</small>
+                                    <small class="d-block">Total Reviews</small>
                                     <strong>{{ number_format($totalReviews) }}</strong>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="alert alert-warning mb-0">
-                                    <small class="d-block text-muted">Customer Satisfaction</small>
+                                    <small class="d-block">Customer Satisfaction</small>
                                     <strong>{{ $averageRating >= 4 ? 'Excellent' : ($averageRating >= 3 ? 'Good' : 'Needs Improvement') }}</strong>
                                 </div>
                             </div>
@@ -274,7 +274,7 @@
                             <button type="button" class="btn btn-info flex-fill" onclick="previewReport('feedback', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="button" class="btn btn-danger flex-fill" onclick="downloadReport('feedback', 'pdf')">
+                            <button type="button" class="btn flex-fill" style="background-color: #ff9800; color: #fff;" onclick="downloadReport('feedback', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="button" class="btn btn-success flex-fill" onclick="downloadReport('feedback', 'csv')">
@@ -291,7 +291,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-0">
                         <i class="fas fa-info-circle me-2 text-primary"></i>Report Information
                     </h5>

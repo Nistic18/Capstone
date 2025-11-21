@@ -87,7 +87,7 @@
         {{-- User Reports --}}
         <div class="col-lg-6 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-users me-2 text-primary"></i>User Reports
                     </h5>
@@ -124,7 +124,7 @@
         {{-- Product Reports --}}
         <div class="col-lg-6 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-fish me-2 text-success"></i>Product Reports
                     </h5>
@@ -155,7 +155,7 @@
         {{-- Sales Reports --}}
         <div class="col-lg-6 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-chart-line me-2 text-warning"></i>Sales Reports
                     </h5>
@@ -192,7 +192,7 @@
         {{-- Feedback Reports --}}
         <div class="col-lg-6 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-star me-2 text-info"></i>Feedback & Rating Reports
                     </h5>
@@ -233,7 +233,7 @@
         {{-- Income Summary Reports --}}
         <div class="col-lg-12 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-money-bill-wave me-2 text-danger"></i>Income Summary Report
                     </h5>
@@ -292,7 +292,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-0">
                         <i class="fas fa-info-circle me-2 text-primary"></i>Report Information
                     </h5>

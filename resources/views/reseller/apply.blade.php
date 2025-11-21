@@ -5,11 +5,11 @@
 <div class="container mt-4 mb-4">
     <div class="card shadow-lg border-0 rounded-4">
         <div class="card-header text-white text-center py-3 rounded-top-4"
-             style="background: linear-gradient(135deg, #088a50 0%, #0bb364 100%);">
-            <h3 class="mb-0">Business Registration</h3>
-            <p class="mb-0 mt-1 small">Apply to become an authorized Supplier</p>
+            style="background: linear-gradient(135deg, #088a50 0%, #0bb364 100%); display: flex; flex-direction: column; align-items: center;">
+                <h3 class="mb-0">Business Registration</h3>
+                <p class="mt-1 mb-0 small">Apply to become an authorized Supplier</p>
         </div>
-
+        
         <div class="card-body p-4">
 
             {{-- ✅ Show success / error messages --}}

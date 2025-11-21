@@ -262,7 +262,7 @@
 {{-- DOWNLOADABLE REPORTS SECTION --}}
     <div class="row mb-5">
         <div class="col-12">
-            <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #0b3d64 0%, #0bb364 100%);">
+            <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #0b3d64 0%, #0bb364 100%); ">
                 <div class="card-body text-center py-4">
                     <h5 class="card-title fw-bold mb-1 text-white">
                         <i class="fas fa-file-download me-2"></i>Download My Reports
@@ -275,7 +275,7 @@
         {{-- Purchase History Report --}}
         <div class="col-lg-4 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-shopping-bag me-2 text-primary"></i>Purchase History
                     </h5>
@@ -301,7 +301,7 @@
                             <button type="button" class="btn btn-info" onclick="previewReport('purchases', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="submit" name="format" value="pdf" class="btn btn-danger">
+                            <button type="submit" name="format" value="pdf" class="btn" style="background-color: #ff9800; color: #fff;">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="submit" name="format" value="csv" class="btn btn-success">
@@ -316,7 +316,7 @@
         {{-- Spending Analysis Report --}}
         <div class="col-lg-4 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-chart-bar me-2 text-success"></i>Spending Analysis
                     </h5>
@@ -342,7 +342,7 @@
                             <button type="button" class="btn btn-info" onclick="previewReport('spending', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="submit" name="format" value="pdf" class="btn btn-danger">
+                            <button type="submit" name="format" value="pdf" class="btn" style="background-color: #ff9800; color: #fff;">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="submit" name="format" value="csv" class="btn btn-success">
@@ -357,7 +357,7 @@
         {{-- My Reviews Report --}}
         <div class="col-lg-4 mb-4">
             <div class="card report-card border-0 shadow-sm h-100">
-                <div class="card-header bg-transparent border-0">
+                <div class="card-header bg-transparent border-0 d-flex flex-column">
                     <h5 class="card-title fw-bold mb-1">
                         <i class="fas fa-star me-2 text-warning"></i>My Reviews
                     </h5>
@@ -377,7 +377,7 @@
                             <button type="button" class="btn btn-info" onclick="previewReport('reviews', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="submit" name="format" value="pdf" class="btn btn-danger">
+                            <button type="submit" name="format" value="pdf" class="btn" style="background-color: #ff9800; color: #fff;">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="submit" name="format" value="csv" class="btn btn-success">
@@ -638,6 +638,18 @@ body,
 h1, h2, h3, h4, h5, h6, 
 p, span, a, div, input, select, button, label {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+/* Initially hide the paragraph */
+.purchase-history p {
+    display: none;
+    transition: opacity 0.3s;
+    opacity: 0;
+}
+
+/* Show paragraph on hover */
+.purchase-history:hover p {
+    display: block;
+    opacity: 1;
 }
 </style>
 
