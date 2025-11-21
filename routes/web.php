@@ -20,17 +20,27 @@
     use App\Http\Controllers\ReviewController;
     use App\Http\Controllers\Supplier\SupplierReportsController;
     use App\Http\Controllers\Buyer\BuyerReportsController;
+    use App\Models\PostSupplier;
 
-    Route::get('/', function () {
+
+Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('home');
     }
 
+    // Hero products
     $heroProducts = \App\Models\Product::inRandomOrder()->take(4)->get();
-    return view('landing', compact('heroProducts'));
+
+    // Most recent supplier post
+    $latestPost = PostSupplier::with('user', 'comments', 'reactions')
+                    ->latest()
+                    ->first();
+
+    return view('landing', compact('heroProducts', 'latestPost'));
 })->name('landing');
-    // Keep Auth::routes() but add explicit login route
-    Auth::routes();
+
+// Keep Auth::routes() for login, register, etc.
+Auth::routes();
 
     // Explicitly define login route (in case Auth::routes() doesn't work)
     Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');

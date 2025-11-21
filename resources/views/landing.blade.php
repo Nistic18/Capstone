@@ -607,27 +607,38 @@ p, span, a, div, input, select, button, label {
     </section>
 
     <!-- Articles Section -->
-    <section class="features" id="articles" style="background: var(--light);">
+@if($latestPost)
+    <section id="newsfeed" class="py-5">
         <div class="container">
             <div class="section-title">
                 <h2>{{ $articles->title ?? 'Latest Articles' }}</h2>
                 <p>{{ $articles->content ?? 'Learn more about seafood and healthy eating' }}</p>
             </div>
-            <div class="row g-4 justify-content-center">
-                @forelse($articleCards as $card)
-                    <div class="col-md-4">
-                        <div class="feature-card">
-                            <div class="feature-icon"><i class="{{ $card->icon ?? 'fas fa-newspaper' }}"></i></div>
-                            <h4>{{ $card->title }}</h4>
-                            <p>{{ $card->content }}</p>
+            <div class="row justify-content-center">
+                <div class="col-md-8 ">
+                    <div class="card border-0 shadow-sm mb-4 " style="border-radius: 20px;">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-2">{{ $latestPost->title }}</h5>
+                            <p style="text-align: justify;">{{ Str::limit($latestPost->content, 400) }}
+                                @if(strlen($latestPost->content) > 400)
+                                    <a href="{{ route('newsfeedsupplier.show', $latestPost) }}" class="text-primary">Read more</a>
+                                @endif
+                            </p>
+
+                            @if($latestPost->image)
+                                <img src="{{ asset('storage/' . $latestPost->image) }}" class="img-fluid rounded mb-2" alt="Post image">
+                            @endif
+
+                            <small class="text-muted">
+                                By {{ $latestPost->user->name }} • {{ $latestPost->created_at->diffForHumans() }}
+                            </small>
                         </div>
                     </div>
-                @empty
-                    <p class="text-center text-muted">No article cards added yet.</p>
-                @endforelse
+                </div>
             </div>
         </div>
     </section>
+@endif
 
     <!-- FAQ Section -->
     <section class="features" id="faq">
