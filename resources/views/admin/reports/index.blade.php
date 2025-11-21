@@ -109,7 +109,7 @@
                             <button type="button" class="btn btn-info" onclick="previewReport('users', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="button" class="btn btn-danger" onclick="downloadReport('users', 'pdf')">
+                            <button type="button" class="btn" style="background-color: #ff9800; color: #fff;" onclick="downloadReport('users', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="button" class="btn btn-success" onclick="downloadReport('users', 'csv')">
@@ -140,7 +140,7 @@
                             <button type="button" class="btn btn-info" onclick="previewReport('products', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="button" class="btn btn-danger" onclick="downloadReport('products', 'pdf')">
+                            <button type="button" class="btn" style="background-color: #ff9800; color: #fff;" onclick="downloadReport('products', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="button" class="btn btn-success" onclick="downloadReport('products', 'csv')">
@@ -177,7 +177,7 @@
                             <button type="button" class="btn btn-info" onclick="previewReport('sales', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="button" class="btn btn-danger" onclick="downloadReport('sales', 'pdf')">
+                            <button type="button" class="btn" style="background-color: #ff9800; color: #fff;" onclick="downloadReport('sales', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="button" class="btn btn-success" onclick="downloadReport('sales', 'csv')">
@@ -218,7 +218,7 @@
                             <button type="button" class="btn btn-info" onclick="previewReport('feedback', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="button" class="btn btn-danger" onclick="downloadReport('feedback', 'pdf')">
+                            <button type="button" class="btn" style="background-color: #ff9800; color: #fff;" onclick="downloadReport('feedback', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="button" class="btn btn-success" onclick="downloadReport('feedback', 'csv')">
@@ -275,7 +275,7 @@
                             <button type="button" class="btn btn-info flex-fill" onclick="previewReport('income-summary', 'pdf')">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <button type="button" class="btn btn-danger flex-fill" onclick="downloadReport('income-summary', 'pdf')">
+                            <button type="button" class="btn flex-fill" style="background-color: #ff9800; color: #fff;" onclick="downloadReport('income-summary', 'pdf')">
                                 <i class="fas fa-file-pdf me-2"></i>Download PDF
                             </button>
                             <button type="button" class="btn btn-success flex-fill" onclick="downloadReport('income-summary', 'csv')">
