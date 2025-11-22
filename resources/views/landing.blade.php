@@ -1032,187 +1032,289 @@ p, span, a, div, input, select, button, label {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        function setCookie(name, value, days) {
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            const expires = "expires=" + date.toUTCString();
-            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+// Complete improved map script with comprehensive error handling
+// Replace your existing script section with this
+
+let landingMap;
+let landingMarkers = [];
+let currentSearchMarker;
+let searchTimeout;
+
+// Initialize map when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing map...');
+    initializeLandingMap();
+});
+
+function initializeLandingMap() {
+    try {
+        // Initialize map centered on Philippines
+        landingMap = L.map('landing-map').setView([12.8797, 121.7740], 6);
+
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(landingMap);
+
+        // Hide loading indicator
+        const loadingEl = document.getElementById('landing-map-loading');
+        if (loadingEl) {
+            loadingEl.style.display = 'none';
         }
 
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
-            for(let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-            }
-            return null;
-        }
+        console.log('Map initialized successfully');
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const hasAccepted = getCookie('privacy_accepted');
-
-            if (!hasAccepted) {
-                const privacyModal = new bootstrap.Modal(document.getElementById('privacyModal'));
-                privacyModal.show();
-            }
-
-            document.getElementById('acceptBtn').addEventListener('click', function() {
-                setCookie('privacy_accepted', 'true', 15);
-                const privacyModal = bootstrap.Modal.getInstance(document.getElementById('privacyModal'));
-                privacyModal.hide();
-            });
-        });
-
-        let landingMap;
-        let landingMarkers = [];
-
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeLandingMap();
-        });
-
-       function initializeLandingMap() {
-    landingMap = L.map('landing-map').setView([14.5995, 120.9842], 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-    }).addTo(landingMap);
-
-    document.getElementById('landing-map-loading').style.display = 'none';
-
-    // Add search control restricted to Philippines
-    L.Control.geocoder({
-        defaultMarkGeocode: false,
-        geocoder: L.Control.Geocoder.nominatim({
-            geocodingQueryParams: { countrycodes: 'ph' } // restrict to PH
-        })
-    }).on('markgeocode', function(e) {
-        const bbox = e.geocode.bbox;
-        const poly = L.polygon([
-            [bbox.getSouthEast().lat, bbox.getSouthEast().lng],
-            [bbox.getNorthEast().lat, bbox.getNorthEast().lng],
-            [bbox.getNorthWest().lat, bbox.getNorthWest().lng],
-            [bbox.getSouthWest().lat, bbox.getSouthWest().lng]
-        ]);
-        landingMap.fitBounds(poly.getBounds());
-    }).addTo(landingMap);
-
-    loadSupplierLocations();
+        // Load supplier locations
+        loadSupplierLocations();
+    } catch (error) {
+        console.error('Error initializing map:', error);
+        showMapError('Failed to initialize map. Please refresh the page.');
+    }
 }
 
-        const supplierIcon = L.divIcon({
-            html: '<div class="custom-marker"><i class="fas fa-store"></i></div>',
-            className: '',
-            iconSize: [35, 35],
-            iconAnchor: [17, 17]
-        });
+// Custom marker icon
+const supplierIcon = L.divIcon({
+    html: '<div class="custom-marker"><i class="fas fa-store"></i></div>',
+    className: '',
+    iconSize: [35, 35],
+    iconAnchor: [17, 17]
+});
 
-        function loadSupplierLocations() {
-            fetch('/api/supplier-locations')
-                .then(response => response.json())
-                .then(suppliers => {
-                    let supplierCount = 0;
-                    
-                    suppliers.forEach(function(location) {
-                        if (location.latitude && location.longitude) {
-                            const popupContent = `
-                                <div class="popup-content">
-                                    <h6 class="fw-bold">${location.location_name || 'Supplier Location'}</h6>
-                                    <div class="mb-2">
-                                        <i class="fas fa-user text-muted me-2"></i>
-                                        <small>${location.user?.name || 'Unknown'}</small>
-                                    </div>
-                                    <div class="mb-2">
-                                        <i class="fas fa-phone text-muted me-2"></i>
-                                        <small>${location.user?.phone || 'N/A'}</small>
-                                    </div>
-                                    <div class="mb-2">
-                                        <i class="fas fa-envelope text-muted me-2"></i>
-                                        <small>${location.user?.email || 'N/A'}</small>
-                                    </div>
-                                    <div class="mb-2">
-                                        <i class="fas fa-map-marker-alt text-muted me-2"></i>
-                                        <small>${location.user?.address || 'No address provided'}</small>
-                                    </div>
-                                    <div class="mt-2">
-                                        <span class="badge bg-success">
-                                            <i class="fas fa-store me-1"></i>${location.type === 'store' ? 'Store' : 'Supply Point'}
-                                        </span>
-                                    </div>
-                                </div>
-                            `;
-                            
-                            const marker = L.marker([parseFloat(location.latitude), parseFloat(location.longitude)], { 
-                                icon: supplierIcon 
-                            }).addTo(landingMap);
-                            
-                            marker.bindPopup(popupContent, {
-                                maxWidth: 300,
-                                className: 'custom-popup'
-                            });
-                            
-                            landingMarkers.push(marker);
-                            supplierCount++;
-                        }
-                    });
-                    
-                    document.getElementById('supplier-count').textContent = supplierCount;
-                    
-                    if (landingMarkers.length > 0) {
-                        const group = new L.featureGroup(landingMarkers);
-                        landingMap.fitBounds(group.getBounds().pad(0.1));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading supplier locations:', error);
-                    document.getElementById('supplier-count').textContent = '0';
-                });
-        }
-
-        function getCurrentLocationLanding() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        landingMap.setView([lat, lng], 14);
-                        
-                        const userIcon = L.divIcon({
-                            html: '<div style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(45deg, #ffc107, #e0a800); display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 3px 10px rgba(0,0,0,0.3);"><i class="fas fa-map-pin" style="color: #212529;"></i></div>',
-                            className: '',
-                            iconSize: [30, 30],
-                            iconAnchor: [15, 15]
-                        });
-                        
-                        const userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(landingMap);
-                        userMarker.bindPopup('<strong>Your Location</strong>').openPopup();
-                    },
-                    function(error) {
-                        alert('Unable to get your location. Please enable location services.');
-                    }
-                );
-            } else {
-                alert('Geolocation is not supported by your browser.');
-            }
-        }
-
-        function resetMapViewLanding() {
-            if (landingMarkers.length > 0) {
-                const group = new L.featureGroup(landingMarkers);
-                landingMap.fitBounds(group.getBounds().pad(0.1));
-            } else {
-                landingMap.setView([14.5995, 120.9842], 13);
-            }
-        }
-
-let searchTimeout;
-let currentSearchMarker;
-
-document.getElementById('map-search-input').addEventListener('input', function(e) {
-    const query = e.target.value.trim();
+function loadSupplierLocations() {
+    console.log('📍 Loading supplier locations...');
+    console.log('🌐 API Endpoint:', window.location.origin + '/api/supplier-locations');
     
+    // Show loading state
+    updateSupplierCount('Loading...');
+    
+    fetch('/api/supplier-locations', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        console.log('📥 Response received');
+        console.log('Status:', response.status, response.statusText);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.json();
+    })
+    .then(suppliers => {
+        console.log('✅ Data parsed successfully');
+        console.log('📦 Raw data:', suppliers);
+        console.log('📊 Number of locations:', suppliers.length);
+        
+        if (!Array.isArray(suppliers)) {
+            throw new Error('Expected array of suppliers, got: ' + typeof suppliers);
+        }
+        
+        // Clear existing markers
+        console.log('🧹 Clearing existing markers...');
+        landingMarkers.forEach(marker => landingMap.removeLayer(marker));
+        landingMarkers = [];
+        
+        let validCount = 0;
+        let invalidCount = 0;
+        
+        suppliers.forEach((location, index) => {
+            console.log(`\n🔍 Processing location ${index + 1}:`, {
+                id: location.id,
+                name: location.location_name,
+                lat: location.latitude,
+                lng: location.longitude,
+                user: location.user?.name
+            });
+            
+            const lat = parseFloat(location.latitude);
+            const lng = parseFloat(location.longitude);
+            
+            // Validate coordinates
+            if (isNaN(lat) || isNaN(lng)) {
+                console.warn(`⚠️ Invalid coordinates (NaN):`, { lat, lng, original: location });
+                invalidCount++;
+                return;
+            }
+            
+            if (lat === 0 && lng === 0) {
+                console.warn(`⚠️ Zero coordinates:`, location.location_name);
+                invalidCount++;
+                return;
+            }
+            
+            // Check if coordinates are within reasonable bounds
+            if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                console.warn(`⚠️ Coordinates out of bounds:`, { lat, lng });
+                invalidCount++;
+                return;
+            }
+            
+            // Create popup content
+            const popupContent = `
+                <div class="popup-content">
+                    <h6 class="fw-bold">${escapeHtml(location.location_name || 'Supplier Location')}</h6>
+                    <div class="mb-2">
+                        <i class="fas fa-user text-muted me-2"></i>
+                        <small>${escapeHtml(location.user?.name || 'Unknown')}</small>
+                    </div>
+                    <div class="mb-2">
+                        <i class="fas fa-phone text-muted me-2"></i>
+                        <small>${escapeHtml(location.user?.phone || 'N/A')}</small>
+                    </div>
+                    <div class="mb-2">
+                        <i class="fas fa-envelope text-muted me-2"></i>
+                        <small>${escapeHtml(location.user?.email || 'N/A')}</small>
+                    </div>
+                    <div class="mb-2">
+                        <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                        <small>${escapeHtml(location.user?.address || 'No address provided')}</small>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-success">
+                            <i class="fas fa-store me-1"></i>${location.type === 'store' ? 'Store' : 'Supply Point'}
+                        </span>
+                    </div>
+                </div>
+            `;
+            
+            try {
+                const marker = L.marker([lat, lng], { 
+                    icon: supplierIcon,
+                    title: location.location_name
+                }).addTo(landingMap);
+                
+                marker.bindPopup(popupContent, {
+                    maxWidth: 300,
+                    className: 'custom-popup'
+                });
+                
+                landingMarkers.push(marker);
+                validCount++;
+                console.log(`✅ Marker ${validCount} created successfully at [${lat}, ${lng}]`);
+            } catch (markerError) {
+                console.error('❌ Error creating marker:', markerError);
+                invalidCount++;
+            }
+        });
+        
+        // Log summary
+        console.log('\n📊 Summary:');
+        console.log(`✅ Valid markers: ${validCount}`);
+        console.log(`❌ Invalid/skipped: ${invalidCount}`);
+        console.log(`📍 Total markers on map: ${landingMarkers.length}`);
+        
+        // Update UI
+        updateSupplierCount(validCount);
+        
+        // Fit map to markers
+        if (landingMarkers.length > 0) {
+            const group = new L.featureGroup(landingMarkers);
+            landingMap.fitBounds(group.getBounds().pad(0.1));
+            console.log('🗺️ Map bounds adjusted to show all markers');
+        } else {
+            console.warn('⚠️ No valid markers to display');
+            showNoDataMessage();
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error loading supplier locations:', error);
+        updateSupplierCount(0);
+        showMapError(`Failed to load locations: ${error.message}`);
+    });
+}
+
+function updateSupplierCount(count) {
+    const countEl = document.getElementById('supplier-count');
+    if (countEl) {
+        countEl.textContent = count;
+    }
+}
+
+function showMapError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger position-absolute top-50 start-50 translate-middle';
+    errorDiv.style.zIndex = '1000';
+    errorDiv.style.maxWidth = '80%';
+    errorDiv.innerHTML = `
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        ${message}
+        <button type="button" class="btn-close float-end" onclick="this.parentElement.remove()"></button>
+    `;
+    document.getElementById('landing-map').appendChild(errorDiv);
+    setTimeout(() => errorDiv.remove(), 5000);
+}
+
+function showNoDataMessage() {
+    const noDataDiv = document.createElement('div');
+    noDataDiv.className = 'alert alert-info position-absolute top-50 start-50 translate-middle text-center';
+    noDataDiv.style.zIndex = '1000';
+    noDataDiv.style.maxWidth = '80%';
+    noDataDiv.innerHTML = `
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>No supplier locations available yet.</strong><br>
+        <small>Suppliers can add their locations through their dashboard.</small>
+    `;
+    document.getElementById('landing-map').appendChild(noDataDiv);
+    setTimeout(() => noDataDiv.remove(), 5000);
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function getCurrentLocationLanding() {
+    if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser.');
+        return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            console.log('📍 User location:', { lat, lng });
+            landingMap.setView([lat, lng], 14);
+            
+            const userIcon = L.divIcon({
+                html: `<div style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(45deg, #ffc107, #e0a800); display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 3px 10px rgba(0,0,0,0.3);">
+                    <i class="fas fa-map-pin" style="color: #212529;"></i>
+                </div>`,
+                className: '',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+            
+            const userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(landingMap);
+            userMarker.bindPopup('<strong>Your Location</strong>').openPopup();
+        },
+        function(error) {
+            console.error('Geolocation error:', error);
+            alert('Unable to get your location. Please enable location services.');
+        }
+    );
+}
+
+function resetMapViewLanding() {
+    if (landingMarkers.length > 0) {
+        const group = new L.featureGroup(landingMarkers);
+        landingMap.fitBounds(group.getBounds().pad(0.1));
+    } else {
+        landingMap.setView([12.8797, 121.7740], 6); // Center on Philippines
+    }
+}
+
+// Search functionality
+document.getElementById('map-search-input')?.addEventListener('input', function(e) {
+    const query = e.target.value.trim();
     clearTimeout(searchTimeout);
     
     if (query.length < 2) {
@@ -1220,26 +1322,24 @@ document.getElementById('map-search-input').addEventListener('input', function(e
         return;
     }
     
-    searchTimeout = setTimeout(() => {
-        searchLocations(query);
-    }, 300);
+    searchTimeout = setTimeout(() => searchLocations(query), 300);
 });
 
-document.getElementById('map-search-input').addEventListener('keypress', function(e) {
+document.getElementById('map-search-input')?.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         performSearch();
     }
 });
 
-// Close suggestions when clicking outside
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.map-search-container')) {
-        document.getElementById('search-suggestions').classList.remove('active');
+        document.getElementById('search-suggestions')?.classList.remove('active');
     }
 });
 
 function searchLocations(query) {
     const suggestionsDiv = document.getElementById('search-suggestions');
+    if (!suggestionsDiv) return;
     
     suggestionsDiv.innerHTML = `
         <div class="search-loading">
@@ -1272,7 +1372,7 @@ function searchLocations(query) {
             }
         })
         .catch(err => {
-            console.error(err);
+            console.error('Search error:', err);
             suggestionsDiv.innerHTML = `
                 <div class="suggestion-item">
                     <div class="suggestion-icon">
@@ -1289,28 +1389,8 @@ function searchLocations(query) {
 
 function displaySuggestions(locations) {
     const suggestionsDiv = document.getElementById('search-suggestions');
+    if (!suggestionsDiv) return;
     
-    suggestionsDiv.innerHTML = locations.map(location => {
-        const type = location.type || 'place';
-        const icon = getLocationIcon(type);
-        
-        return `
-            <div class="suggestion-item" onclick="selectLocation(${location.lat}, ${location.lon}, '${location.display_name.replace(/'/g, "\\'")}')">
-                <div class="suggestion-icon">
-                    <i class="${icon}"></i>
-                </div>
-                <div class="suggestion-text">
-                    <p class="suggestion-title">${location.display_name.split(',')[0]}</p>
-                    <p class="suggestion-subtitle">${location.display_name}</p>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    suggestionsDiv.classList.add('active');
-}
-
-function getLocationIcon(type) {
     const icons = {
         'city': 'fas fa-city',
         'town': 'fas fa-building',
@@ -1319,20 +1399,38 @@ function getLocationIcon(type) {
         'province': 'fas fa-map',
         'region': 'fas fa-globe-asia'
     };
-    return icons[type] || 'fas fa-map-marker-alt';
+    
+    suggestionsDiv.innerHTML = locations.map(location => {
+        const icon = icons[location.type] || 'fas fa-map-marker-alt';
+        const name = escapeHtml(location.display_name);
+        
+        return `
+            <div class="suggestion-item" onclick="selectLocation(${location.lat}, ${location.lon}, '${name.replace(/'/g, "\\'")}')">
+                <div class="suggestion-icon">
+                    <i class="${icon}"></i>
+                </div>
+                <div class="suggestion-text">
+                    <p class="suggestion-title">${name.split(',')[0]}</p>
+                    <p class="suggestion-subtitle">${name}</p>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    suggestionsDiv.classList.add('active');
 }
 
 function selectLocation(lat, lon, name) {
     landingMap.setView([lat, lon], 14);
     
-    // Remove previous search marker if exists
     if (currentSearchMarker) {
         landingMap.removeLayer(currentSearchMarker);
     }
     
-    // Add new search marker with custom icon
     const searchIcon = L.divIcon({
-        html: '<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #ff6b6b, #ee5a6f); display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 12px rgba(238, 90, 111, 0.4); animation: bounce 1s ease infinite;"><i class="fas fa-search" style="color: white; font-size: 1rem;"></i></div>',
+        html: `<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #ff6b6b, #ee5a6f); display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 12px rgba(238, 90, 111, 0.4); animation: bounce 1s ease infinite;">
+            <i class="fas fa-search" style="color: white; font-size: 1rem;"></i>
+        </div>`,
         className: '',
         iconSize: [40, 40],
         iconAnchor: [20, 20]
@@ -1341,13 +1439,18 @@ function selectLocation(lat, lon, name) {
     currentSearchMarker = L.marker([lat, lon], { icon: searchIcon }).addTo(landingMap);
     currentSearchMarker.bindPopup(`<strong>${name}</strong><br><small class="text-muted">Search Result</small>`).openPopup();
     
-    // Close suggestions
-    document.getElementById('search-suggestions').classList.remove('active');
-    document.getElementById('map-search-input').value = name.split(',')[0];
+    document.getElementById('search-suggestions')?.classList.remove('active');
+    const inputEl = document.getElementById('map-search-input');
+    if (inputEl) {
+        inputEl.value = name.split(',')[0];
+    }
 }
 
 function performSearch() {
-    const query = document.getElementById('map-search-input').value.trim();
+    const input = document.getElementById('map-search-input');
+    if (!input) return;
+    
+    const query = input.value.trim();
     if (!query) return;
     
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=ph&limit=1`;
@@ -1362,7 +1465,7 @@ function performSearch() {
             }
         })
         .catch(err => {
-            console.error(err);
+            console.error('Search error:', err);
             alert('Error searching location. Please try again.');
         });
 }
