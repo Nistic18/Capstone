@@ -15,246 +15,234 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 @endpush
 
-{{-- Add Bootstrap 5 JavaScript --}}
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-@endpush
+
+
 @section('content')
 <div class="mt-5">
-    {{-- Hero Section --}}
-    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #0bb364 0%, #0bb364 100%); border-radius: 20px;">
-        <div class="card-body text-center py-5">
-            <div class="mb-3">
-                <i class="fas fa-fish text-white" style="font-size: 3rem;"></i>
-            </div>
-            <h1 class="display-4 fw-bold text-white mb-3">🐠 FishMarket</h1>
-            <p class="lead text-white-50 mb-0">Discover the finest selection of fresh fish from trusted sellers</p>
-        </div>
-    </div> --}}
-
-    {{-- Enhanced Search & Filter Section --}}
-<div class="card border-0 shadow-sm mb-5" style="border-radius: 20px; overflow: hidden;">
-    <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #088a50 0%, #0bb364 100%);">
-        <h5 class="text-white mb-0 d-flex align-items-center">
-            <i class="fas fa-filter me-2"></i>
-            Search & Filter Products
-        </h5>
-    </div>
-    
-    <div class="card-body p-4">
-        <form method="GET" action="{{ route('home') }}" id="filterForm">
-            {{-- Search Bar - Full Width --}}
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="input-group input-group-lg shadow-sm" style="border-radius: 50px; overflow: hidden;">
-                        <span class="input-group-text bg-white border-0 ps-4" style="border-radius: 50px 0 0 50px;">
-                            <i class="fas fa-search text-muted"></i>
-                        </span>
+    {{-- Enhanced Search & Filter Section with Collapsible Design --}}
+    <div class="card border-0 shadow-sm mb-5" style="border-radius: 24px; overflow: hidden;">
+        <div class="card-body p-4">
+            <form method="GET" action="{{ route('home') }}" id="filterForm">
+                {{-- Search Bar - Always Visible --}}
+                <div class="mb-3">
+                    <div class="position-relative">
+                        <i class="position-absolute text-muted" style="left: 20px; top: 50%; transform: translateY(-50%); z-index: 10;"></i>
                         <input type="text" 
                                name="search" 
-                               class="form-control border-0 ps-2" 
+                               class="form-control form-control-lg ps-5 pe-5 shadow-sm" 
                                placeholder="Search for fish species, type, or category..."
                                value="{{ request('search') }}"
-                               style="font-size: 1rem;">
-                        <button type="submit" 
-                                class="btn btn-primary px-4" 
-                                style="border-radius: 0 50px 50px 0; background: linear-gradient(45deg, #0bb364, #0bb364); border: none;">
-                            <i class="fas fa-search me-2"></i>Search
-                        </button>
+                               style="border-radius: 16px; border: 2px solid #e9ecef; height: 56px; font-size: 1rem;">
+                        @if(request('search'))
+                            <button type="button" 
+                                    class="btn btn-link position-absolute text-muted" 
+                                    style="right: 10px; top: 50%; transform: translateY(-50%); padding: 0; width: 30px; height: 30px;"
+                                    onclick="document.querySelector('input[name=search]').value=''; document.getElementById('filterForm').submit();">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        @endif
                     </div>
                 </div>
-            </div>
 
-            {{-- Filters Row --}}
-            <div class="row g-3 mb-3">
-                {{-- Category Filter --}}
-                <div class="col-lg-3 col-md-6">
-                    <label class="form-label small fw-semibold text-muted mb-2">
-                        <i class="fas fa-tag me-1"></i>Category
-                    </label>
-                    <select name="product_category_id" 
-                            class="form-select shadow-sm" 
-                            style="border-radius: 15px; border: 2px solid #e9ecef;">
-                        <option value="">All Categories</option>
-                        @foreach($categories as $category)
-                            <option value="{{ $category->id }}" 
-                                    {{ request('product_category_id') == $category->id ? 'selected' : '' }}>
+                {{-- Toggle Filter Button --}}
+                <div class="d-flex gap-2 mb-3">
+                    <button type="button" 
+                            class="btn btn-outline-primary flex-grow-1" 
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#advancedFilters" 
+                            aria-expanded="false" 
+                            aria-controls="advancedFilters"
+                            id="filterToggleBtn"
+                            style="border-radius: 12px; border: 2px solid #0bb364; color: #0bb364; font-weight: 600; height: 48px;">
+                        <i class="fas fa-sliders-h me-2"></i>
+                        <span id="filterBtnText">Show Advanced Filters</span>
+                        <i class="fas fa-chevron-down ms-2" id="filterChevron"></i>
+                    </button>
+                    <button type="submit" 
+                            class="btn btn-primary px-4" 
+                            style="border-radius: 12px; background: linear-gradient(135deg, #0bb364 0%, #088a50 100%); border: none; font-weight: 600; height: 48px; min-width: 120px;">
+                        <i class="fas fa-search me-2"></i>Search
+                    </button>
+                </div>
+
+                {{-- Collapsible Advanced Filters --}}
+                <div class="collapse" id="advancedFilters">
+                    <div class="card border-0 bg-light" style="border-radius: 16px;">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h6 class="mb-0 fw-bold" style="color: #0bb364;">
+                                    <i class="fas fa-filter me-2"></i>Advanced Filters
+                                </h6>
+                               <button type="button" 
+                                    class="btn btn-sm btn-light" 
+                                    id="closeAdvancedFilters"
+                                    style="border-radius: 8px;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+
+                            {{-- Filters Grid --}}
+                            <div class="row g-3 mb-3">
+                                {{-- Category Filter --}}
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label small fw-semibold mb-2" style="color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem;">
+                                        <i class="fas fa-layer-group me-1" style="color: #0bb364;"></i>Category
+                                    </label>
+                                    <select name="product_category_id" 
+                                            class="form-select shadow-sm" 
+                                            style="border-radius: 12px; border: 2px solid #e9ecef; height: 48px; font-size: 0.95rem;">
+                                        <option value="">All Categories</option>
+                                        @foreach($categories as $category)
+                                            <option value="{{ $category->id }}" 
+                                                    {{ request('product_category_id') == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                {{-- Type Filter --}}
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label small fw-semibold mb-2" style="color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem;">
+                                        <i class="fas fa-fish me-1" style="color: #0bb364;"></i>Fish Type
+                                    </label>
+                                    <select name="product_type_id" 
+                                            class="form-select shadow-sm" 
+                                            style="border-radius: 12px; border: 2px solid #e9ecef; height: 48px; font-size: 0.95rem;">
+                                        <option value="">All Types</option>
+                                        @foreach($types as $type)
+                                            <option value="{{ $type->id }}" 
+                                                    {{ request('product_type_id') == $type->id ? 'selected' : '' }}>
+                                                {{ $type->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                {{-- Unit Type Filter --}}
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label small fw-semibold mb-2" style="color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem;">
+                                        <i class="fas fa-weight-hanging me-1" style="color: #0bb364;"></i>Unit Type
+                                    </label>
+                                    <select name="unit_type" 
+                                            class="form-select shadow-sm" 
+                                            style="border-radius: 12px; border: 2px solid #e9ecef; height: 48px; font-size: 0.95rem;">
+                                        <option value="">All Units</option>
+                                        <option value="piece" {{ request('unit_type') == 'piece' ? 'selected' : '' }}>Pieces</option>
+                                        <option value="kilo" {{ request('unit_type') == 'kilo' ? 'selected' : '' }}>Kilogram</option>
+                                        <option value="pack" {{ request('unit_type') == 'pack' ? 'selected' : '' }}>Pack</option>
+                                        <option value="box" {{ request('unit_type') == 'box' ? 'selected' : '' }}>Box</option>
+                                    </select>
+                                </div>
+
+                                {{-- Sort Dropdown --}}
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label small fw-semibold mb-2" style="color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem;">
+                                        <i class="fas fa-sort-amount-down me-1" style="color: #0bb364;"></i>Sort By
+                                    </label>
+                                    <select name="sort" 
+                                            class="form-select shadow-sm" 
+                                            style="border-radius: 12px; border: 2px solid #e9ecef; height: 48px; font-size: 0.95rem;">
+                                        <option value="">Default Order</option>
+                                        <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                                        <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                                        <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Name: A to Z</option>
+                                        <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Name: Z to A</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Action Buttons Inside Collapsible --}}
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('home') }}" 
+                                   class="btn btn-light px-4" 
+                                   style="border-radius: 12px; border: 2px solid #e9ecef; font-weight: 600; color: #6c757d; height: 48px; line-height: 36px;">
+                                    <i class="fas fa-redo-alt me-2"></i>Clear All Filters
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Active Filters Chips - Always Visible When Filters Applied --}}
+                @if(request()->hasAny(['search', 'product_category_id', 'product_type_id', 'unit_type', 'sort']))
+                <div class="mt-3 pt-3 border-top">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="small fw-bold" style="color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.7rem;">
+                            <i class="fas fa-tag me-1"></i>Active Filters ({{ collect([request('search'), request('product_category_id'), request('product_type_id'), request('unit_type'), request('sort')])->filter()->count() }})
+                        </span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        @if(request('search'))
+                            <span class="badge d-inline-flex align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 8px 14px; font-size: 0.85rem; font-weight: 500;">
+                                <i class="fas fa-search me-2" style="font-size: 0.75rem;"></i>
+                                "{{ Str::limit(request('search'), 20) }}"
+                                <a href="{{ route('home', array_merge(request()->except('search'))) }}" 
+                                   class="text-white ms-2 text-decoration-none d-inline-flex align-items-center justify-content-center" 
+                                   style="width: 18px; height: 18px; background: rgba(255,255,255,0.2); border-radius: 50%; font-size: 0.7rem;">×</a>
+                            </span>
+                        @endif
+
+                        @if(request('product_category_id'))
+                            @php
+                                $category = $categories->find(request('product_category_id'));
+                            @endphp
+                            @if($category)
+                            <span class="badge d-inline-flex align-items-center" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 20px; padding: 8px 14px; font-size: 0.85rem; font-weight: 500;">
+                                <i class="fas fa-layer-group me-2" style="font-size: 0.75rem;"></i>
                                 {{ $category->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                {{-- Type Filter --}}
-                <div class="col-lg-3 col-md-6">
-                    <label class="form-label small fw-semibold text-muted mb-2">
-                        <i class="fas fa-fish me-1"></i>Type
-                    </label>
-                    <select name="product_type_id" 
-                            class="form-select shadow-sm" 
-                            style="border-radius: 15px; border: 2px solid #e9ecef;">
-                        <option value="">All Types</option>
-                        @foreach($types as $type)
-                            <option value="{{ $type->id }}" 
-                                    {{ request('product_type_id') == $type->id ? 'selected' : '' }}>
-                                {{ $type->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                {{-- Price Range --}}
-                {{-- <div class="col-lg-3 col-md-6">
-                    <label class="form-label small fw-semibold text-muted mb-2">
-                        <i class="fas fa-peso-sign me-1"></i>Min Price
-                    </label>
-                    <div class="input-group shadow-sm" style="border-radius: 15px; overflow: hidden;">
-                        <span class="input-group-text bg-white border-0" style="border-radius: 15px 0 0 15px;">₱</span>
-                        <input type="number" 
-                               name="min_price" 
-                               class="form-control border-0" 
-                               placeholder="0"
-                               value="{{ request('min_price') }}"
-                               style="border-radius: 0 15px 15px 0;">
-                    </div>
-                </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <label class="form-label small fw-semibold text-muted mb-2">
-                        <i class="fas fa-peso-sign me-1"></i>Max Price
-                    </label>
-                    <div class="input-group shadow-sm" style="border-radius: 15px; overflow: hidden;">
-                        <span class="input-group-text bg-white border-0" style="border-radius: 15px 0 0 15px;">₱</span>
-                        <input type="number" 
-                               name="max_price" 
-                               class="form-control border-0" 
-                               placeholder="9999"
-                               value="{{ request('max_price') }}"
-                               style="border-radius: 0 15px 15px 0;">
-                    </div>
-                </div> --}}
-            </div>
-
-            {{-- Sort and Actions Row --}}
-            <div class="row g-3 align-items-end">
-                {{-- Sort Dropdown --}}
-                <div class="col-lg-4 col-md-6">
-                    <label class="form-label small fw-semibold text-muted mb-2">
-                        <i class="fas fa-sort me-1"></i>Sort By
-                    </label>
-                    <select name="sort" 
-                            class="form-select shadow-sm" 
-                            style="border-radius: 15px; border: 2px solid #e9ecef;">
-                        <option value="">Default</option>
-                        <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>
-                            Price: Low to High
-                        </option>
-                        <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>
-                            Price: High to Low
-                        </option>
-                        <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>
-                            Name: A to Z
-                        </option>
-                        <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>
-                            Name: Z to A
-                        </option>
-                    </select>
-                </div>
-
-                {{-- Action Buttons --}}
-                <div class="col-lg-8 col-md-6">
-                    <div class="d-flex gap-2 justify-content-end">
-                        <button type="submit" 
-                                class="btn btn-primary px-4 shadow-sm" 
-                                style="border-radius: 15px; background: linear-gradient(45deg, #0bb364, #0bb364); border: none;">
-                            <i class="fas fa-filter me-2"></i>Apply Filters
-                        </button>
-                        <a href="{{ route('home') }}" 
-                           class="btn btn-outline-secondary px-4 shadow-sm" 
-                           style="border-radius: 15px; border-width: 2px;">
-                            <i class="fas fa-redo me-2"></i>Reset
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Active Filters Display --}}
-            @if(request()->hasAny(['search', 'product_category_id', 'product_type_id', 'min_price', 'max_price', 'sort']))
-            <div class="mt-4 pt-3 border-top">
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <span class="small fw-semibold text-muted">Active Filters:</span>
-                    
-                    @if(request('search'))
-                        <span class="badge bg-primary" style="border-radius: 20px; padding: 8px 12px;">
-                            <i class="fas fa-search me-1"></i>
-                            "{{ request('search') }}"
-                            <a href="{{ route('home', array_merge(request()->except('search'))) }}" 
-                               class="text-white ms-1 text-decoration-none">×</a>
-                        </span>
-                    @endif
-
-                    @if(request('product_category_id'))
-                        @php
-                            $category = $categories->find(request('product_category_id'));
-                        @endphp
-                        @if($category)
-                        <span class="badge bg-info" style="border-radius: 20px; padding: 8px 12px;">
-                            <i class="fas fa-tag me-1"></i>
-                            {{ $category->name }}
-                            <a href="{{ route('home', array_merge(request()->except('product_category_id'))) }}" 
-                               class="text-white ms-1 text-decoration-none">×</a>
-                        </span>
-                        @endif
-                    @endif
-
-                    @if(request('product_type_id'))
-                        @php
-                            $type = $types->find(request('product_type_id'));
-                        @endphp
-                        @if($type)
-                        <span class="badge bg-success" style="border-radius: 20px; padding: 8px 12px;">
-                            <i class="fas fa-fish me-1"></i>
-                            {{ $type->name }}
-                            <a href="{{ route('home', array_merge(request()->except('product_type_id'))) }}" 
-                               class="text-white ms-1 text-decoration-none">×</a>
-                        </span>
-                        @endif
-                    @endif
-
-                    @if(request('min_price') || request('max_price'))
-                        <span class="badge bg-warning text-dark" style="border-radius: 20px; padding: 8px 12px;">
-                            <i class="fas fa-peso-sign me-1"></i>
-                            @if(request('min_price') && request('max_price'))
-                                ₱{{ number_format(request('min_price')) }} - ₱{{ number_format(request('max_price')) }}
-                            @elseif(request('min_price'))
-                                Min: ₱{{ number_format(request('min_price')) }}
-                            @else
-                                Max: ₱{{ number_format(request('max_price')) }}
+                                <a href="{{ route('home', array_merge(request()->except('product_category_id'))) }}" 
+                                   class="text-white ms-2 text-decoration-none d-inline-flex align-items-center justify-content-center" 
+                                   style="width: 18px; height: 18px; background: rgba(255,255,255,0.2); border-radius: 50%; font-size: 0.7rem;">×</a>
+                            </span>
                             @endif
-                            <a href="{{ route('home', array_merge(request()->except(['min_price', 'max_price']))) }}" 
-                               class="text-dark ms-1 text-decoration-none">×</a>
-                        </span>
-                    @endif
+                        @endif
 
-                    @if(request('sort'))
-                        <span class="badge bg-secondary" style="border-radius: 20px; padding: 8px 12px;">
-                            <i class="fas fa-sort me-1"></i>
-                            @switch(request('sort'))
-                                @case('price_asc') Price: Low to High @break
-                                @case('price_desc') Price: High to Low @break
-                                @case('name_asc') Name: A to Z @break
-                                @case('name_desc') Name: Z to A @break
-                            @endswitch
-                            <a href="{{ route('home', array_merge(request()->except('sort'))) }}" 
-                               class="text-white ms-1 text-decoration-none">×</a>
-                        </span>
-                    @endif
+                        @if(request('product_type_id'))
+                            @php
+                                $type = $types->find(request('product_type_id'));
+                            @endphp
+                            @if($type)
+                            <span class="badge d-inline-flex align-items-center" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 20px; padding: 8px 14px; font-size: 0.85rem; font-weight: 500;">
+                                <i class="fas fa-fish me-2" style="font-size: 0.75rem;"></i>
+                                {{ $type->name }}
+                                <a href="{{ route('home', array_merge(request()->except('product_type_id'))) }}" 
+                                   class="text-white ms-2 text-decoration-none d-inline-flex align-items-center justify-content-center" 
+                                   style="width: 18px; height: 18px; background: rgba(255,255,255,0.2); border-radius: 50%; font-size: 0.7rem;">×</a>
+                            </span>
+                            @endif
+                        @endif
+
+                        @if(request('unit_type'))
+                            <span class="badge d-inline-flex align-items-center" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 20px; padding: 8px 14px; font-size: 0.85rem; font-weight: 500;">
+                                <i class="fas fa-weight-hanging me-2" style="font-size: 0.75rem;"></i>
+                                {{ ucfirst(request('unit_type')) }}
+                                <a href="{{ route('home', array_merge(request()->except('unit_type'))) }}" 
+                                   class="text-white ms-2 text-decoration-none d-inline-flex align-items-center justify-content-center" 
+                                   style="width: 18px; height: 18px; background: rgba(255,255,255,0.2); border-radius: 50%; font-size: 0.7rem;">×</a>
+                            </span>
+                        @endif
+
+                        @if(request('sort'))
+                            <span class="badge d-inline-flex align-items-center" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #495057 !important; border-radius: 20px; padding: 8px 14px; font-size: 0.85rem; font-weight: 500;">
+                                <i class="fas fa-sort-amount-down me-2" style="font-size: 0.75rem;"></i>
+                                @switch(request('sort'))
+                                    @case('price_asc') Price: Low to High @break
+                                    @case('price_desc') Price: High to Low @break
+                                    @case('name_asc') Name: A to Z @break
+                                    @case('name_desc') Name: Z to A @break
+                                @endswitch
+                                <a href="{{ route('home', array_merge(request()->except('sort'))) }}" 
+                                   class="ms-2 text-decoration-none d-inline-flex align-items-center justify-content-center" 
+                                   style="width: 18px; height: 18px; background: rgba(0,0,0,0.1); border-radius: 50%; font-size: 0.7rem; color: #495057;">×</a>
+                            </span>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            @endif
-        </form>
+                @endif
+            </form>
+        </div>
     </div>
-</div>
 
     {{-- Results Count --}}
     @if(!$products->isEmpty())
@@ -327,38 +315,39 @@
 @endif
                     
                 </div>
-                                        <div class="position-absolute stock-badge-container" 
-                             style="top: 12px; right: 12px; z-index: 1001;">
-                            @if($product->quantity > 0)
-                                <span class="badge stock-badge" 
-                                      style="background: rgba(40, 167, 69, 0.95) !important; 
-                                             border-radius: 20px; 
-                                             padding: 8px 12px; 
-                                             box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
-                                             border: 2px solid rgba(255,255,255,0.3); 
-                                             font-weight: 600; 
-                                             color: white !important;
-                                             font-size: 0.75rem;
-                                             white-space: nowrap;
-                                             display: inline-block;">
-                                    <i class="fas fa-check-circle me-1"></i>{{ $product->quantity }} in stock
-                                </span>
-                            @else
-                                <span class="badge stock-badge" 
-                                      style="background: rgba(220, 53, 69, 0.95) !important; 
-                                             border-radius: 20px; 
-                                             padding: 8px 12px; 
-                                             box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
-                                             border: 2px solid rgba(255,255,255,0.3); 
-                                             font-weight: 600; 
-                                             color: white !important;
-                                             font-size: 0.75rem;
-                                             white-space: nowrap;
-                                             display: inline-block;">
-                                    <i class="fas fa-times-circle me-1"></i>Out of Stock
-                                </span>
-                            @endif
-                        </div>
+                <div class="position-absolute stock-badge-container" 
+                     style="top: 12px; right: 12px; z-index: 1001;">
+                    @if($product->quantity > 0)
+                        <span class="badge stock-badge" 
+                              style="background: rgba(40, 167, 69, 0.95) !important; 
+                                     border-radius: 20px; 
+                                     padding: 8px 12px; 
+                                     box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
+                                     border: 2px solid rgba(255,255,255,0.3); 
+                                     font-weight: 600; 
+                                     color: white !important;
+                                     font-size: 0.75rem;
+                                     white-space: nowrap;
+                                     display: inline-block;">
+                            <i class="fas fa-check-circle me-1"></i>{{ $product->quantity }} in stock
+                        </span>
+                    @else
+                        <span class="badge stock-badge" 
+                              style="background: rgba(220, 53, 69, 0.95) !important; 
+                                     border-radius: 20px; 
+                                     padding: 8px 12px; 
+                                     box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
+                                     border: 2px solid rgba(255,255,255,0.3); 
+                                     font-weight: 600; 
+                                     color: white !important;
+                                     font-size: 0.75rem;
+                                     white-space: nowrap;
+                                     display: inline-block;">
+                            <i class="fas fa-times-circle me-1"></i>Out of Stock
+                        </span>
+                    @endif
+                </div>
+
                 {{-- Product Details --}}
                 <div class="card-body d-flex flex-column p-4">
                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -378,13 +367,43 @@
                         {{ Str::limit($product->description, 80) }}
                     </p>
 
-                    {{-- Price --}}
+                    {{-- Price with Unit Information --}}
                     <div class="mb-3">
                         <span class="h4 fw-bold" style="color: #28a745;">
                             ₱{{ number_format($product->price, 2) }}
                         </span>
-                        <small class="text-muted">/ piece</small>
+                        @if($product->unit_type && $product->unit_value)
+                            <small class="text-muted">
+                                / {{ $product->unit_value }} 
+                                {{ $product->unit_type }}{{ $product->unit_value > 1 ? 's' : '' }}
+                            </small>
+                        @else
+                            <small class="text-muted">/ piece</small>
+                        @endif
                     </div>
+
+                    {{-- Unit Information Badge --}}
+                    @if($product->unit_type && $product->unit_value)
+                        <div class="mb-3">
+                            <span class="badge bg-info" style="border-radius: 12px; padding: 6px 12px; font-size: 0.75rem;">
+                                <i class="fas fa-box me-1"></i>
+                                @switch($product->unit_type)
+                                    @case('pack')
+                                        {{ $product->unit_value }} piece{{ $product->unit_value > 1 ? 's' : '' }} per pack
+                                        @break
+                                    @case('kilo')
+                                        {{ $product->unit_value }} kg
+                                        @break
+                                    @case('box')
+                                        {{ $product->unit_value }} kg per box
+                                        @break
+                                    @case('piece')
+                                        Sold per piece
+                                        @break
+                                @endswitch
+                            </span>
+                        </div>
+                    @endif
 
                     {{-- Rating --}}
                     <div class="mb-3">
@@ -487,7 +506,7 @@
     </div>
     @endif
 </div>
-
+@push('styles')
 {{-- Custom CSS --}}
 <style>
 /* Hide next/prev buttons by default */
@@ -495,121 +514,196 @@
 .custom-carousel .carousel-control-next {
     opacity: 0;
     transition: opacity 0.4s ease, transform 0.4s ease;
-    transform: translateX(0); /* default reset */
+    transform: translateX(0);
 }
 
-/* On hover, fade in with slight slide */
 .custom-carousel:hover .carousel-control-prev {
     opacity: 0.5;
-    transform: translateX(10px); /* slide in from left */
+    transform: translateX(10px);
 }
 
 .custom-carousel:hover .carousel-control-next {
     opacity: 0.5;
-    transform: translateX(-10px); /* slide in from right */
+    transform: translateX(-10px);
 }
 
-/* When hovering directly on the button, make it brighter */
 .custom-carousel .carousel-control-prev:hover,
 .custom-carousel .carousel-control-next:hover {
     opacity: 0.9;
-    transform: translateX(0); /* reset to center */
+    transform: translateX(0);
 }
 
-    .card:hover {
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+.card:hover {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+}
+
+/* Enhanced Filter Form Styles */
+.form-select:focus,
+.form-control:focus {
+    border-color: #0bb364 !important;
+    box-shadow: 0 0 0 3px rgba(11, 179, 100, 0.1) !important;
+    outline: none;
+}
+
+.form-select,
+.form-control {
+    transition: all 0.3s ease;
+}
+
+.form-select:hover,
+.form-control:hover {
+    border-color: #0bb364;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(11, 179, 100, 0.3) !important;
+    background: linear-gradient(135deg, #0bb364 0%, #088a50 100%) !important;
+}
+
+.btn-light:hover {
+    background-color: #f8f9fa;
+    border-color: #0bb364;
+    color: #0bb364;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-outline-primary {
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background: linear-gradient(135deg, #0bb364 0%, #088a50 100%);
+    border-color: #0bb364;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(11, 179, 100, 0.3);
+}
+
+.badge a:hover {
+    background: rgba(255,255,255,0.4) !important;
+}
+
+.pagination .page-link {
+    border-radius: 10px;
+    margin: 0 2px;
+    border: 2px solid #e9ecef;
+    color: #0bb364;
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(45deg, #0bb364, #0bb364);
+    border-color: #0bb364;
+}
+
+.alert {
+    border: none;
+}
+
+/* Collapsible animation */
+.collapse {
+    transition: height 0.35s ease;
+}
+
+.collapsing {
+    transition: height 0.35s ease;
+}
+
+#advancedFilters .card {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Filter toggle button animation */
+#filterChevron {
+    transition: transform 0.3s ease;
+}
+
+#filterToggleBtn[aria-expanded="true"] #filterChevron {
+    transform: rotate(180deg);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2rem;
     }
     
-    .form-control:focus, .form-select:focus {
-        border-color: #0bb364;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
-    
-    .btn-primary {
-        background: linear-gradient(45deg, #0bb364, #0bb364);
-        border: none;
-    }
-    
-    .btn-primary:hover {
-        background: linear-gradient(45deg, #5a6fd8, #6a42a0);
-        transform: translateY(-1px);
-    }
-    
-    .pagination .page-link {
-        border-radius: 10px;
-        margin: 0 2px;
-        border: 2px solid #e9ecef;
-        color: #0bb364;
-    }
-    
-    .pagination .page-item.active .page-link {
-        background: linear-gradient(45deg, #0bb364, #0bb364);
-        border-color: #0bb364;
-    }
-    
-    .alert {
-        border: none;
-    }
-    
-    @media (max-width: 768px) {
-        .display-4 {
-            font-size: 2rem;
-        }
-        
-        .card-body {
-            padding: 1rem;
-        }
-    }
-        .form-control:focus, 
-    .form-select:focus {
-        border-color: #0bb364 !important;
-        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15) !important;
+    .card-body {
+        padding: 1rem;
     }
 
-    .input-group-text {
-        background-color: #f8f9fa;
-        border: 2px solid #e9ecef;
+    .form-label {
+        font-size: 0.7rem !important;
     }
+    
+    .form-select,
+    .form-control {
+        height: 44px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .btn {
+        font-size: 0.9rem;
+    }
+    
+    #filterBtnText {
+        font-size: 0.9rem;
+    }
+}
 
-    .input-group:focus-within .input-group-text {
-        border-color: #0bb364;
-    }
-
-    .input-group:focus-within {
-        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
-    }
-
-    .btn-outline-secondary:hover {
-        background-color: #6c757d;
-        border-color: #6c757d;
-        color: white;
-        transform: translateY(-1px);
-    }
-
-    .badge a:hover {
-        opacity: 0.8;
-        transform: scale(1.2);
-        display: inline-block;
-    }
-
-    @media (max-width: 768px) {
-        .d-flex.gap-2 {
-            flex-direction: column;
-        }
-        
-        .d-flex.gap-2 .btn {
-            width: 100%;
-        }
-    }
+/* Font Family */
 body, 
 h1, h2, h3, h4, h5, h6, 
 p, span, a, div, input, select, button, label {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
 </style>
-
-{{-- Add Font Awesome if not already included --}}
-@push('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+@endpush
+
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+{{-- JavaScript for Filter Toggle --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const advancedFilters = document.getElementById('advancedFilters');
+    const filterBtnText = document.getElementById('filterBtnText');
+    const filterChevron = document.getElementById('filterChevron');
+    const closeBtn = document.getElementById('closeAdvancedFilters');
+
+    // Initialize Collapse instance
+    const collapseInstance = new bootstrap.Collapse(advancedFilters, {toggle: false});
+
+    // Toggle chevron & button text when collapse shows/hides
+    advancedFilters.addEventListener('shown.bs.collapse', () => {
+        filterBtnText.textContent = 'Hide Advanced Filters';
+        filterChevron.classList.replace('fa-chevron-down', 'fa-chevron-up');
+    });
+
+    advancedFilters.addEventListener('hidden.bs.collapse', () => {
+        filterBtnText.textContent = 'Show Advanced Filters';
+        filterChevron.classList.replace('fa-chevron-up', 'fa-chevron-down');
+    });
+
+    // Close button inside collapse
+    closeBtn.addEventListener('click', () => {
+        collapseInstance.hide();
+    });
+});
+</script>
 @endpush
 @endsection

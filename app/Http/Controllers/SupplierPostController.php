@@ -17,8 +17,8 @@ class SupplierPostController extends Controller
             $query->where(function ($q) use ($user) {
                 $q->where('status', 'approved')
                     ->orWhere('user_id', $user->id);
-        });
-    }
+            });
+        }
 
         $posts = $query->paginate(10);
 
@@ -27,7 +27,7 @@ class SupplierPostController extends Controller
 
     public function create()
     {
-        return view('newsfeedsupplier.post'); // Show the separate form page
+        return view('newsfeedsupplier.post');
     }
 
     public function store(Request $request)
@@ -59,8 +59,8 @@ class SupplierPostController extends Controller
 
     public function edit(PostSupplier $post)
     {
-        // Check if user owns the post
-        if (auth()->id() !== $post->user_id) {
+        // Check if user owns the post or is admin
+        if (auth()->id() !== $post->user_id && !auth()->user()->is_admin) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -69,8 +69,8 @@ class SupplierPostController extends Controller
 
     public function update(Request $request, PostSupplier $post)
     {
-        // Check if user owns the post
-        if (auth()->id() !== $post->user_id) {
+        // Check if user owns the post or is admin
+        if (auth()->id() !== $post->user_id && !auth()->user()->is_admin) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -88,7 +88,6 @@ class SupplierPostController extends Controller
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            // Delete old image if exists
             if ($post->image) {
                 Storage::disk('public')->delete($post->image);
             }
@@ -110,17 +109,15 @@ class SupplierPostController extends Controller
 
     public function destroy(PostSupplier $post)
     {
-        // Check if user owns the post
-        if (auth()->id() !== $post->user_id) {
+        // Check if user owns the post or is admin
+        if (auth()->id() !== $post->user_id && !auth()->user()->is_admin) {
             abort(403, 'Unauthorized action.');
         }
 
-        // Delete associated image if exists
         if ($post->image) {
             Storage::disk('public')->delete($post->image);
         }
 
-        // Delete the post (this will cascade delete comments and reactions if set up properly)
         $post->delete();
 
         return redirect()->route('newsfeedsupplier.index')->with('success', 'Post deleted successfully!');
@@ -152,5 +149,28 @@ class SupplierPostController extends Controller
         ]);
 
         return back();
+    }
+
+    // New method for toggling featured status
+    public function toggleFeatured(PostSupplier $post)
+    {
+        // Only admin can feature posts
+        if (!auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // If featuring this post, unfeatured all others first
+        if (!$post->is_featured) {
+            PostSupplier::where('is_featured', true)->update(['is_featured' => false]);
+        }
+
+        $post->is_featured = !$post->is_featured;
+        $post->save();
+
+        $message = $post->is_featured 
+            ? 'Post featured on landing page successfully!' 
+            : 'Post removed from landing page.';
+
+        return back()->with('success', $message);
     }
 }

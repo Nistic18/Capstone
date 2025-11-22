@@ -107,6 +107,12 @@
                     </div>
                 </div>
 
+            {{-- Articles section - title and content only --}}
+            @elseif($content->section === 'articles')
+                <div class="alert alert-info">
+                    <strong>Articles Section:</strong> Only section title and content can be edited.
+                </div>
+
             @else
                 {{-- Default cards for other sections --}}
                 @foreach($cards as $card)
@@ -166,9 +172,9 @@
     </div>
 </div>
 
-{{-- JavaScript for all non-hero sections --}}
+{{-- JavaScript for all non-hero and non-articles sections --}}
 @push('scripts')
-@if($content->section !== 'hero')
+@if($content->section !== 'hero' && $content->section !== 'articles')
 <script>
     document.getElementById('addCardBtn').addEventListener('click', function() {
         var form = document.getElementById('newCardForm');

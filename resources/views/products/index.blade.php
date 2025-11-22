@@ -13,33 +13,6 @@
 @endpush
 @section('content')
 <div class="mt-5">
-    {{-- Header Section --}}
-    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #015f4b 0%, #0bb364 100%); border-radius: 20px;">
-        <div class="card-body text-center py-5">
-            <div class="mb-3">
-                <i class="fas fa-fish text-white" style="font-size: 3rem;"></i>
-            </div>
-            <h1 class="display-4 fw-bold text-white mb-3">🐟 Product Management</h1>
-            <p class="lead text-white-50 mb-4">Manage your fish market inventory and listings</p> --}}
-            
-            {{-- Quick Stats --}}
-            {{-- <div class="d-flex justify-content-center gap-4 flex-wrap">
-                <div class="d-flex align-items-center px-3 py-2 rounded-pill" 
-                     style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
-                    <i class="fas fa-boxes text-white me-2"></i>
-                    <span class="text-white">{{ $products->total() }} Products</span>
-                </div>
-                @if($products->where('quantity', '>', 0)->count() > 0)
-                <div class="d-flex align-items-center px-3 py-2 rounded-pill" 
-                     style="background: rgba(40, 167, 69, 0.3); backdrop-filter: blur(10px);">
-                    <i class="fas fa-check-circle text-white me-2"></i>
-                    <span class="text-white">{{ $products->where('quantity', '>', 0)->count() }} In Stock</span>
-                </div>
-                @endif
-            </div>
-        </div>
-    </div> --}}
-
     {{-- Action Bar --}}
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
@@ -127,7 +100,7 @@
                      onmouseover="this.style.transform='translateY(-5px)'; this.classList.add('shadow-lg')"
                      onmouseout="this.style.transform='translateY(0)'; this.classList.remove('shadow-lg')">
                     
-                    {{-- Product Image with Status Badge - FIXED SECTION --}}
+                    {{-- Product Image with Status Badge --}}
                     <div class="position-relative overflow-hidden" style="height: 220px; border-radius: 20px 20px 0 0;">
 @if($product->images && $product->images->count())
     <img src="{{ asset('storage/' . $product->images->first()->image) }}"
@@ -148,7 +121,7 @@
     </div>
 @endif
                         
-                        {{-- Stock Status Badge - FIXED --}}
+                        {{-- Stock Status Badge --}}
                         <div class="position-absolute stock-badge-container" 
                              style="top: 12px; right: 12px; z-index: 1001;">
                             @if($product->quantity > 0)
@@ -220,13 +193,43 @@
                             {{ Str::limit($product->description, 80) }}
                         </p>
 
-                        {{-- Price --}}
+                        {{-- Price with Unit Information --}}
                         <div class="mb-3">
                             <span class="h4 fw-bold" style="color: #28a745;">
                                 ₱{{ number_format($product->price, 2) }}
                             </span>
-                            <small class="text-muted">/ piece</small>
+                            @if($product->unit_type && $product->unit_value)
+                                <small class="text-muted">
+                                    / {{ $product->unit_value }} 
+                                    {{ $product->unit_type }}{{ $product->unit_value > 1 ? 's' : '' }}
+                                </small>
+                            @else
+                                <small class="text-muted">/ piece</small>
+                            @endif
                         </div>
+
+                        {{-- Unit Information Badge --}}
+                        @if($product->unit_type && $product->unit_value)
+                            <div class="mb-3">
+                                <span class="badge bg-info" style="border-radius: 12px; padding: 6px 12px; font-size: 0.75rem;">
+                                    <i class="fas fa-box me-1"></i>
+                                    @switch($product->unit_type)
+                                        @case('pack')
+                                            {{ $product->unit_value }} piece{{ $product->unit_value > 1 ? 's' : '' }} per pack
+                                            @break
+                                        @case('kilo')
+                                            {{ $product->unit_value }} kg
+                                            @break
+                                        @case('box')
+                                            {{ $product->unit_value }} kg per box
+                                            @break
+                                        @case('piece')
+                                            Sold per piece
+                                            @break
+                                    @endswitch
+                                </span>
+                            </div>
+                        @endif
 
                         {{-- Supplier Info --}}
                         @if(isset($product->user))
@@ -358,7 +361,7 @@
     </div>
 </div>
 
-{{-- Custom CSS - UPDATED WITH FIXES --}}
+{{-- Custom CSS --}}
 <style>
     
     .card:hover {
@@ -434,7 +437,6 @@
         border: none;
     }
     
-    /* FIXED: Stock Badge Positioning */
     .stock-badge-container {
         pointer-events: none;
     }
@@ -458,7 +460,6 @@
         pointer-events: auto;
     }
     
-    /* Ensure badges stay visible on hover */
     .card:hover .stock-badge-container {
         z-index: 1002 !important;
     }

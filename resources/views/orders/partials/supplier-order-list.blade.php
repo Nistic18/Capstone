@@ -141,6 +141,7 @@
                             <tr>
                                 <th class="border-0 fw-semibold">Product</th>
                                 <th class="border-0 text-center fw-semibold">Quantity</th>
+                                <th class="border-0 text-center fw-semibold">Unit Info</th>
                                 <th class="border-0 text-center fw-semibold">Current Status</th>
                                 @if(!$hasDeliveredAll && !$isRefunded && !$isCancelled)
                                     <th class="border-0 text-center fw-semibold">Action</th>
@@ -173,6 +174,30 @@
                                     </td>
 
                                     <td class="border-0 text-center">{{ $product->pivot->quantity }}</td>
+
+                                                                        <td class="border-0 text-center">
+                                        @if($product->unit_type && $product->unit_value)
+                                            <span class="badge bg-info" style="border-radius: 10px; padding: 4px 8px; font-size: 0.7rem;">
+                                                <i class="fas fa-box me-1"></i>
+                                                @switch($product->unit_type)
+                                                    @case('pack')
+                                                        {{ $product->unit_value }} pc{{ $product->unit_value > 1 ? 's' : '' }}/pack
+                                                        @break
+                                                    @case('kilo')
+                                                        {{ $product->unit_value }} kg
+                                                        @break
+                                                    @case('box')
+                                                        {{ $product->unit_value }} kg/box
+                                                        @break
+                                                    @case('piece')
+                                                        Per piece
+                                                        @break
+                                                @endswitch
+                                            </span>
+                                        @else
+                                            <span class="text-muted small">-</span>
+                                        @endif
+                                    </td>
 
                                     <td class="border-0 text-center">
                                         @php

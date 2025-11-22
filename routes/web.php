@@ -23,6 +23,7 @@
     use App\Models\PostSupplier;
 
 
+
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('home');
@@ -31,10 +32,20 @@ Route::get('/', function () {
     // Hero products
     $heroProducts = \App\Models\Product::inRandomOrder()->take(4)->get();
 
-    // Most recent supplier post
-    $latestPost = PostSupplier::with('user', 'comments', 'reactions')
+    // Get featured post, or fallback to latest approved post
+    $latestPost = \App\Models\PostSupplier::with('user', 'comments', 'reactions')
+                    ->where('status', 'approved')
+                    ->where('is_featured', true)
                     ->latest()
                     ->first();
+    
+    // If no featured post, get the latest approved post
+    if (!$latestPost) {
+        $latestPost = \App\Models\PostSupplier::with('user', 'comments', 'reactions')
+                        ->where('status', 'approved')
+                        ->latest()
+                        ->first();
+    }
 
     return view('landing', compact('heroProducts', 'latestPost'));
 })->name('landing');
@@ -347,3 +358,7 @@ Route::get('/buyer/reviews', [ReviewController::class, 'index'])
 
 Route::middleware('auth')->get('/profile/reviews', [ReviewController::class, 'index'])
     ->name('profile.reviews');
+    
+Route::post('/newsfeed-supplier/{post}/toggle-featured', [SupplierPostController::class, 'toggleFeatured'])
+    ->name('newsfeedsupplier.toggleFeatured')
+    ->middleware('auth');

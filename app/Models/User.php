@@ -34,6 +34,12 @@ class User extends Authenticatable
         ];
     }
 
+    // Add this accessor to check if user is admin
+    public function getIsAdminAttribute()
+    {
+        return $this->role === 'admin';
+    }
+
     public function products()
     {
         return $this->hasMany(Product::class);

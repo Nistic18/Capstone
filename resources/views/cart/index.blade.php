@@ -135,9 +135,38 @@
                                         <div class="col-md-3 col-8">
                                             <h6 class="fw-bold mb-1" style="color: #2c3e50;">{{ $item->product->name }}</h6>
                                             <p class="text-muted small mb-1">
-                                                <i class="me-1"></i>₱{{ number_format($item->product->price, 2) }} per piece
+                                                <i class="fas fa-tag me-1"></i>
+                                                ₱{{ number_format($item->product->price, 2) }}
+                                                @if($item->product->unit_type && $item->product->unit_value)
+                                                    / {{ $item->product->unit_value }} 
+                                                    {{ $item->product->unit_type }}{{ $item->product->unit_value > 1 ? 's' : '' }}
+                                                @else
+                                                    per piece
+                                                @endif
                                             </p>
-                                            <small class="text-muted">
+                                            
+                                            {{-- Unit Information Badge --}}
+                                            @if($item->product->unit_type && $item->product->unit_value)
+                                                <span class="badge bg-info" style="font-size: 0.7rem;">
+                                                    <i class="fas fa-box me-1"></i>
+                                                    @switch($item->product->unit_type)
+                                                        @case('pack')
+                                                            {{ $item->product->unit_value }} pcs/pack
+                                                            @break
+                                                        @case('kilo')
+                                                            {{ $item->product->unit_value }} kg
+                                                            @break
+                                                        @case('box')
+                                                            {{ $item->product->unit_value }} kg/box
+                                                            @break
+                                                        @case('piece')
+                                                            Per piece
+                                                            @break
+                                                    @endswitch
+                                                </span>
+                                            @endif
+                                            
+                                            <small class="text-muted d-block mt-1">
                                                 <i class="fas fa-boxes me-1"></i>Stock: {{ $item->product->quantity }} available
                                             </small>
                                         </div>
@@ -286,7 +315,7 @@
 
     <button type="button" class="btn btn-lg w-100 mb-3" 
             id="checkoutButton"
-            style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997); border: none; color: white; padding: 12px;"
+            style="border-radius: 15px; background: #ccc; border: none; color: #666; padding: 12px; cursor: not-allowed;"
             data-bs-toggle="modal" 
             data-bs-target="#checkoutConfirmationModal"
             disabled>
@@ -519,7 +548,7 @@
 </style>
 
 {{-- JavaScript for quantity controls and modals --}}
-<<script>
+<script>
     let selectedProducts = [];
     let cartData = {};
 
@@ -579,7 +608,17 @@
         // Enable/disable checkout button
         const checkoutButton = document.getElementById('checkoutButton');
         if (checkoutButton) {
-            checkoutButton.disabled = checkboxes.length === 0;
+            if (checkboxes.length === 0) {
+                checkoutButton.disabled = true;
+                checkoutButton.style.background = '#ccc';
+                checkoutButton.style.color = '#666';
+                checkoutButton.style.cursor = 'not-allowed';
+            } else {
+                checkoutButton.disabled = false;
+                checkoutButton.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+                checkoutButton.style.color = 'white';
+                checkoutButton.style.cursor = 'pointer';
+            }
         }
     }
 

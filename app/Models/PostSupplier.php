@@ -8,7 +8,11 @@ class PostSupplier extends Model
 {
     protected $table = 'supplierposts'; // ✅ Fix table name
 
-    protected $fillable = ['user_id', 'title', 'content', 'image', 'status'];
+    protected $fillable = ['user_id', 'title', 'content', 'image', 'status','is_featured',];
+    
+    protected $casts = [
+    'is_featured' => 'boolean',
+];
 
     public function user()
     {

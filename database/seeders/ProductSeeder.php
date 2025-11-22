@@ -22,7 +22,7 @@ class ProductSeeder extends Seeder
             Product::create([
                 'name' => ucfirst($faker->words(2, true)), // Random 2-word name
                 'description' => $faker->sentence(10),
-                'price' => $faker->randomFloat(2, 50, 500), // Price between 50 and 500
+                'price' => $faker->randomFloat(2, 50, 500), // Price between 5 0 and 500
                 'image' => 'products/sample' . rand(1, 5) . '.jpg', // Placeholder image paths
                 'quantity' => rand(1, 100),
                 'user_id' => 3, // Default owner/seller

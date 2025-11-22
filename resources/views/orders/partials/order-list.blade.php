@@ -73,8 +73,31 @@
                                     
                                     {{-- Product Info --}}
                                     <div class="flex-grow-1">
-                                        <h6 class="mb-1 fw-semibold">{{ $product->name }}</h6>
-                                        <small class="text-muted d-block mb-2">x{{ $product->pivot->quantity }}</small>
+                                        <h6 class="mb-1 fw-semibold">Product: {{ $product->name }}</h6>
+                                        <small class="text-muted d-block mb-1">Quantity: {{ $product->pivot->quantity }}</small>
+                                        
+                                        {{-- Unit Information --}}
+                                        @if($product->unit_type && $product->unit_value)
+                                            <span class="badge bg-info mb-2" style="border-radius: 10px; padding: 4px 8px; font-size: 0.7rem;">
+                                                <i class="fas fa-box me-1"></i>
+                                                @switch($product->unit_type)
+                                                    @case('pack')
+                                                        {{ $product->unit_value }} piece{{ $product->unit_value > 1 ? 's' : '' }} per pack
+                                                        @break
+                                                    @case('kilo')
+                                                        {{ $product->unit_value }} kg
+                                                        @break
+                                                    @case('box')
+                                                        {{ $product->unit_value }} kg per box
+                                                        @break
+                                                    @case('piece')
+                                                        Sold per piece
+                                                        @break
+                                                @endswitch
+                                            </span>
+                                            <br>
+                                        @endif
+                                        
                                         <small class="text-muted">{{ $paymentMethodFull }}</small>
                                     </div>
                                 </div>
@@ -83,6 +106,17 @@
                             {{-- Product Price --}}
                             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                                 <div class="mb-2">
+                                    <span class="fw-bold" style="color: #0bb364; font-size: 1.1rem;">
+                                        Price: ₱{{ number_format($product->price, 2) }}
+                                    </span>
+                                    @if($product->unit_type && $product->unit_value)
+                                        <small class="text-muted d-block">
+                                            / {{ $product->unit_value }} 
+                                            {{ $product->unit_type }}{{ $product->unit_value > 1 ? 's' : '' }}
+                                        </small>
+                                    @else
+                                        <small class="text-muted d-block">/ piece</small>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -208,17 +242,17 @@
                                 </a>
                             @endif
                             @php
-    // Get the seller (user_id from the first product in the order)
-    $sellerId = $order->products->first()->user_id ?? null;
-@endphp
+                                // Get the seller (user_id from the first product in the order)
+                                $sellerId = $order->products->first()->user_id ?? null;
+                            @endphp
 
-@if($sellerId)
-    <a href="{{ route('chat.index', ['user' => $sellerId, 'order' => $order->id]) }}" 
-       class="btn btn-outline-secondary btn-sm" 
-       style="border-radius: 4px;">
-        <i class="fas fa-comment me-1"></i>Contact Seller
-    </a>
-@endif
+                            @if($sellerId)
+                                <a href="{{ route('chat.index', ['user' => $sellerId, 'order' => $order->id]) }}" 
+                                   class="btn btn-outline-secondary btn-sm" 
+                                   style="border-radius: 4px;">
+                                    <i class="fas fa-comment me-1"></i>Contact Seller
+                                </a>
+                            @endif
                         </div>
                     </div>
                 </div>

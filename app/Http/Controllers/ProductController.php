@@ -34,7 +34,9 @@ class ProductController extends Controller
         if ($request->filled('max_price')) {
             $query->where('price', '<=', $request->max_price);
         }
-
+        if ($request->filled('unit_type')) {
+            $query->where('unit_type', $request->unit_type);
+        }
         // Sorting
         switch ($request->sort) {
             case 'price_asc': $query->orderBy('price', 'asc'); break;
