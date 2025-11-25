@@ -95,4 +95,38 @@ class ResellerApplicationController extends Controller
 
         return redirect()->route('reseller.create')->with('success', 'Your Supplier application has been submitted successfully. Please check your email for confirmation.');
     }
+    /**
+ * Allow user to reset their rejected application and apply again
+ */
+public function resetApplication(Request $request)
+{
+    $user = auth()->user();
+    
+    // Get the user's application
+    $application = ResellerApplication::where('user_id', $user->id)->first();
+    
+    // Check if application exists and is rejected
+    if (!$application || $application->status !== 'rejected') {
+        return redirect()->route('reseller.create')
+            ->with('error', 'No rejected application found.');
+    }
+    
+    // Check if 3 days have passed since rejection
+    $rejectedDate = \Carbon\Carbon::parse($application->rejected_at ?? $application->updated_at);
+    $canReapplyDate = $rejectedDate->addDays(3);
+    $now = \Carbon\Carbon::now();
+    
+    if ($now->lessThan($canReapplyDate)) {
+        $daysRemaining = $now->diffInDays($canReapplyDate, false) + 1;
+        return redirect()->route('reseller.create')
+            ->with('error', "You must wait {$daysRemaining} more day(s) before reapplying. You can apply again on {$canReapplyDate->format('F d, Y')}.");
+    }
+    
+    // Delete the old application (or you can soft delete/archive it)
+    // If you want to keep history, consider updating status to 'archived' instead of deleting
+    $application->delete();
+    
+    return redirect()->route('reseller.create')
+        ->with('success', 'You can now submit a new application.');
+}
 }

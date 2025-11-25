@@ -175,7 +175,7 @@
 
                                     <td class="border-0 text-center">{{ $product->pivot->quantity }}</td>
 
-                                                                        <td class="border-0 text-center">
+                                    <td class="border-0 text-center">
                                         @if($product->unit_type && $product->unit_value)
                                             <span class="badge bg-info" style="border-radius: 10px; padding: 4px 8px; font-size: 0.7rem;">
                                                 <i class="fas fa-box me-1"></i>
@@ -288,6 +288,15 @@
 
             {{-- Footer --}}
             <div class="card-footer border-0 bg-light d-flex justify-content-end gap-2 mt-4 p-3">
+                {{-- Contact Buyer Button --}}
+                @if($order->user_id)
+                    <a href="{{ route('chat.index', ['user' => $order->user_id, 'order' => $order->id]) }}" 
+                       class="btn btn-sm btn-outline-primary" 
+                       style="border-radius: 10px;">
+                        <i class="fas fa-comment me-1"></i>Contact Buyer
+                    </a>
+                @endif
+
                 <a href="{{ route('orders.show', $order->id) }}" 
                    class="btn btn-sm btn-outline-primary" 
                    style="border-radius: 10px;">
@@ -312,8 +321,8 @@
                     </span>
                 @endif
             </div>
-
         </div>
+        
     </div>
 @empty
     <div class="text-center py-5">

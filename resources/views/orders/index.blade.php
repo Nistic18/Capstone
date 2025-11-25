@@ -2,6 +2,70 @@
 @section('title', 'My Orders')
 @section('content')
 <div class="container mt-4">
+    {{-- SUCCESS BANNER - Dynamic based on action --}}
+    @if(session('success'))
+        @php
+            $isOrderPlaced = str_contains(strtolower(session('success')), 'checkout') || 
+                           str_contains(strtolower(session('success')), 'order') ||
+                           str_contains(strtolower(session('success')), 'placed');
+            $isRefund = str_contains(strtolower(session('success')), 'refund') || 
+                       str_contains(strtolower(session('success')), 'return');
+        @endphp
+        
+        <div class="alert alert-success border-0 shadow-lg mb-4 success-banner" 
+             style="border-radius: 20px; background: linear-gradient(135deg, {{ $isRefund ? '#17a2b8, #138496' : '#28a745, #20c997' }}); color: white;">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="me-3" style="font-size: 2.5rem;">
+                        <i class="fas {{ $isRefund ? 'fa-undo-alt' : 'fa-check-circle' }}"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1 fw-bold text-white">
+                            @if($isRefund)
+                                🔄 Refund Request Submitted!
+                            @elseif($isOrderPlaced)
+                                🎉 Order Placed Successfully!
+                            @else
+                                ✅ Success!
+                            @endif
+                        </h4>
+                        <p class="mb-0">{{ session('success') }}</p>
+                        <small class="d-block mt-1 opacity-75">
+                            <i class="fas fa-clock me-1"></i>
+                            @if($isRefund)
+                                Your refund request is being reviewed. We'll contact you soon.
+                            @elseif($isOrderPlaced)
+                                Your order is being processed. Track your order below.
+                            @else
+                                Action completed successfully.
+                            @endif
+                        </small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            
+            {{-- Progress Indicator --}}
+            <div class="progress mt-3" style="height: 6px; border-radius: 10px; background-color: rgba(255,255,255,0.3);">
+                <div class="progress-bar" role="progressbar" style="width: 100%; background-color: white;" 
+                     aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger border-0 shadow-sm mb-4" 
+             style="border-radius: 15px;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-circle text-danger me-3" style="font-size: 1.5rem;"></i>
+                <div>
+                    <strong>Error!</strong>
+                    <p class="mb-0">{{ session('error') }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Breadcrumb Navigation --}}
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb" style="background: transparent; padding: 2%;">
@@ -33,6 +97,18 @@
                             aria-controls="all"
                             aria-selected="true">
                         All ({{ $allOrders->count() }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3 border-0 fw-semibold" 
+                            id="to-pack-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#to-pack" 
+                            type="button" 
+                            role="tab"
+                            aria-controls="to-pack"
+                            aria-selected="false">
+                        To Pack ({{ $toPackOrders->count() }})
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -102,6 +178,11 @@
                 {{-- All Orders --}}
                 <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
                     @include('orders.partials.order-list', ['filteredOrders' => $allOrders])
+                </div>
+
+                {{-- To Pack --}}
+                <div class="tab-pane fade" id="to-pack" role="tabpanel" aria-labelledby="to-pack-tab">
+                    @include('orders.partials.order-list', ['filteredOrders' => $toPackOrders])
                 </div>
 
                 {{-- To Ship --}}
@@ -178,6 +259,31 @@
     :root {
         --shopee-primary: #0bb364;
         --shopee-hover: #0bb364;
+    }
+
+    /* Success Banner Animation */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .success-banner {
+        animation: fadeInDown 0.5s ease-out;
+    }
+    
+    .progress-bar {
+        animation: progressAnimation 1s ease-out;
+    }
+    
+    @keyframes progressAnimation {
+        from { width: 0%; }
+        to { width: 100%; }
     }
 
     /* Tab Styling */
@@ -264,11 +370,12 @@
             padding: 1rem;
         }
     }
-body, 
-h1, h2, h3, h4, h5, h6, 
-p, span, a, div, input, select, button, label {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-}
+    
+    body, 
+    h1, h2, h3, h4, h5, h6, 
+    p, span, a, div, input, select, button, label {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    }
 </style>
 
 {{-- Add Font Awesome if not already included --}}

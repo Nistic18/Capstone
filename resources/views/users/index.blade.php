@@ -271,13 +271,40 @@
     {{-- Users Table Card --}}
     <div class="card border-0 shadow-sm" style="border-radius: 20px;">
         <div class="card-header border-0 py-4" style="background: linear-gradient(45deg, #f8f9fa, #ffffff); border-radius: 20px 20px 0 0;">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
                     <h4 class="fw-bold mb-1" style="color: #2c3e50;">
                         <i class="fas fa-table me-2" style="color: #667eea;"></i>
                         User Directory
                     </h4>
                     <p class="text-muted mb-0">Showing {{ $users->count() }} of {{ $users->total() }} users</p>
+                </div>
+                
+                {{-- Role Filter --}}
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="text-muted small me-2">Filter by Role:</span>
+                    <form action="{{ route('users.index') }}" method="GET" id="roleFilterForm">
+                        <div class="btn-group" role="group">
+                            <a href="{{ route('users.index') }}" 
+                               class="btn btn-sm {{ !$roleFilter ? 'btn-primary' : 'btn-outline-primary' }}"
+                               style="border-radius: 10px 0 0 10px;">
+                                <i class="fas fa-users me-1"></i>All
+                            </a>
+                            <a href="{{ route('users.index', ['role' => 'admin']) }}" 
+                               class="btn btn-sm {{ $roleFilter == 'admin' ? 'btn-success' : 'btn-outline-success' }}">
+                                <i class="fas fa-shield-alt me-1"></i>Admin
+                            </a>
+                            <a href="{{ route('users.index', ['role' => 'supplier']) }}" 
+                               class="btn btn-sm {{ $roleFilter == 'supplier' ? 'btn-purple' : 'btn-outline-purple' }}">
+                                <i class="fas fa-truck me-1"></i>Supplier
+                            </a>
+                            <a href="{{ route('users.index', ['role' => 'buyer']) }}" 
+                               class="btn btn-sm {{ $roleFilter == 'buyer' ? 'btn-warning' : 'btn-outline-warning' }}"
+                               style="border-radius: 0 10px 10px 0;">
+                                <i class="fas fa-shopping-cart me-1"></i>Buyer
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -289,7 +316,13 @@
                         <i class="fas fa-users text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
                     </div>
                     <h3 class="text-muted mb-3">No Users Found</h3>
-                    <p class="text-muted">There are no users to display at the moment.</p>
+                    <p class="text-muted">
+                        @if($roleFilter)
+                            No {{ ucfirst($roleFilter) }} users found. <a href="{{ route('users.index') }}">Clear filter</a>
+                        @else
+                            There are no users to display at the moment.
+                        @endif
+                    </p>
                 </div>
             @else
                 <div class="table-responsive">
@@ -324,17 +357,17 @@
                                 <td class="px-4 py-4">
                                     @switch($user->role)
                                         @case('admin')
-                                            <span class="badge px-3 py-2" style="background: linear-gradient(45deg, #28a745, #20c997); border-radius: 25px;">
+                                            <span class="badge px-3 py-2" style="background: linear-gradient(45deg, #28a745, #20c997); border-radius: 25px; color: #fff;">
                                                 <i class="fas fa-shield-alt me-1"></i>Administrator
                                             </span>
                                             @break
                                         @case('supplier')
-                                            <span class="badge px-3 py-2" style="background: linear-gradient(45deg, #6f42c1, #5a3fbd); border-radius: 25px;">
-                                                <i class="fas fa-truck me-1"></i>Supplier
+                                            <span class="badge px-3 py-2" style="background: linear-gradient(45deg, #6f42c1, #5a3fbd); border-radius: 25px; color: #fff;">
+                                                <i class="fas fa-truck me-1 "></i>Supplier
                                             </span>
                                             @break
                                         @case('buyer')
-                                            <span class="badge px-3 py-2" style="background: linear-gradient(45deg, #fd7e14, #e0a800); border-radius: 25px;">
+                                            <span class="badge px-3 py-2" style="background: linear-gradient(45deg, #fd7e14, #e0a800); border-radius: 25px; color: #fff;">
                                                 <i class="fas fa-shopping-cart me-1"></i>Buyer
                                             </span>
                                             @break
@@ -424,6 +457,22 @@ body,
 h1, h2, h3, h4, h5, h6, 
 p, span, a, div, input, select, button, label {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+/* Custom button styles for purple role filter */
+.btn-purple {
+    background: linear-gradient(45deg, #6f42c1, #5a3fbd);
+    color: white;
+    border: none;
+}
+.btn-outline-purple {
+    border: 1px solid #6f42c1;
+    color: #6f42c1;
+    background: white;
+}
+.btn-outline-purple:hover {
+    background: linear-gradient(45deg, #6f42c1, #5a3fbd);
+    color: white;
 }
 </style>
 

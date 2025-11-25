@@ -3,6 +3,16 @@
 @section('content')
     <div class="row justify-content-center">
         <div class="col-md-8 mt-5">
+            <!-- Success Notification -->
+            @if(session('status'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Success!</strong> {{ session('status') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
             <div class="card">
                 <div class="card-header">{{ __('Edit Profile') }}</div>
 

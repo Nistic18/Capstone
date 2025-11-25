@@ -27,27 +27,39 @@
     {{-- Quick Stats --}}
     @php
         $allOrders = $orders;
+        
+        // To Pack: Orders with status 'Packed'
+        $toPackOrders = $orders->filter(fn($order) => $order->status === 'Packed');
+        
+        // To Ship: Orders with at least one product in 'Pending' status
         $toShipOrders = $orders->filter(function($order) {
             return $order->products->some(fn($p) => $p->pivot->product_status === 'Pending');
         });
+        
+        // To Deliver: Orders with at least one product in 'Shipped' status
         $toReceiveOrders = $orders->filter(function($order) {
             return $order->products->some(fn($p) => $p->pivot->product_status === 'Shipped');
         });
+        
+        // Completed: All products are delivered
         $completedOrders = $orders->filter(function($order) {
             return $order->products->every(fn($p) => $p->pivot->product_status === 'Delivered');
         });
+        
         $cancelledOrders = $orders->filter(fn($order) => $order->status === 'Cancelled');
         $refundOrders = $orders->filter(fn($order) => in_array($order->refund_status, ['Pending', 'Approved', 'Rejected']));
         
         $totalOrders = $allOrders->count();
+        $toPackCount = $toPackOrders->count();
         $pendingOrders = $toShipOrders->count();
         $completedCount = $completedOrders->count();
         $cancelCount = $cancelledOrders->count();
+        $refundCount = $refundOrders->count();
     @endphp
 
     @if($totalOrders > 0)
     <div class="row g-4 mb-4">
-        <div class="col-lg-3 col-md-6">
+        <div class="col-lg-2 col-md-4 col-6">
             <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
@@ -58,7 +70,18 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6">
+        <div class="col-lg-2 col-md-4 col-6">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-box text-secondary" style="font-size: 2rem;"></i>
+                    </div>
+                    <h4 class="fw-bold mb-1" style="color: #6c757d;">{{ $toPackCount }}</h4>
+                    <small class="text-muted">To Pack</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
             <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
@@ -69,7 +92,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6">
+        <div class="col-lg-2 col-md-4 col-6">
             <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
@@ -80,7 +103,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6">
+        <div class="col-lg-2 col-md-4 col-6">
             <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
@@ -91,6 +114,17 @@
                 </div>
             </div>
         </div> 
+        <div class="col-lg-2 col-md-4 col-6">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-undo-alt text-info" style="font-size: 2rem;"></i>
+                    </div> 
+                    <h4 class="fw-bold mb-1" style="color: #0dcaf0;">{{ $refundCount }}</h4>
+                    <small class="text-muted">Refund / Return</small>
+                </div>
+            </div>
+        </div>
     </div>
     @endif
 
@@ -108,6 +142,18 @@
                             aria-controls="all"
                             aria-selected="true">
                         All ({{ $allOrders->count() }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3 border-0 fw-semibold" 
+                            id="to-pack-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#to-pack" 
+                            type="button" 
+                            role="tab"
+                            aria-controls="to-pack"
+                            aria-selected="false">
+                        To Pack ({{ $toPackOrders->count() }})
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -177,6 +223,11 @@
                 {{-- All Orders --}}
                 <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
                     @include('orders.partials.supplier-order-list', ['filteredOrders' => $allOrders])
+                </div>
+
+                {{-- To Pack --}}
+                <div class="tab-pane fade" id="to-pack" role="tabpanel" aria-labelledby="to-pack-tab">
+                    @include('orders.partials.supplier-order-list', ['filteredOrders' => $toPackOrders])
                 </div>
 
                 {{-- To Ship --}}
@@ -382,16 +433,6 @@ p, span, a, div, input, select, button, label {
         console.log('Tab initialization complete');
     });
 
-    // Toggle all products checkbox
-    function toggleAllProducts(orderId) {
-        const selectAllCheckbox = document.getElementById('selectAll' + orderId);
-        const productCheckboxes = document.querySelectorAll(`input[data-order="${orderId}"].product-checkbox`);
-        
-        productCheckboxes.forEach(checkbox => {
-            checkbox.checked = selectAllCheckbox.checked;
-        });
-    }
-    
     // Update individual product status
     function updateIndividualStatus(orderId, productId, status) {
         if (!status) return;
@@ -428,38 +469,6 @@ p, span, a, div, input, select, button, label {
         document.body.appendChild(form);
         form.submit();
     }
-    
-    // Mark all products as delivered
-    function markAllDelivered(orderId) {
-        if (confirm('Are you sure you want to mark all products in this order as delivered?')) {
-            const form = document.getElementById('orderForm' + orderId);
-            const statusSelect = form.querySelector('select[name="product_status"]');
-            statusSelect.value = 'Delivered';
-            
-            // Check all checkboxes
-            const checkboxes = form.querySelectorAll('.product-checkbox');
-            checkboxes.forEach(checkbox => checkbox.checked = true);
-            
-            form.submit();
-        }
-    }
-    
-    // Auto-check "Select All" when all individual checkboxes are checked
-    document.addEventListener('DOMContentLoaded', function() {
-        const productCheckboxes = document.querySelectorAll('.product-checkbox');
-        productCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const orderId = this.getAttribute('data-order');
-                const allCheckboxes = document.querySelectorAll(`input[data-order="${orderId}"].product-checkbox`);
-                const checkedCheckboxes = document.querySelectorAll(`input[data-order="${orderId}"].product-checkbox:checked`);
-                const selectAllCheckbox = document.getElementById('selectAll' + orderId);
-                
-                if (selectAllCheckbox) {
-                    selectAllCheckbox.checked = allCheckboxes.length === checkedCheckboxes.length;
-                }
-            });
-        });
-    });
 </script>
 @endpush
 @endsection

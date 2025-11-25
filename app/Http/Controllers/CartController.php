@@ -123,7 +123,7 @@ public function checkout(Request $request)
         // Create order
         $order = Order::create([
             'user_id' => Auth::id(),
-            'status' => 'Pending',
+            'status' => 'Packed',
             'total_price' => 0, // temporary
             'delivery_fee' => $deliveryFee,
             'payment_method' => $request->payment_method
@@ -143,7 +143,7 @@ public function checkout(Request $request)
             // Add to order
             $order->products()->attach($product->id, [
                 'quantity' => $item->quantity,
-                'product_status' => 'Pending'
+                'product_status' => 'Packed'
             ]);
 
             // Notify seller

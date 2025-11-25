@@ -177,6 +177,10 @@ Auth::routes();
     Route::post('/reseller/apply', [ResellerApplicationController::class, 'store'])->name('reseller.store');
     Route::get('/reseller/apply', [ResellerApplicationController::class, 'create'])->name('reseller.create');
     Route::post('/reseller/apply', [ResellerApplicationController::class, 'store'])->name('reseller.store');
+    // Add this route with your other reseller routes
+    Route::post('/reseller/reset', [ResellerApplicationController::class, 'resetApplication'])
+    ->name('reseller.reset')
+    ->middleware('auth');
     });
 
     Route::middleware(['auth', 'admin'])->group(function () {

@@ -493,6 +493,18 @@ p, span, a, div, input, select, button, label {
                             Please meet all password requirements
                         </div>
                     </div>
+                                        <!-- Confirm Password Field -->
+                    <div class="mb-3">
+                        <div class="password-wrapper">
+                            <input id="password-confirm" type="password" class="form-control form-control-lg" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm password">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password-confirm')">
+                                <i class="fas fa-eye" id="togglePasswordConfirmIcon"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            Passwords do not match
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Right Column -->
@@ -536,18 +548,6 @@ p, span, a, div, input, select, button, label {
                         </div>
                     </div>
 
-                    <!-- Confirm Password Field -->
-                    <div class="mb-3">
-                        <div class="password-wrapper">
-                            <input id="password-confirm" type="password" class="form-control form-control-lg" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm password">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password-confirm')">
-                                <i class="fas fa-eye" id="togglePasswordConfirmIcon"></i>
-                            </button>
-                        </div>
-                        <div class="invalid-feedback">
-                            Passwords do not match
-                        </div>
-                    </div>
 
                     <!-- Terms and Conditions -->
                     <div class="mb-4">

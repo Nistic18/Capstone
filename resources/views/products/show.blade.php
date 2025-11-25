@@ -173,8 +173,8 @@
                         <div class="col-6">
                             <div class="card border-0" style="background-color: #f8f9fa; border-radius: 15px;">
                                 <div class="card-body text-center py-3">
-                                    <i class="fas fa-weight text-primary mb-2" style="font-size: 1.5rem;"></i>
-                                    <h6 class="mb-1">Weight</h6>
+                                    <i class="fas fa-fish text-primary mb-2" style="font-size: 1.5rem;"></i>
+                                    <h6 class="mb-1">Fish</h6>
                                     <small class="text-muted">Fresh & Premium</small>
                                 </div>
                             </div>

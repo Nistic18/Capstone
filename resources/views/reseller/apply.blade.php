@@ -63,22 +63,52 @@
                         <div class="mt-3">
                             <a href="{{ route('home') }}" class="btn btn-primary px-4">Go to Dashboard</a>
                         </div>
-                    @elseif($application->status == 'rejected')
-                        <div class="mb-3">
-                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 3.5rem;"></i>
-                        </div>
-                        <h4 class="mb-3">Application Rejected</h4>
-                        <p class="text-muted mb-3">Unfortunately, your reseller application has been rejected.</p>
-                        @if($application->rejection_reason)
-                            <div class="alert alert-danger">
-                                <strong>Reason:</strong> {{ $application->rejection_reason }}
-                            </div>
-                        @endif
-                        <p class="text-muted small">Please contact our support team for more details.</p>
-                        <div class="mt-3">
-                            <a href="mailto:support@yourstore.com" class="btn btn-outline-primary px-4">Contact Support</a>
-                        </div>
-                    @endif
+@elseif($application->status == 'rejected')
+    <div class="mb-3">
+        <i class="bi bi-x-circle-fill text-danger" style="font-size: 3.5rem;"></i>
+    </div>
+    <h4 class="mb-3">Application Rejected</h4>
+    <p class="text-muted mb-3">Unfortunately, your reseller application has been rejected.</p>
+    @if($application->rejection_reason)
+        <div class="alert alert-danger">
+            <strong>Reason:</strong> {{ $application->rejection_reason }}
+        </div>
+    @endif
+    
+    @php
+        $rejectedDate = \Carbon\Carbon::parse($application->rejected_at ?? $application->updated_at);
+        $canReapplyDate = $rejectedDate->addDays(3);
+        $now = \Carbon\Carbon::now();
+        $canReapply = $now->greaterThanOrEqualTo($canReapplyDate);
+        $daysRemaining = $canReapply ? 0 : $now->diffInDays($canReapplyDate, false) + 1;
+        // Ensure no decimals — round up to next whole day if needed
+        $daysRemaining = $canReapply ? 0 : ceil($now->floatDiffInDays($canReapplyDate));
+    @endphp
+    
+    @if($canReapply)
+        <p class="text-muted small mb-3">You may now submit a new application.</p>
+        <div class="mt-3">
+            <form action="{{ route('reseller.reset') }}" method="POST" onsubmit="return confirm('Are you sure you want to apply again? This will create a new application.');">
+                @csrf
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-arrow-repeat me-2"></i>Apply Again
+                </button>
+            </form>
+        </div>
+    @else
+        <div class="alert alert-warning">
+            <i class="bi bi-clock-history me-2"></i>
+            <strong>Please wait {{ $daysRemaining }} {{ $daysRemaining == 1 ? 'day' : 'days' }}</strong> before submitting a new application.
+            <br>
+            <small class="text-muted">You can reapply on: <strong>{{ $canReapplyDate->format('F d, Y') }}</strong></small>
+        </div>
+        <div class="mt-3">
+            <button class="btn btn-secondary px-4" disabled>
+                <i class="bi bi-arrow-repeat me-2"></i>Apply Again
+            </button>
+        </div>
+    @endif
+@endif
                 </div>
             @else
                 {{-- ✅ Multi-Step Progress Indicator --}}

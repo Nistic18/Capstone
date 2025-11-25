@@ -12,12 +12,21 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Load users with their latest reseller application
-        $users = User::with('latestResellerApplication')
-            ->latest()
-            ->paginate(10);
+        // Get role filter from request
+        $roleFilter = $request->get('role');
+        
+        // Build query with role filter
+        $query = User::with('latestResellerApplication')->latest();
+        
+        // Apply role filter if provided
+        if ($roleFilter && in_array($roleFilter, ['admin', 'buyer', 'reseller', 'supplier'])) {
+            $query->where('role', $roleFilter);
+        }
+        
+        // Paginate results
+        $users = $query->paginate(10)->appends(['role' => $roleFilter]);
         
         // Also get pending supplier applications
         $pendingApplications = ResellerApplication::where('status', 'pending')
@@ -25,7 +34,7 @@ class UserController extends Controller
             ->latest()
             ->get();
             
-        return view('users.index', compact('users', 'pendingApplications'));
+        return view('users.index', compact('users', 'pendingApplications', 'roleFilter'));
     }
 
     public function edit(User $user)
