@@ -223,6 +223,12 @@
                                                         style="border-radius: 8px;">
                                                     <i class="fas fa-truck me-1"></i> Mark as Shipped
                                                 </button>
+                                                @elseif($product->pivot->product_status === 'Packed')
+                                                <button type="button" class="btn btn-sm btn-success" 
+                                                        onclick="updateIndividualStatus({{ $order->id }}, {{ $product->id }}, 'Delivered')"
+                                                        style="border-radius: 8px;">
+                                                    <i class="fas fa-check-circle me-1"></i> Mark as Delivered
+                                                </button>
                                             @elseif($product->pivot->product_status === 'Shipped')
                                                 <button type="button" class="btn btn-sm btn-success" 
                                                         onclick="updateIndividualStatus({{ $order->id }}, {{ $product->id }}, 'Delivered')"

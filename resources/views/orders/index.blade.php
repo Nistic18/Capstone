@@ -108,7 +108,7 @@
                             role="tab"
                             aria-controls="to-pack"
                             aria-selected="false">
-                        To Pack ({{ $toPackOrders->count() }})
+                        Pick Up ({{ $toPackOrders->count() }})
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">

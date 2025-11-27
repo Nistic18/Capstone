@@ -14,17 +14,6 @@
 @endpush
 @section('content')
 <div class="mt-5">
-    {{-- Hero Section --}}
-    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #0bb364 0%, #764ba2 100%); border-radius: 20px;">
-        <div class="card-body text-center py-5">
-            <div class="mb-3">
-                <i class="fas fa-comments text-white" style="font-size: 3rem;"></i>
-            </div>
-            <h1 class="display-4 fw-bold text-white mb-3">💬 Chat Center</h1>
-            <p class="lead text-white-50 mb-0">Connect with buyers, sellers, and suppliers in real-time</p>
-        </div>
-    </div> --}}
-
     {{-- Chat Interface --}}
     <div class="row g-4">
         {{-- Sidebar with users --}}
@@ -84,31 +73,31 @@
         </div>
 
         {{-- Chat Area --}}
-<div class="col-xl-8 col-lg-7">
-    <div class="card border-0 shadow-lg h-100" style="border-radius: 20px;">
-        @if($receiver_id)
-            {{-- Chat Header --}}
-            <div class="card-header border-0 py-3" style="background: linear-gradient(45deg, #f8f9fa, #e9ecef); border-radius: 20px 20px 0 0;">
-                <div class="d-flex align-items-center">
-                    @php
-                        $receiver = \App\Models\User::find($receiver_id);
-                    @endphp
+        <div class="col-xl-8 col-lg-7">
+            <div class="card border-0 shadow-lg h-100" style="border-radius: 20px;">
+                @if($receiver_id)
+                    {{-- Chat Header --}}
+                    <div class="card-header border-0 py-3" style="background: linear-gradient(45deg, #f8f9fa, #e9ecef); border-radius: 20px 20px 0 0;">
+                        <div class="d-flex align-items-center">
+                            @php
+                                $receiver = \App\Models\User::find($receiver_id);
+                            @endphp
 
-                    @if($receiver)
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-                             style="width: 40px; height: 40px; background: linear-gradient(45deg, #0bb364, #764ba2); color: white; font-weight: bold;">
-                            {{ strtoupper(substr($receiver->name, 0, 1)) }}
+                            @if($receiver)
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                                     style="width: 40px; height: 40px; background: linear-gradient(45deg, #0bb364, #764ba2); color: white; font-weight: bold;">
+                                    {{ strtoupper(substr($receiver->name, 0, 1)) }}
+                                </div>
+                                <div>
+                                    <h5 class="mb-0 fw-bold" style="color: #2c3e50;">{{ $receiver->name }}</h5>
+                                    <small class="text-muted">
+                                        <i class="fas fa-circle me-1" style="color: #28a745; font-size: 0.5rem;"></i>
+                                        Online • {{ ucfirst($receiver->role ?? 'User') }}
+                                    </small>
+                                </div>
+                            @endif
                         </div>
-                        <div>
-                            <h5 class="mb-0 fw-bold" style="color: #2c3e50;">{{ $receiver->name }}</h5>
-                            <small class="text-muted">
-                                <i class="fas fa-circle me-1" style="color: #28a745; font-size: 0.5rem;"></i>
-                                Online • {{ ucfirst($receiver->role ?? 'User') }}
-                            </small>
-                        </div>
-                    @endif
-                </div>
-            </div>
+                    </div>
 
                     {{-- Chat Messages --}}
                     <div class="card-body p-0 d-flex flex-column" style="height: 500px;">
@@ -135,8 +124,12 @@
                                                     @if($message->image)
                                                         <div class="mt-2">
                                                             <img src="{{ asset('storage/'.$message->image) }}" 
-                                                                style="max-width: 200px; border-radius: 10px;" 
-                                                                alt="Image">
+                                                                class="chat-image" 
+                                                                style="max-width: 200px; border-radius: 10px; cursor: pointer; transition: transform 0.2s;" 
+                                                                alt="Image"
+                                                                onclick="openImageModal('{{ asset('storage/'.$message->image) }}')"
+                                                                onmouseover="this.style.transform='scale(1.02)'"
+                                                                onmouseout="this.style.transform='scale(1)'">
                                                         </div>
                                                     @endif
                                                 </div>
@@ -169,18 +162,22 @@
                                                         {{ $message->user->name }}
                                                     </div>
                                                     <div style="line-height: 1.4;">
-                                                    @if($message->content)
-                                                        <div>{{ $message->content }}</div>
-                                                    @endif
+                                                        @if($message->content)
+                                                            <div>{{ $message->content }}</div>
+                                                        @endif
 
-                                                    @if($message->image)
-                                                        <div class="mt-1">
-                                                            <img src="{{ asset('storage/'.$message->image) }}" 
-                                                                style="max-width: 200px; border-radius: 10px;" 
-                                                                alt="Image">
-                                                        </div>
-                                                    @endif
-                                                </div>
+                                                        @if($message->image)
+                                                            <div class="mt-1">
+                                                                <img src="{{ asset('storage/'.$message->image) }}" 
+                                                                    class="chat-image" 
+                                                                    style="max-width: 200px; border-radius: 10px; cursor: pointer; transition: transform 0.2s;" 
+                                                                    alt="Image"
+                                                                    onclick="openImageModal('{{ asset('storage/'.$message->image) }}')"
+                                                                    onmouseover="this.style.transform='scale(1.02)'"
+                                                                    onmouseout="this.style.transform='scale(1)'">
+                                                            </div>
+                                                        @endif
+                                                    </div>
                                                     {{-- Message tail --}}
                                                     <div class="position-absolute top-50 translate-middle-y"
                                                          style="left: -10px; width: 0; height: 0; 
@@ -204,21 +201,20 @@
 
                         {{-- Message Input --}}
                         <div class="border-top p-3" style="background: #f8f9fa;">
-<form method="POST" action="{{ route('chat.send') }}" class="d-flex gap-2" enctype="multipart/form-data">
-    @csrf
-    <input type="hidden" name="receiver_id" value="{{ $receiver_id }}">
-    
-    <div class="flex-grow-1 d-flex gap-2">
-        <input type="text" name="message" class="form-control" 
-               placeholder="Type your message...">
-        <input type="file" name="image" accept="image/*" class="form-control">
-    </div>
-    
-    <button type="submit" class="btn btn-primary px-4">
-        <i class="fas fa-paper-plane"></i>
-    </button>
-</form>
-                            
+                            <form method="POST" action="{{ route('chat.send') }}" class="d-flex gap-2" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="receiver_id" value="{{ $receiver_id }}">
+                                
+                                <div class="flex-grow-1 d-flex gap-2">
+                                    <input type="text" name="message" class="form-control" 
+                                           placeholder="Type your message...">
+                                    <input type="file" name="image" accept="image/*" class="form-control">
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 @else
@@ -243,6 +239,13 @@
             </div>
         </div>
     </div>
+</div>
+
+{{-- Image Modal (Messenger-style) --}}
+<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+    <span class="close-modal">&times;</span>
+    <img class="modal-content-image" id="modalImage">
+    <div id="imageCaption"></div>
 </div>
 
 {{-- Custom CSS --}}
@@ -274,7 +277,94 @@
         scroll-behavior: smooth;
     }
 
-    /* Remove message-bubble class styles as we're using inline styles now */
+    /* Image Modal Styling (Messenger-like) */
+    .image-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        padding-top: 50px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.95);
+        animation: fadeIn 0.3s;
+    }
+
+    .modal-content-image {
+        margin: auto;
+        display: block;
+        max-width: 90%;
+        max-height: 80vh;
+        border-radius: 8px;
+        animation: zoomIn 0.3s;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        transition: 0.3s;
+        cursor: pointer;
+        z-index: 10000;
+    }
+
+    .close-modal:hover,
+    .close-modal:focus {
+        color: #bbb;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    #imageCaption {
+        margin: auto;
+        display: block;
+        width: 80%;
+        max-width: 700px;
+        text-align: center;
+        color: #ccc;
+        padding: 10px 0;
+        height: 150px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes zoomIn {
+        from {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Chat image hover effect */
+    .chat-image {
+        position: relative;
+    }
+
+    .chat-image:hover::after {
+        content: '\f002'; /* Font Awesome search icon */
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 2rem;
+        opacity: 0.8;
+        pointer-events: none;
+    }
 
     @keyframes fadeInUp {
         from {
@@ -338,6 +428,16 @@
         .card-body {
             height: 400px !important;
         }
+
+        .modal-content-image {
+            max-width: 95%;
+        }
+
+        .close-modal {
+            top: 10px;
+            right: 20px;
+            font-size: 35px;
+        }
     }
 
     /* Animation for new messages */
@@ -357,8 +457,40 @@
     }
 </style>
 
-{{-- Auto-scroll and enhanced interactions --}}
+{{-- JavaScript for Image Modal and Chat Functions --}}
 <script>
+    // Image Modal Functions
+    function openImageModal(imageSrc) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        
+        modal.style.display = 'block';
+        modalImg.src = imageSrc;
+        
+        // Prevent body scroll when modal is open
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeImageModal() {
+        const modal = document.getElementById('imageModal');
+        modal.style.display = 'none';
+        
+        // Restore body scroll
+        document.body.style.overflow = 'auto';
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeImageModal();
+        }
+    });
+
+    // Prevent closing when clicking on the image itself
+    document.getElementById('modalImage')?.addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         const messagesDiv = document.getElementById('messages');
         
@@ -394,8 +526,10 @@
             chatForm.addEventListener('submit', function(e) {
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const input = this.querySelector('input[name="message"]');
+                const imageInput = this.querySelector('input[name="image"]');
                 
-                if(input.value.trim() === '') {
+                // Check if both message and image are empty
+                if(input.value.trim() === '' && !imageInput.files.length) {
                     e.preventDefault();
                     return;
                 }
@@ -429,8 +563,6 @@
     setInterval(function() {
         // Only refresh if we're in an active chat
         if({{ $receiver_id ?? 'null' }}) {
-            // You can implement AJAX refresh here if needed
-            // For now, we'll just scroll to ensure new messages are visible
             const messagesDiv = document.getElementById('messages');
             if(messagesDiv) {
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;

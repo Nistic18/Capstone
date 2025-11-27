@@ -17,12 +17,12 @@
             @php
                 $statusConfig = match($order->status) {
                     'Pending' => ['color' => 'warning', 'icon' => 'fas fa-box', 'text' => 'TO SHIP'],
-                    'Packed' => ['color' => 'warning', 'icon' => 'fas fa-box', 'text' => 'TO PACK'],
+                    'Packed' => ['color' => 'warning', 'icon' => 'fas fa-box', 'text' => 'PICKUP'],
                     'Shipped' => ['color' => 'info', 'icon' => 'fas fa-truck', 'text' => 'TO RECEIVE'],
                     'Delivered' => ['color' => 'success', 'icon' => 'fas fa-check-circle', 'text' => 'COMPLETED'],
                     'Cancelled' => ['color' => 'secondary', 'icon' => 'fas fa-times-circle', 'text' => 'CANCELLED'],
                     'Refund' => ['color' => 'danger', 'icon' => 'fas fa-undo', 'text' => 'RETURN / REFUND'],
-                    default => ['color' => 'warning', 'icon' => 'fas fa-box', 'text' => 'TO PACK'],
+                    default => ['color' => 'warning', 'icon' => 'fas fa-box', 'text' => 'PICKUP'],
                 };
                 $paymentMethodFull = match(strtolower($order->payment_method)) {
                     'cod' => 'Cash on Delivery',

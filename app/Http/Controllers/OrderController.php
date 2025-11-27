@@ -96,8 +96,9 @@ class OrderController extends Controller
                 $query->where('user_id', $userId);
             })
             ->with(['products' => function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            }])
+                $query->where('user_id', $userId)
+                    ->withPivot('product_status', 'quantity');
+                    }, 'user'])
             ->latest()
             ->get();
 

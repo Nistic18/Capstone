@@ -144,10 +144,10 @@ class CartController extends Controller
                     throw new \Exception("Not enough stock for {$product->name}. Available: {$product->quantity}");
                 }
 
-                // Add to order
+                // Add to order with appropriate product status based on payment method
                 $order->products()->attach($product->id, [
                     'quantity' => $item->quantity,
-                    'product_status' => 'Packed'
+                    'product_status' => $orderStatus
                 ]);
 
                 // Notify seller
