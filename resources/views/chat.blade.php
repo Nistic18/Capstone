@@ -277,59 +277,121 @@
         scroll-behavior: smooth;
     }
 
-    /* Image Modal Styling (Messenger-like) */
-    .image-modal {
-        display: none;
-        position: fixed;
-        z-index: 9999;
-        padding-top: 50px;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.95);
-        animation: fadeIn 0.3s;
-    }
+/* Image Modal Styling (Fixed and Centered) */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.95);
+    animation: fadeIn 0.3s;
+    pointer-events: none;
+}
 
+.image-modal.show {
+    display: flex !important;
+    pointer-events: auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content-image {
+    margin: auto;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 95vw;
+    max-height: 95vh;
+    border-radius: 10px;
+    object-fit: contain;
+    animation: zoomIn 0.3s ease-out;
+}
+
+
+.close-modal {
+    position: fixed;
+    top: 20px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+    z-index: 10001;
+    background: rgba(0, 0, 0, 0.5);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+    cursor: pointer;
+    transform: rotate(90deg);
+}
+
+#imageCaption {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    color: #ccc;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 8px;
+    z-index: 10000;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
     .modal-content-image {
-        margin: auto;
-        display: block;
-        max-width: 90%;
-        max-height: 80vh;
-        border-radius: 8px;
-        animation: zoomIn 0.3s;
+        max-width: 95vw;
+        max-height: 85vh;
     }
 
     .close-modal {
-        position: absolute;
-        top: 20px;
-        right: 35px;
-        color: #f1f1f1;
-        font-size: 40px;
-        font-weight: bold;
-        transition: 0.3s;
-        cursor: pointer;
-        z-index: 10000;
-    }
-
-    .close-modal:hover,
-    .close-modal:focus {
-        color: #bbb;
-        text-decoration: none;
-        cursor: pointer;
+        top: 10px;
+        right: 10px;
+        font-size: 30px;
+        width: 40px;
+        height: 40px;
     }
 
     #imageCaption {
-        margin: auto;
-        display: block;
-        width: 80%;
-        max-width: 700px;
-        text-align: center;
-        color: #ccc;
-        padding: 10px 0;
-        height: 150px;
+        width: 90%;
+        font-size: 14px;
     }
+}
 
     @keyframes fadeIn {
         from { opacity: 0; }
@@ -460,31 +522,43 @@
 {{-- JavaScript for Image Modal and Chat Functions --}}
 <script>
     // Image Modal Functions
-    function openImageModal(imageSrc) {
-        const modal = document.getElementById('imageModal');
-        const modalImg = document.getElementById('modalImage');
-        
-        modal.style.display = 'block';
-        modalImg.src = imageSrc;
-        
-        // Prevent body scroll when modal is open
-        document.body.style.overflow = 'hidden';
-    }
+function openImageModal(imageSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    
+    modal.classList.add('show');
+    modal.style.display = 'flex';
+    modalImg.src = imageSrc;
+    
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+}
 
-    function closeImageModal() {
-        const modal = document.getElementById('imageModal');
-        modal.style.display = 'none';
-        
-        // Restore body scroll
-        document.body.style.overflow = 'auto';
-    }
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+    
+    // Restore body scroll
+    document.body.style.overflow = 'auto';
+}
 
-    // Close modal with Escape key
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            closeImageModal();
-        }
-    });
+// Close modal with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeImageModal();
+    }
+});
+
+// Prevent closing when clicking on the image itself
+document.addEventListener('DOMContentLoaded', function() {
+    const modalImage = document.getElementById('modalImage');
+    if (modalImage) {
+        modalImage.addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+    }
+});
 
     // Prevent closing when clicking on the image itself
     document.getElementById('modalImage')?.addEventListener('click', function(event) {
