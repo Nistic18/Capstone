@@ -309,7 +309,7 @@
                     <i class="fas fa-eye me-1"></i> View Details
                 </a>
 
-                @if($order->status === 'Pending')
+                @if($order->status === 'Pending' || $order->status === 'Packed')
                     <a href="{{ route('orders.generateQR', $order->id) }}" 
                        class="btn btn-sm btn-outline-success"
                        style="border-radius: 10px;">
