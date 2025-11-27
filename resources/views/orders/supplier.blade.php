@@ -77,7 +77,7 @@
                         <i class="fas fa-box text-secondary" style="font-size: 2rem;"></i>
                     </div>
                     <h4 class="fw-bold mb-1" style="color: #6c757d;">{{ $toPackCount }}</h4>
-                    <small class="text-muted">To Pack</small>
+                    <small class="text-muted">Pick Up</small>
                 </div>
             </div>
         </div>
@@ -153,7 +153,7 @@
                             role="tab"
                             aria-controls="to-pack"
                             aria-selected="false">
-                        To Pack ({{ $toPackOrders->count() }})
+                        Pick Up ({{ $toPackOrders->count() }})
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
