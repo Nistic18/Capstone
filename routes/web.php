@@ -141,17 +141,23 @@ Auth::routes();
         Route::post('/newsfeed/{post}/react', [PostController::class, 'react'])->name('newsfeed.react');
         Route::post('/newsfeed/{post}/comment', [PostController::class, 'comment'])->name('newsfeed.comment');
     });
-    Route::middleware(['auth'])->group(function () {
-        Route::get('/newsfeedsupplier', [SupplierPostController::class, 'index'])->name('newsfeedsupplier.index');
+Route::middleware(['auth'])->group(function () {
+    // Public routes (all authenticated users)
+    Route::get('/newsfeedsupplier', [SupplierPostController::class, 'index'])->name('newsfeedsupplier.index');
+    Route::get('/newsfeedsupplier/{post}', [SupplierPostController::class, 'show'])->name('newsfeedsupplier.show');
+    Route::post('/newsfeedsupplier/{post}/react', [SupplierPostController::class, 'react'])->name('newsfeedsupplier.react');
+    Route::post('/newsfeedsupplier/{post}/comment', [SupplierPostController::class, 'comment'])->name('newsfeedsupplier.comment');
+    
+    // Admin only routes
+    Route::middleware(['admin'])->group(function () {
         Route::get('/newsfeedsupplier/create', [SupplierPostController::class, 'create'])->name('newsfeedsupplier.create');
         Route::post('/newsfeedsupplier', [SupplierPostController::class, 'store'])->name('newsfeedsupplier.store');
-        Route::get('/newsfeedsupplier/{post}', [SupplierPostController::class, 'show'])->name('newsfeedsupplier.show');
         Route::get('/newsfeedsupplier/{post}/edit', [SupplierPostController::class, 'edit'])->name('newsfeedsupplier.edit');
         Route::put('/newsfeedsupplier/{post}', [SupplierPostController::class, 'update'])->name('newsfeedsupplier.update');
         Route::delete('/newsfeedsupplier/{post}', [SupplierPostController::class, 'destroy'])->name('newsfeedsupplier.destroy');
-        Route::post('/newsfeedsupplier/{post}/react', [SupplierPostController::class, 'react'])->name('newsfeedsupplier.react');
-        Route::post('/newsfeedsupplier/{post}/comment', [SupplierPostController::class, 'comment'])->name('newsfeedsupplier.comment');
+        Route::post('/newsfeed-supplier/{post}/toggle-featured', [SupplierPostController::class, 'toggleFeatured'])->name('newsfeedsupplier.toggleFeatured');
     });
+});
 
     Route::post('/gemini/generate', [App\Http\Controllers\GeminiController::class, 'generate'])->name('gemini.generate');
     Route::get('/gemini/history', [App\Http\Controllers\GeminiController::class, 'history'])->name('gemini.history');
@@ -187,6 +193,7 @@ Auth::routes();
         Route::post('/users/{id}/approve-reseller', [UserController::class, 'approveReseller'])->name('users.approveReseller');
         Route::post('/users/{id}/reject-reseller', [UserController::class, 'rejectReseller'])->name('users.rejectReseller');
     });
+    
     Route::post('/orders/{order}/refund', [OrderController::class, 'requestRefund'])->name('orders.refund');
     Route::put('/orders/{order}/refund/approve', [OrderController::class, 'approveRefund'])
         ->name('orders.refund.approve');

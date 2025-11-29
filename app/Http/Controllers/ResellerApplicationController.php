@@ -3,13 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\ResellerApplication;
+use App\Models\User;
 use App\Mail\ResellerApplicationSubmitted;
+use App\Mail\SupplierApplicationApproved;
+use App\Mail\SupplierApplicationRejected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class ResellerApplicationController extends Controller
 {
+    
     /**
      * Show the reseller application form.
      */
@@ -95,38 +101,121 @@ class ResellerApplicationController extends Controller
 
         return redirect()->route('reseller.create')->with('success', 'Your Supplier application has been submitted successfully. Please check your email for confirmation.');
     }
+
     /**
- * Allow user to reset their rejected application and apply again
- */
-public function resetApplication(Request $request)
-{
-    $user = auth()->user();
-    
-    // Get the user's application
-    $application = ResellerApplication::where('user_id', $user->id)->first();
-    
-    // Check if application exists and is rejected
-    if (!$application || $application->status !== 'rejected') {
-        return redirect()->route('reseller.create')
-            ->with('error', 'No rejected application found.');
+     * Approve a reseller application.
+     */
+    public function approve($id)
+    {
+        $application = ResellerApplication::findOrFail($id);
+
+        // Check if already approved
+        if ($application->status === 'approved') {
+            return back()->with('error', 'This application has already been approved.');
+        }
+
+        // Check if user already exists
+        $user = User::where('email', $application->email_address)->first();
+        $defaultPassword = null;
+
+        if (!$user) {
+            // Create new user account
+            $defaultPassword = Str::random(12); // Generate random password
+            
+            $user = User::create([
+                'name' => $application->business_name,
+                'email' => $application->email_address,
+                'password' => Hash::make($defaultPassword),
+                'role' => 'reseller', // or 'supplier' based on your user roles
+                'phone' => $application->phone_number,
+                'email_verified_at' => now(), // Auto-verify email
+            ]);
+        }
+
+        // Update application status
+        $application->update([
+            'status' => 'approved',
+            'approved_at' => now(),
+            'user_id' => $user->id,
+        ]);
+
+        // Send approval email
+        try {
+            Mail::to($application->email_address)
+                ->send(new SupplierApplicationApproved($user, $defaultPassword));
+        } catch (\Exception $e) {
+            Log::error('Failed to send approval email: ' . $e->getMessage());
+        }
+
+        return back()->with('success', 'Application approved successfully. User has been notified via email.');
     }
-    
-    // Check if 3 days have passed since rejection
-    $rejectedDate = \Carbon\Carbon::parse($application->rejected_at ?? $application->updated_at);
-    $canReapplyDate = $rejectedDate->addDays(3);
-    $now = \Carbon\Carbon::now();
-    
-    if ($now->lessThan($canReapplyDate)) {
-        $daysRemaining = $now->diffInDays($canReapplyDate, false) + 1;
-        return redirect()->route('reseller.create')
-            ->with('error', "You must wait {$daysRemaining} more day(s) before reapplying. You can apply again on {$canReapplyDate->format('F d, Y')}.");
+
+    /**
+     * Reject a reseller application.
+     */
+    public function reject(Request $request, $id)
+    {
+        $request->validate([
+            'rejection_reason' => 'required|string|max:1000',
+        ]);
+
+        $application = ResellerApplication::findOrFail($id);
+
+        // Check if already rejected
+        if ($application->status === 'rejected') {
+            return back()->with('error', 'This application has already been rejected.');
+        }
+
+        // Update application status
+        $application->update([
+            'status' => 'rejected',
+            'rejection_reason' => $request->rejection_reason,
+            'rejected_at' => now(),
+        ]);
+
+        // Send rejection email
+        try {
+            Mail::to($application->email_address)
+                ->send(new SupplierApplicationRejected($application));
+        } catch (\Exception $e) {
+            Log::error('Failed to send rejection email: ' . $e->getMessage());
+        }
+
+        return back()->with('success', 'Application rejected. Applicant has been notified via email.');
     }
-    
-    // Delete the old application (or you can soft delete/archive it)
-    // If you want to keep history, consider updating status to 'archived' instead of deleting
-    $application->delete();
-    
-    return redirect()->route('reseller.create')
-        ->with('success', 'You can now submit a new application.');
-}
+
+    /**
+     * Allow user to reset their rejected application and apply again
+     */
+    public function resetApplication(Request $request)
+    {
+        $user = auth()->user();
+        
+        // Get the user's application
+        $application = ResellerApplication::where('email_address', $user->email)->first();
+        
+        // Check if application exists and is rejected
+        if (!$application || $application->status !== 'rejected') {
+            return redirect()->route('reseller.create')
+                ->with('error', 'No rejected application found.');
+        }
+        
+        // Check if 3 days have passed since rejection
+        $rejectedDate = \Carbon\Carbon::parse($application->rejected_at ?? $application->updated_at);
+        $canReapplyDate = $rejectedDate->addDays(3);
+        $now = \Carbon\Carbon::now();
+        
+        if ($now->lessThan($canReapplyDate)) {
+            $daysRemaining = $now->diffInDays($canReapplyDate, false) + 1;
+            return redirect()->route('reseller.create')
+                ->with('error', "You must wait {$daysRemaining} more day(s) before reapplying. You can apply again on {$canReapplyDate->format('F d, Y')}.");
+        }
+        
+        // Delete the old application (or you can soft delete/archive it)
+        // If you want to keep history, consider updating status to 'archived' instead of deleting
+        $application->delete();
+        
+        return redirect()->route('reseller.create')
+            ->with('success', 'You can now submit a new application.');
+    }
 }

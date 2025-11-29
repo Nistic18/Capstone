@@ -41,30 +41,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
-    {{-- Header Section --}}
-    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #0bb364 0%, #088a50 100%); border-radius: 20px;">
-        <div class="card-body text-center py-5">
-            <div class="mb-3">
-                <i class="fas fa-users text-white" style="font-size: 3rem;"></i>
-            </div>
-            <h1 class="display-4 fw-bold text-white mb-3">🐟 Supplier Community Newsfeed</h1>
-            <p class="lead text-white-50 mb-4">Stay connected with the fish market community</p> --}}
-            
-            {{-- Quick Stats --}}
-            {{-- <div class="d-flex justify-content-center gap-4 flex-wrap">
-                <div class="d-flex align-items-center px-3 py-2 rounded-pill" 
-                     style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
-                    <i class="fas fa-newspaper text-white me-2"></i>
-                    <span class="text-white">{{ $posts->total() }} Posts</span>
-                </div>
-                <div class="d-flex align-items-center px-3 py-2 rounded-pill" 
-                     style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
-                    <i class="fas fa-users text-white me-2"></i>
-                    <span class="text-white">Community Hub</span>
-                </div>
-            </div>
-        </div>
-    </div> --}}
 
     {{-- Action Bar --}}
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
@@ -76,11 +52,13 @@
             <p class="text-muted mb-0">What's happening in the community</p>
         </div>
         
-        <a class="btn btn-success px-4 py-2" 
-           href="{{ route('newsfeedsupplier.create') }}" 
-           style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997); border: none;">
-            <i class="fas fa-plus me-2"></i>Create New Post
-        </a>
+        @if(auth()->user()->is_admin)
+            <a class="btn btn-success px-4 py-2" 
+               href="{{ route('newsfeedsupplier.create') }}" 
+               style="border-radius: 15px; background: linear-gradient(45deg, #28a745, #20c997); border: none;">
+                <i class="fas fa-plus me-2"></i>Create New Post
+            </a>
+        @endif
     </div>
 
     {{-- Posts Feed --}}
@@ -104,7 +82,14 @@
                         
                         {{-- User Info --}}
                         <div>
-                            <h6 class="fw-bold mb-0" style="color: #2c3e50;">{{ $post->user->name }}</h6>
+                            <h6 class="fw-bold mb-0" style="color: #2c3e50;">
+                                {{ $post->user->name }}
+                                @if($post->user->is_admin)
+                                    <span class="badge bg-danger ms-2" style="font-size: 0.65rem;">
+                                        <i class="fas fa-shield-alt me-1"></i>Admin
+                                    </span>
+                                @endif
+                            </h6>
                             <small class="text-muted">
                                 <i class="fas fa-clock me-1"></i>
                                 {{ $post->created_at->diffForHumans() }}
@@ -126,7 +111,7 @@
                             <a class="dropdown-item-custom" href="{{ route('newsfeedsupplier.show', $post) }}">
                                 <i class="fas fa-eye me-2"></i>View Full Post
                             </a>
-                            @if(auth()->id() == $post->user_id)
+                            @if(auth()->user()->is_admin)
                                 <hr style="margin: 5px 0; border-color: #e9ecef;">
                                 <a class="dropdown-item-custom text-warning" href="{{ route('newsfeedsupplier.edit', $post) }}">
                                     <i class="fas fa-edit me-2"></i>Edit Post
@@ -134,6 +119,14 @@
                                 <a class="dropdown-item-custom text-danger" href="#" onclick="event.preventDefault(); confirmDeletePost({{ $post->id }})">
                                     <i class="fas fa-trash me-2"></i>Delete Post
                                 </a>
+                                <hr style="margin: 5px 0; border-color: #e9ecef;">
+                                <form method="POST" action="{{ route('newsfeedsupplier.toggleFeatured', $post) }}" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item-custom" style="border: none; background: none; width: 100%; text-align: left;">
+                                        <i class="fas fa-star me-2 {{ $post->is_featured ? 'text-warning' : '' }}"></i>
+                                        {{ $post->is_featured ? 'Remove from Landing' : 'Feature on Landing' }}
+                                    </button>
+                                </form>
                             @endif
                         </div>
                     </div>
@@ -142,6 +135,15 @@
 
             {{-- Post Content --}}
             <div class="card-body pt-0">
+                {{-- Featured Badge --}}
+                @if($post->is_featured)
+                    <div class="mb-3">
+                        <span class="badge bg-warning text-dark" style="border-radius: 10px;">
+                            <i class="fas fa-star me-1"></i>Featured on Landing Page
+                        </span>
+                    </div>
+                @endif
+
                 {{-- Post Title --}}
                 <h5 class="fw-bold mb-3" style="color: #2c3e50; line-height: 1.4;">
                     {{ $post->title }}
@@ -196,7 +198,7 @@
                                     class="btn w-100 reaction-btn {{ $userReaction && $userReaction->type == $type ? 'active' : '' }}"
                                     style="border-radius: 15px; 
                                            border: 2px solid {{ $userReaction && $userReaction->type == $type ? '#0bb364' : '#e9ecef' }};
-                                           background: {{ $userReaction && $userReaction->type == $type ? 'rgba(102, 126, 234, 0.1)' : 'white' }};
+                                           background: {{ $userReaction && $userReaction->type == $type ? 'rgba(11, 179, 100, 0.1)' : 'white' }};
                                            color: {{ $userReaction && $userReaction->type == $type ? '#0bb364' : '#6c757d' }};">
                                 <span class="me-1" style="font-size: 1.1em;">{{ $emoji }}</span>
                                 <span class="fw-semibold reaction-count">{{ $post->reactions->where('type',$type)->count() }}</span>
@@ -280,11 +282,19 @@
                 <i class="fas fa-newspaper text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
             </div>
             <h3 class="text-muted mb-3">No Posts Yet</h3>
-            <p class="text-muted mb-4">Be the first to share something with the community!</p>
-            <a href="{{ route('newsfeedsupplier.create') }}" class="btn btn-primary btn-lg" 
-               style="border-radius: 25px; background: linear-gradient(45deg, #0bb364, #088a50); border: none;">
-                <i class="fas fa-plus me-2"></i>Create Your First Post
-            </a>
+            <p class="text-muted mb-4">
+                @if(auth()->user()->is_admin)
+                    Be the first to share something with the community!
+                @else
+                    Check back soon for updates from our administrators.
+                @endif
+            </p>
+            @if(auth()->user()->is_admin)
+                <a href="{{ route('newsfeedsupplier.create') }}" class="btn btn-primary btn-lg" 
+                   style="border-radius: 25px; background: linear-gradient(45deg, #0bb364, #088a50); border: none;">
+                    <i class="fas fa-plus me-2"></i>Create Your First Post
+                </a>
+            @endif
         </div>
     @endforelse
 
@@ -332,7 +342,7 @@
     .reaction-btn:hover {
         transform: translateY(-1px);
         border-color: #0bb364 !important;
-        background: rgba(102, 126, 234, 0.1) !important;
+        background: rgba(11, 179, 100, 0.1) !important;
         color: #0bb364 !important;
     }
     
@@ -348,7 +358,7 @@
     
     .comment-item:hover {
         background: #e9ecef !important;
-        border-color: rgba(102, 126, 234, 0.2) !important;
+        border-color: rgba(11, 179, 100, 0.2) !important;
     }
     
     .post-image-container img:hover {
@@ -374,13 +384,13 @@
     }
     
     .btn-primary:hover {
-        background: linear-gradient(45deg, #5a6fd8, #6a42a0);
+        background: linear-gradient(45deg, #099d56, #076f42);
         transform: translateY(-1px);
     }
     
     .form-control:focus {
         border-color: #0bb364;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        box-shadow: 0 0 0 0.2rem rgba(11, 179, 100, 0.25);
     }
     
     /* Custom Dropdown Styles */
@@ -395,10 +405,11 @@
         color: #212529;
         text-decoration: none;
         transition: background-color 0.15s ease-in-out;
+        cursor: pointer;
     }
     
     .dropdown-item-custom:hover {
-        background: rgba(102, 126, 234, 0.1);
+        background: rgba(11, 179, 100, 0.1);
         color: #0bb364;
     }
     
@@ -418,7 +429,7 @@
     }
     
     .pagination .page-link:hover {
-        background-color: rgba(102, 126, 234, 0.1);
+        background-color: rgba(11, 179, 100, 0.1);
         border-color: #0bb364;
         color: #0bb364;
     }

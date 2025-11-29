@@ -20,11 +20,21 @@ class SupplierPostController extends Controller
 
     public function create()
     {
+        // Only admins can create posts
+        if (!auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action. Only administrators can create posts.');
+        }
+
         return view('newsfeedsupplier.post');
     }
 
     public function store(Request $request)
     {
+        // Only admins can store posts
+        if (!auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action. Only administrators can create posts.');
+        }
+
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string|max:1000',
@@ -52,9 +62,9 @@ class SupplierPostController extends Controller
 
     public function edit(PostSupplier $post)
     {
-        // Check if user owns the post or is admin
-        if (auth()->id() !== $post->user_id && !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
+        // Only admins can edit posts
+        if (!auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action. Only administrators can edit posts.');
         }
 
         return view('newsfeedsupplier.edit', compact('post'));
@@ -62,9 +72,9 @@ class SupplierPostController extends Controller
 
     public function update(Request $request, PostSupplier $post)
     {
-        // Check if user owns the post or is admin
-        if (auth()->id() !== $post->user_id && !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
+        // Only admins can update posts
+        if (!auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action. Only administrators can update posts.');
         }
 
         $request->validate([
@@ -102,9 +112,9 @@ class SupplierPostController extends Controller
 
     public function destroy(PostSupplier $post)
     {
-        // Check if user owns the post or is admin
-        if (auth()->id() !== $post->user_id && !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
+        // Only admins can delete posts
+        if (!auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action. Only administrators can delete posts.');
         }
 
         if ($post->image) {

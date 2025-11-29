@@ -138,7 +138,7 @@
             </li>
             <li class="{{ Request::is('newsfeedsupplier') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('newsfeedsupplier.index') }}">
-                    <i class="fas fa-newspaper"></i><span>Supplier Community Newsfeed</span>
+                    <i class="fas fa-newspaper"></i><span>Announcement and Update</span>
              </a>
             </li>
             {{-- <li class="{{ Request::is('notifications') ? 'active' : '' }}">
@@ -267,7 +267,7 @@
             </li>
             <li class="{{ Request::is('newsfeedsupplier') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('newsfeedsupplier.index') }}">
-                    <i class="fas fa-newspaper"></i><span>Supplier Community Newsfeed</span>
+                    <i class="fas fa-newspaper"></i><span>Announcement and Update</span>
              </a>
             </li>
             <li class="menu-header">Reports & Analytics</li>

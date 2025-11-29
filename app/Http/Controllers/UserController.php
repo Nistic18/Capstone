@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\ResellerApplication;
+use App\Mail\SupplierApplicationApproved;
+use App\Mail\SupplierApplicationRejected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -82,57 +84,76 @@ class UserController extends Controller
      */
     public function approveSupplier(Request $request, $applicationId)
     {
-        $application = ResellerApplication::findOrFail($applicationId);
-        
-        // Check if application is already processed
-        if ($application->status !== 'pending') {
-            return back()->with('error', 'This application has already been processed.');
-        }
-        
-        // Check if user with this email already exists
-        $existingUser = User::where('email', $application->email_address)->first();
-        
-        $defaultPassword = null;
-        
-        if ($existingUser) {
-            // If user exists, just update their role to supplier
-            $existingUser->update(['role' => 'supplier']);
-            $user = $existingUser;
-            $defaultPassword = null; // Existing user keeps their password
-        } else {
-            // Create new supplier account with default password
-            $name = $application->business_name;
-            // Generate default password: name@1234
-            $defaultPassword = Str::slug($name) . '@1234';
-            
-            $user = User::create([
-                'name' => $name,
-                'email' => $application->email_address,
-                'password' => Hash::make($defaultPassword),
-                'role' => 'supplier',
-                'address' => $application->address . ', ' . $application->city . ', ' . $application->province . ' ' . $application->zip_code,
-            ]);
-        }
-        
-        // Update application status
-        $application->update([
-            'status' => 'approved',
-            'user_id' => $user->id,
-        ]);
-        
-        // Send notification email
         try {
-            Mail::to($user->email)->send(new \App\Mail\SupplierApplicationApproved($user, $defaultPassword));
-        } catch (\Exception $e) {
-            Log::error('Failed to send approval email: ' . $e->getMessage());
-            // Continue even if email fails
-        }
-        
-        $message = $defaultPassword 
-            ? 'Supplier application approved successfully! Account created with default password and email sent.'
-            : 'Supplier application approved successfully! User role updated to supplier and email sent.';
+            $application = ResellerApplication::findOrFail($applicationId);
             
-        return back()->with('success', $message);
+            // Check if application is already processed
+            if ($application->status !== 'pending') {
+                return back()->with('error', 'This application has already been processed.');
+            }
+            
+            // Check if user with this email already exists
+            $existingUser = User::where('email', $application->email_address)->first();
+            
+            $defaultPassword = null;
+            
+            if ($existingUser) {
+                // If user exists, just update their role to supplier
+                $existingUser->update([
+                    'role' => 'supplier',
+                    'email_verified_at' => now()
+                ]);
+                $user = $existingUser;
+            } else {
+                // Create new supplier account with default password
+                $name = $application->business_name;
+                // Generate secure random password
+                $defaultPassword = Str::random(12);
+                
+                $user = User::create([
+                    'name' => $name,
+                    'email' => $application->email_address,
+                    'password' => Hash::make($defaultPassword),
+                    'role' => 'supplier',
+                    'phone' => $application->phone_number,
+                    'address' => $application->address,
+                    'email_verified_at' => now(), // Auto-verify email
+                ]);
+            }
+            
+            // Update application status
+            $application->update([
+                'status' => 'approved',
+                'approved_at' => now(),
+                'user_id' => $user->id,
+            ]);
+            
+            // Send approval email
+            try {
+                Log::info('Attempting to send approval email to: ' . $application->email_address);
+                
+                Mail::to($application->email_address)
+                    ->send(new SupplierApplicationApproved($user, $defaultPassword));
+                
+                Log::info('Approval email sent successfully to: ' . $application->email_address);
+            } catch (\Exception $e) {
+                Log::error('Failed to send approval email: ' . $e->getMessage());
+                Log::error('Stack trace: ' . $e->getTraceAsString());
+                
+                // Don't fail the approval, just notify admin
+                return back()->with('warning', 'Application approved successfully, but failed to send email notification. Please contact the supplier directly.');
+            }
+            
+            $message = $defaultPassword 
+                ? 'Supplier application approved successfully! Account created with default password and email sent.'
+                : 'Supplier application approved successfully! User role updated to supplier and email sent.';
+                
+            return back()->with('success', $message);
+            
+        } catch (\Exception $e) {
+            Log::error('Error approving supplier application: ' . $e->getMessage());
+            return back()->with('error', 'Failed to approve application. Please try again.');
+        }
     }
     
     /**
@@ -140,28 +161,45 @@ class UserController extends Controller
      */
     public function rejectSupplier(Request $request, $applicationId)
     {
-        $request->validate([
-            'rejection_reason' => 'required|string|max:1000',
-        ]);
-        
-        $application = ResellerApplication::findOrFail($applicationId);
-        
-        if ($application->status !== 'pending') {
-            return back()->with('error', 'This application has already been processed.');
-        }
-        
-        $application->update([
-            'status' => 'rejected',
-            'rejection_reason' => $request->rejection_reason,
-        ]);
-        
-        // Send rejection notification (optional)
         try {
-            Mail::to($application->email_address)->send(new \App\Mail\SupplierApplicationRejected($application));
+            $request->validate([
+                'rejection_reason' => 'required|string|max:1000',
+            ]);
+            
+            $application = ResellerApplication::findOrFail($applicationId);
+            
+            if ($application->status !== 'pending') {
+                return back()->with('error', 'This application has already been processed.');
+            }
+            
+            // Update application status
+            $application->update([
+                'status' => 'rejected',
+                'rejection_reason' => $request->rejection_reason,
+                'rejected_at' => now(),
+            ]);
+            
+            // Send rejection email
+            try {
+                Log::info('Attempting to send rejection email to: ' . $application->email_address);
+                
+                Mail::to($application->email_address)
+                    ->send(new SupplierApplicationRejected($application));
+                
+                Log::info('Rejection email sent successfully to: ' . $application->email_address);
+            } catch (\Exception $e) {
+                Log::error('Failed to send rejection email: ' . $e->getMessage());
+                Log::error('Stack trace: ' . $e->getTraceAsString());
+                
+                // Don't fail the rejection, just notify admin
+                return back()->with('warning', 'Application rejected successfully, but failed to send email notification. Please contact the applicant directly.');
+            }
+            
+            return back()->with('success', 'Supplier application rejected successfully. Applicant has been notified via email.');
+            
         } catch (\Exception $e) {
-            Log::error('Failed to send rejection email: ' . $e->getMessage());
+            Log::error('Error rejecting supplier application: ' . $e->getMessage());
+            return back()->with('error', 'Failed to reject application. Please try again.');
         }
-        
-        return back()->with('success', 'Supplier application rejected.');
     }
 }
