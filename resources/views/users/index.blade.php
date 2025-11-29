@@ -386,12 +386,12 @@
                                 </td>
 
                                 <td class="px-4 py-4 text-center">
-                                    <div class="d-flex justify-content-center gap-2">
+                                    {{-- <div class="d-flex justify-content-center gap-2">
                                         <a href="{{ route('users.edit', $user) }}" 
                                            class="btn btn-sm btn-outline-warning" 
                                            style="border-radius: 10px;">
                                             <i class="fas fa-edit"></i>
-                                        </a>
+                                        </a> --}}
 
                                         <form action="{{ route('users.destroy', $user) }}" 
                                               method="POST" 

@@ -265,10 +265,10 @@
                     <i class="fas fa-newspaper"></i><span>Community Newsfeed</span>
              </a>
             </li>
-            {{-- <li class="{{ Request::is('newsfeedsupplier') ? 'active' : '' }}">
+            <li class="{{ Request::is('newsfeedsupplier') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('newsfeedsupplier.index') }}">
                     <i class="fas fa-newspaper"></i><span>Supplier Community Newsfeed</span>
-             </a> --}}
+             </a>
             </li>
             <li class="menu-header">Reports & Analytics</li>
     <li class="{{ Request::is('supplier/reports*') ? 'active' : '' }}">

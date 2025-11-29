@@ -5,23 +5,36 @@
     {{-- SUCCESS BANNER - Dynamic based on action --}}
     @if(session('success'))
         @php
-            $isOrderPlaced = str_contains(strtolower(session('success')), 'checkout') || 
-                           str_contains(strtolower(session('success')), 'order') ||
-                           str_contains(strtolower(session('success')), 'placed');
-            $isRefund = str_contains(strtolower(session('success')), 'refund') || 
-                       str_contains(strtolower(session('success')), 'return');
+            $successMessage = strtolower(session('success'));
+            
+            // Check for cancellation first (highest priority)
+            $isCancelled = str_contains($successMessage, 'cancel') || 
+                          str_contains($successMessage, 'cancelled');
+            
+            // Check for refund/return
+            $isRefund = str_contains($successMessage, 'refund') || 
+                       str_contains($successMessage, 'return');
+            
+            // Check for order placement (only if not cancelled or refunded)
+            $isOrderPlaced = !$isCancelled && !$isRefund && 
+                            (str_contains($successMessage, 'checkout') || 
+                             str_contains($successMessage, 'placed'));
         @endphp
         
         <div class="alert alert-success border-0 shadow-lg mb-4 success-banner" 
-             style="border-radius: 20px; background: linear-gradient(135deg, {{ $isRefund ? '#17a2b8, #138496' : '#28a745, #20c997' }}); color: white;">
+             style="border-radius: 20px; background: linear-gradient(135deg, 
+             {{ $isCancelled ? '#dc3545, #c82333' : ($isRefund ? '#17a2b8, #138496' : '#28a745, #20c997') }}); 
+             color: white;">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
                     <div class="me-3" style="font-size: 2.5rem;">
-                        <i class="fas {{ $isRefund ? 'fa-undo-alt' : 'fa-check-circle' }}"></i>
+                        <i class="fas {{ $isCancelled ? 'fa-times-circle' : ($isRefund ? 'fa-undo-alt' : 'fa-check-circle') }}"></i>
                     </div>
                     <div>
                         <h4 class="mb-1 fw-bold text-white">
-                            @if($isRefund)
+                            @if($isCancelled)
+                                🚫 Order Cancelled Successfully!
+                            @elseif($isRefund)
                                 🔄 Refund Request Submitted!
                             @elseif($isOrderPlaced)
                                 🎉 Order Placed Successfully!
@@ -32,7 +45,9 @@
                         <p class="mb-0">{{ session('success') }}</p>
                         <small class="d-block mt-1 opacity-75">
                             <i class="fas fa-clock me-1"></i>
-                            @if($isRefund)
+                            @if($isCancelled)
+                                Your order has been cancelled. A refund will be processed if applicable.
+                            @elseif($isRefund)
                                 Your refund request is being reviewed. We'll contact you soon.
                             @elseif($isOrderPlaced)
                                 Your order is being processed. Track your order below.

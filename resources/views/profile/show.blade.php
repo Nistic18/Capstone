@@ -12,18 +12,42 @@
                 </div>
             </div>
             <h1 class="display-5 fw-bold text-white mb-3">{{ $user->name }}</h1>
+            
+            {{-- Address --}}
+            @if(!empty($user->address) && trim($user->address) !== '')
+            <p class="lead text-white-50 mb-2">
+                <i class="fas fa-map-marker-alt me-2"></i>
+                {{ $user->address }}
+            </p>
+            @else
+            <p class="lead text-white-50 mb-2">
+                <i class="fas fa-map-marker-alt me-2"></i>
+                <em>Address not provided</em>
+            </p>
+            @endif
+            
+            {{-- Phone Number --}}
+            @if(!empty($user->phone) && trim($user->phone) !== '')
+            <p class="lead text-white-50 mb-2">
+                <i class="fas fa-phone me-2"></i>
+                {{ $user->phone }}
+            </p>
+            @endif
+            
             <p class="lead text-white-50 mb-3">
                 <i class="fas fa-calendar-alt me-2"></i>
                 Member since {{ $user->created_at->format('F Y') }}
             </p>
+            
             {{-- Chat Here Button --}}
-<div class="text-center mt-4">
-    <a href="{{ route('chat.index', ['user' => $user->id]) }}" 
-       class="btn btn-primary btn-lg" 
-       style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #764ba2);">
-        <i class="fas fa-comments me-2"></i> Chat Here
-    </a>
-</div>
+            <div class="text-center mt-4">
+                <a href="{{ route('chat.index', ['user' => $user->id]) }}" 
+                   class="btn btn-primary btn-lg" 
+                   style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #764ba2);">
+                    <i class="fas fa-comments me-2"></i> Chat Here
+                </a>
+            </div>
+            
             {{-- Overall Average Rating --}}
             @php
                 $allReviews = $user->products->flatMap->reviews; 
@@ -31,7 +55,7 @@
             @endphp
 
             @if($allReviews->count() > 0)
-                <div class="d-inline-flex align-items-center px-4 py-2 rounded-pill" 
+                <div class="d-inline-flex align-items-center px-4 py-2 rounded-pill mt-3" 
                      style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
                     <div class="me-3">
                         @for($i = 1; $i <= 5; $i++)
@@ -48,7 +72,7 @@
                     </div>
                 </div>
             @else
-                <div class="d-inline-flex align-items-center px-4 py-2 rounded-pill" 
+                <div class="d-inline-flex align-items-center px-4 py-2 rounded-pill mt-3" 
                      style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
                     <i class="far fa-star text-white-50 me-2"></i>
                     <span class="text-white-50">No reviews yet</span>
@@ -293,11 +317,12 @@
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
     }
-body, 
-h1, h2, h3, h4, h5, h6, 
-p, span, a, div, input, select, button, label {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-}
+    
+    body, 
+    h1, h2, h3, h4, h5, h6, 
+    p, span, a, div, input, select, button, label {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    }
 </style>
 
 {{-- Add Font Awesome if not already included --}}

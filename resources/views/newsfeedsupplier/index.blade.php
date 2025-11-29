@@ -110,13 +110,6 @@
                                 {{ $post->created_at->diffForHumans() }}
                             </small>
                         </div>
-                        @if(auth()->id() == $post->user_id)
-                            @if($post->status == 'pending')
-                                <span class="badge bg-warning text-dark ms-2">Pending Approval</span>
-                            @elseif($post->status == 'rejected')
-                                <span class="badge bg-danger text-white ms-2">Rejected</span>
-                            @endif
-                        @endif
                     </div>
                     
                     {{-- Post Actions Dropdown - SIMPLE VERSION --}}

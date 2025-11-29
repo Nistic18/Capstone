@@ -9,18 +9,11 @@ class SupplierPostController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
-        $query = PostSupplier::with(['user', 'comments.user', 'reactions'])->latest();
-
-        // If not admin, show only approved posts + user's own posts
-        if (!$user->is_admin) {
-            $query->where(function ($q) use ($user) {
-                $q->where('status', 'approved')
-                    ->orWhere('user_id', $user->id);
-            });
-        }
-
-        $posts = $query->paginate(10);
+        // Show all approved posts to everyone (no filtering needed)
+        $posts = PostSupplier::with(['user', 'comments.user', 'reactions'])
+            ->where('status', 'approved')
+            ->latest()
+            ->paginate(10);
 
         return view('newsfeedsupplier.index', compact('posts'));
     }
@@ -45,7 +38,7 @@ class SupplierPostController extends Controller
             'title' => $request->title,
             'content' => $request->content,
             'image' => $path,
-            'status' => 'pending',
+            'status' => 'approved', // Auto-approve all posts
         ]);
 
         return redirect()->route('newsfeedsupplier.index')->with('success', 'Post created successfully!');

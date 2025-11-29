@@ -175,60 +175,54 @@
                         My Locations
                     </h6>
                 </div>
-                <div class="card-body py-2" style="max-height: 200px; overflow-y: auto;">
+                <div class="card-body py-2" style="max-height: 400px; overflow-y: auto;">
                     @forelse($userLocations as $location)
-                        <div class="location-item d-flex align-items-center justify-content-between py-2 border-bottom">
-                            <div class="d-flex align-items-center flex-grow-1">
+                        <div class="location-card mb-3 p-3 border rounded-3" style="background: #f8f9fa;">
+                            <div class="d-flex align-items-start mb-3">
                                 <div class="me-3">
                                     @php
                                         $roleColor = match($role) {
                                             'supplier' => 'success',
-                                            
                                             default => 'info'
                                         };
                                     @endphp
                                     <div class="bg-{{ $roleColor }} rounded-circle d-flex align-items-center justify-content-center" 
-                                         style="width: 25px; height: 25px;">
-                                        <i class="fas fa-store text-white" style="font-size: 0.6rem;"></i>
+                                         style="width: 50px; height: 50px;">
+                                        <i class="fas fa-store text-white" style="font-size: 1.2rem;"></i>
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <h6 class="mb-0 small fw-semibold">{{ $location->location_name }}</h6>
-                                    <p class="mb-0 text-muted" style="font-size: 0.7rem;">
-                                        {{ ucfirst($location->type) }}
+                                    <h6 class="mb-1 fw-bold" style="font-size: 1.05rem; color: #2c3e50;">
+                                        {{ $location->location_name }}
+                                    </h6>
+                                    <p class="mb-0 text-muted d-flex align-items-center" style="font-size: 0.85rem;">
+                                        <i class="fas fa-map-marker-alt me-2" style="font-size: 0.75rem;"></i>
+                                        Store Location
                                     </p>
                                 </div>
                             </div>
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
-                                        type="button" 
-                                        data-bs-toggle="dropdown" 
-                                        aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v"></i>
+                            
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary flex-fill" 
+                                    onclick="editLocation({{ $location->id }}, '{{ $location->location_name }}', {{ $location->latitude }}, {{ $location->longitude }})"
+                                    style="border-radius: 10px; padding: 10px;">
+                                    <i class="fas fa-edit me-2"></i>Edit
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <button class="dropdown-item text-primary" 
-                                                onclick="editLocation({{ $location->id }}, '{{ $location->location_name }}', '{{ $location->type }}', {{ $location->latitude }}, {{ $location->longitude }})">
-                                            <i class="fas fa-edit me-2"></i>Edit
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item text-danger" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#deleteLocationModal"
-                                                data-location-id="{{ $location->id }}"
-                                                data-location-name="{{ $location->location_name }}">
-                                            <i class="fas fa-trash me-2"></i>Delete
-                                        </button>
-                                    </li>
-                                </ul>
+                                <button class="btn btn-outline-danger flex-fill" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#deleteLocationModal"
+                                        data-location-id="{{ $location->id }}"
+                                        data-location-name="{{ $location->location_name }}"
+                                        style="border-radius: 10px; padding: 10px;">
+                                    <i class="fas fa-trash me-2"></i>Delete
+                                </button>
                             </div>
                         </div>
                     @empty
-                        <div class="text-center py-3">
-                            <i class="fas fa-map text-muted mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
-                            <p class="text-muted small mb-0">No locations set yet</p>
+                        <div class="text-center py-4">
+                            <i class="fas fa-map text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+                            <p class="text-muted mb-0">No locations set yet</p>
+                            <p class="text-muted small">Click on the map to add your first location</p>
                         </div>
                     @endforelse
                 </div>
@@ -327,7 +321,6 @@
         <input type="hidden" id="edit-lat" name="latitude">
         <input type="hidden" id="edit-lng" name="longitude">
         <input type="hidden" id="edit-name" name="location_name">
-        <input type="hidden" id="edit-type" name="type">
     </form>
     @endif
 </div>
@@ -378,7 +371,7 @@
             <div class="modal-header border-0 pb-2">
                 <h5 class="modal-title fw-bold" style="color: #2c3e50;">
                     <i class="fas fa-edit text-warning me-2"></i>
-                    Edit Location
+                    Edit Store Name
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -388,17 +381,15 @@
                     <input type="text" id="editLocationNameInput" class="form-control form-control-lg" 
                            style="border-radius: 15px; border: 2px solid #e9ecef;">
                 </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold" style="color: #2c3e50;">Type</label>
-                    <select id="editLocationTypeInput" class="form-select form-select-lg" 
-                            style="border-radius: 15px; border: 2px solid #e9ecef;">
-                        <option value="store">Store</option>
-                        <option value="supply">Supply</option>
-                    </select>
-                </div>
-                <div class="alert alert-warning border-0" style="background: rgba(255, 193, 7, 0.1); border-radius: 10px; color: #856404;">
-                    <i class="fas fa-info-circle text-warning me-2"></i>
-                    Click on the map to update the location coordinates.
+                
+                {{-- Info Alert --}}
+                <div class="alert alert-info border-0 d-flex align-items-start" style="background: rgba(13, 202, 240, 0.1); border-radius: 10px;">
+                    <i class="fas fa-info-circle text-info me-2 mt-1"></i>
+                    <div>
+                        <small class="text-muted">
+                            If you want to change the location of the store, please delete the current one and add another.
+                        </small>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer border-0 pt-0">
@@ -974,59 +965,61 @@ function showNotification(type, message) {
     }
 
     // Edit location function
-    function editLocation(id, name, type, lat, lng) {
-        editingLocationId = id;
-        isEditMode = true;
-        editLat = lat;
-        editLng = lng;
-        
-        // Pre-fill modal
-        document.getElementById('editLocationNameInput').value = name;
-        document.getElementById('editLocationTypeInput').value = type;
-        
-        // Show modal
-        const modal = new bootstrap.Modal(document.getElementById('editLocationModal'));
-        modal.show();
-        
-        // Center map on location
-        map.setView([lat, lng], 16);
-        
-        // Add edit marker
-        if (editMarker) {
-            map.removeLayer(editMarker);
-        }
-        editMarker = L.marker([lat, lng], { 
-            icon: getIconForRole('{{ $role }}') 
-        }).addTo(map);
-        editMarker.bindPopup('Editing: ' + name).openPopup();
+function editLocation(id, name, lat, lng) {
+    editingLocationId = id;
+    isEditMode = true;
+    editLat = lat;
+    editLng = lng;
+    
+    // Pre-fill modal
+    document.getElementById('editLocationNameInput').value = name;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('editLocationModal'));
+    modal.show();
+    
+    // Center map on location
+    map.setView([lat, lng], 16);
+    
+    // Add edit marker
+    if (editMarker) {
+        map.removeLayer(editMarker);
     }
+    editMarker = L.marker([lat, lng], { 
+        icon: getIconForRole('{{ $role }}') 
+    }).addTo(map);
+    editMarker.bindPopup('Editing: ' + name).openPopup();
+}
 
     // Confirm edit location
     function confirmEditLocation() {
-        const locationName = document.getElementById('editLocationNameInput').value.trim();
-        const locationType = document.getElementById('editLocationTypeInput').value;
-        
-        if (!locationName) {
-            alert('Please enter a location name');
-            return;
-        }
-
-        // Update form and submit
-        document.getElementById('edit-lat').value = editLat;
-        document.getElementById('edit-lng').value = editLng;
-        document.getElementById('edit-name').value = locationName;
-        document.getElementById('edit-type').value = locationType;
-        
-        // Update form action
-        const form = document.getElementById('edit-location-form');
-        form.action = '{{ route("locations.update", ":id") }}'.replace(':id', editingLocationId);
-        
-        // Show loading state
-        document.getElementById('confirmEditLocation').innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
-        document.getElementById('confirmEditLocation').disabled = true;
-        
-        form.submit();
+    const locationName = document.getElementById('editLocationNameInput').value.trim();
+    
+    if (!locationName) {
+        alert('Please enter a location name');
+        return;
     }
+
+    // Update form and submit (removed type field)
+    document.getElementById('edit-lat').value = editLat;
+    document.getElementById('edit-lng').value = editLng;
+    document.getElementById('edit-name').value = locationName;
+    
+    // Update form action
+    const form = document.getElementById('edit-location-form');
+    form.action = '{{ route("locations.update", ":id") }}'.replace(':id', editingLocationId);
+    
+    // Show loading state
+    document.getElementById('confirmEditLocation').innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
+    document.getElementById('confirmEditLocation').disabled = true;
+    
+    // Debug log
+    console.log('Submitting form to:', form.action);
+    console.log('Location Name:', locationName);
+    console.log('Lat:', editLat, 'Lng:', editLng);
+    
+    form.submit();
+}
 
     @if($role !== 'buyer')
     // Handle map click for non-buyers

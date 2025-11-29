@@ -955,8 +955,8 @@ p, span, a, div, input, select, button, label {
     <section class="features" id="contact">
         <div class="container">
             <div class="section-title">
-                <h2>{{ $contact->title ?? 'Get In Touch' }}</h2>
-                <p>{{ $contact->content ?? "We'd love to hear from you" }}</p>
+                <h2>{{ $contact->title ?? 'We’re Here to Listen' }}</h2>
+                <p>{{ $contact->content ?? "If you have concerns, complaints, or suggestions, you may reach us through the following channels. Our team is committed to assisting you as quickly as possible." }}</p>
             </div>
             <div class="row justify-content-center">
                 <div class="col-lg-8">

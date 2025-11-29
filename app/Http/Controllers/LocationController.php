@@ -57,7 +57,7 @@ class LocationController extends Controller
         'latitude' => 'required|numeric',
         'longitude' => 'required|numeric',
         'location_name' => 'required|string|max:255',
-        'type' => 'required|in:supply,store',
+        'type' => 'nullable|in:supply,store', // Changed to nullable
     ]);
 
     // Create location entry ONLY - don't touch user's address
@@ -73,32 +73,34 @@ class LocationController extends Controller
 }
 
     public function update(Request $request, Location $location)
-    {
-        // Check if user owns this location or has permission
-        if ($location->user_id !== Auth::id() && auth()->user()->role !== 'admin') {
-            abort(403, 'You can only edit your own locations.');
-        }
-
-        $request->validate([
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'location_name' => 'required|string|max:255',
-            'type' => 'required|in:supply,store',
-        ]);
-
-        // Update location ONLY - don't touch user's address
-        $location->update([
-            'location_name' => $request->location_name,
-            'type' => $request->type,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-        ]);
-
-        // REMOVED: Automatic address update
-        // Keep user's actual address separate from location names
-
-        return redirect()->back()->with('success', 'Location updated successfully.');
+{
+    // Check if user owns this location or has permission
+    if ($location->user_id !== Auth::id() && auth()->user()->role !== 'admin') {
+        abort(403, 'You can only edit your own locations.');
     }
+
+    $request->validate([
+        'latitude' => 'required|numeric',
+        'longitude' => 'required|numeric',
+        'location_name' => 'required|string|max:255',
+        'type' => 'nullable|in:supply,store', // Changed to nullable
+    ]);
+
+    // Update location - only update type if provided
+    $updateData = [
+        'location_name' => $request->location_name,
+        'latitude' => $request->latitude,
+        'longitude' => $request->longitude,
+    ];
+    
+    if ($request->has('type')) {
+        $updateData['type'] = $request->type;
+    }
+    
+    $location->update($updateData);
+
+    return redirect()->back()->with('success', 'Location updated successfully.');
+}
 
     public function destroy(Location $location)
     {

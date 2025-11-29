@@ -201,33 +201,54 @@
                     </div>
 
                     {{-- Seller Information --}}
-                    @if($product->user)
-                    <div class="mb-4">
-                        <h6 class="fw-bold mb-3">
-                            <i class="fas fa-user-tie text-primary me-2"></i>Seller Information
-                        </h6>
-                        <div class="card border-0" style="background: linear-gradient(135deg, #667eea20, #764ba220); border-radius: 15px;">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
-                                         style="width: 50px; height: 50px;">
-                                        <i class="fas fa-user text-white"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1 fw-bold">{{ $product->user->name }}</h6>
-                                        <small class="text-muted">Trusted Fish Seller</small>
-                                        <div class="mt-1">
-                                            <a href="{{ route('profile.show', $product->user->id) }}" 
-                                               class="btn btn-sm btn-outline-primary" style="border-radius: 20px;">
-                                                <i class="fas fa-eye me-1"></i>View Profile
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+@if($product->user)
+<div class="mb-4">
+    <h6 class="fw-bold mb-3">
+        <i class="fas fa-user-tie text-primary me-2"></i>Seller Information
+    </h6>
+    <div class="card border-0" style="background: linear-gradient(135deg, #667eea20, #764ba220); border-radius: 15px;">
+        <div class="card-body">
+            <div class="d-flex align-items-start">
+                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" 
+                     style="width: 50px; height: 50px;">
+                    <i class="fas fa-user text-white"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-1 fw-bold">{{ $product->user->name }}</h6>
+                    <small class="text-muted d-block mb-2">Trusted Fish Seller</small>
+                    
+                    {{-- Phone Number --}}
+                    @if($product->user->phone)
+                    <div class="mb-2">
+                        <i class="fas fa-phone text-success me-2"></i>
+                        <small class="text-muted">
+                            <a href="tel:{{ $product->user->phone }}" class="text-decoration-none text-dark">
+                                {{ $product->user->phone }}
+                            </a>
+                        </small>
                     </div>
                     @endif
+                    
+                    {{-- Address --}}
+                    @if($product->user->address)
+                    <div class="mb-2">
+                        <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                        <small class="text-muted">{{ $product->user->address }}</small>
+                    </div>
+                    @endif
+                    
+                    <div class="mt-2">
+                        <a href="{{ route('profile.show', $product->user->id) }}" 
+                           class="btn btn-sm btn-outline-primary" style="border-radius: 20px;">
+                            <i class="fas fa-eye me-1"></i>View Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 
                     {{-- Action Buttons --}}
 <div class="mt-auto">

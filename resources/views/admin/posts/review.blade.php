@@ -21,67 +21,69 @@
     @endif
 
     @forelse($pendingPosts as $post)
-    <div class="card mb-4 shadow-sm border-0">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-            <div>
-                <span class="badge {{ $post->post_type === 'supplier' ? 'bg-primary' : 'bg-success' }}">
-                    {{ $post->post_type === 'supplier' ? 'Supplier Community' : 'Community Newsfeed' }}
-                </span>
-                <small class="text-muted ms-2">
-                    <i class="bi bi-clock"></i> {{ $post->created_at->diffForHumans() }}
-                </small>
+        @if($post->post_type === 'community')
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge bg-success">
+                        Community Newsfeed
+                    </span>
+                    <small class="text-muted ms-2">
+                        <i class="bi bi-clock"></i> {{ $post->created_at->diffForHumans() }}
+                    </small>
+                </div>
+                <div>
+                    <i class="bi bi-person-circle"></i> 
+                    <strong>{{ $post->user->name }}</strong>
+                </div>
             </div>
-            <div>
-                <i class="bi bi-person-circle"></i> 
-                <strong>{{ $post->user->name }}</strong>
+
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-3">{{ $post->title }}</h5>
+                
+                <div class="card-text mb-3">
+                    <p class="text-muted">{{ Str::limit($post->content, 300) }}</p>
+                </div>
+
+                @if($post->image)
+                    <div class="mb-3">
+                        <img src="{{ asset('storage/' . $post->image) }}" 
+                             class="img-fluid rounded shadow-sm" 
+                             style="max-height: 300px; object-fit: cover;"
+                             alt="Post image">
+                    </div>
+                @endif
+
+                <hr>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted small">
+                        <i class="bi bi-calendar3"></i> Posted on {{ $post->created_at->format('M d, Y \a\t h:i A') }}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <form method="POST" action="{{ route('admin.posts.approve') }}" class="d-inline">
+                            @csrf
+                            <input type="hidden" name="id" value="{{ $post->id }}">
+                            <input type="hidden" name="type" value="{{ $post->post_type }}">
+                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to approve this post?')">
+                                <i class="bi bi-check-circle"></i> Approve
+                            </button>
+                        </form>
+
+                        <form method="POST" action="{{ route('admin.posts.reject') }}" class="d-inline">
+                            @csrf
+                            <input type="hidden" name="id" value="{{ $post->id }}">
+                            <input type="hidden" name="type" value="{{ $post->post_type }}">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to reject this post?')">
+                                <i class="bi bi-x-circle"></i> Reject
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div class="card-body">
-            <h5 class="card-title fw-bold mb-3">{{ $post->title }}</h5>
-            
-            <div class="card-text mb-3">
-                <p class="text-muted">{{ Str::limit($post->content, 300) }}</p>
-            </div>
-
-            @if($post->image)
-                <div class="mb-3">
-                    <img src="{{ asset('storage/' . $post->image) }}" 
-                         class="img-fluid rounded shadow-sm" 
-                         style="max-height: 300px; object-fit: cover;"
-                         alt="Post image">
-                </div>
-            @endif
-
-            <hr>
-
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="text-muted small">
-                    <i class="bi bi-calendar3"></i> Posted on {{ $post->created_at->format('M d, Y \a\t h:i A') }}
-                </div>
-
-                <div class="d-flex gap-2">
-                    <form method="POST" action="{{ route('admin.posts.approve') }}" class="d-inline">
-                        @csrf
-                        <input type="hidden" name="id" value="{{ $post->id }}">
-                        <input type="hidden" name="type" value="{{ $post->post_type }}">
-                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to approve this post?')">
-                            <i class="bi bi-check-circle"></i> Approve
-                        </button>
-                    </form>
-
-                    <form method="POST" action="{{ route('admin.posts.reject') }}" class="d-inline">
-                        @csrf
-                        <input type="hidden" name="id" value="{{ $post->id }}">
-                        <input type="hidden" name="type" value="{{ $post->post_type }}">
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to reject this post?')">
-                            <i class="bi bi-x-circle"></i> Reject
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+        @endif
     @empty
     <div class="alert alert-info text-center py-5">
         <i class="bi bi-inbox" style="font-size: 3rem;"></i>
