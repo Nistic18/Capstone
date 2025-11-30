@@ -302,7 +302,7 @@
     }
     
     .btn-primary {
-        background: linear-gradient(45deg, #0bb364, #764ba2);
+        background: linear-gradient(45deg, #0bb364, #0bb364);
         border: none;
     }
     

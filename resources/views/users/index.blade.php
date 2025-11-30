@@ -90,7 +90,7 @@
                                 <div class="modal fade" id="viewDocsModal{{ $app->id }}" tabindex="-1">
                                     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                                         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-                                            <div class="modal-header border-0" style="background: linear-gradient(45deg, #667eea, #764ba2);">
+                                            <div class="modal-header border-0" style="background: linear-gradient(45deg, #667eea, #0bb364);">
                                                 <h5 class="modal-title fw-bold text-white">
                                                     <i class="fas fa-folder-open me-2"></i>
                                                     Application Documents - {{ $app->business_name }}
@@ -342,7 +342,7 @@
                                 <td class="px-4 py-4">
                                     <div class="d-flex align-items-center">
                                         <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
-                                             style="width: 45px; height: 45px; background: linear-gradient(45deg, #667eea, #764ba2);">
+                                             style="width: 45px; height: 45px; background: linear-gradient(45deg, #667eea, #0bb364);">
                                             <i class="fas fa-user text-white"></i>
                                         </div>
                                         <div>
@@ -443,7 +443,7 @@
 <style>
 .table tbody tr:hover { background-color: #f8f9fa; transition: none; }
 .document-card { border:2px solid #e9ecef; border-radius:15px; overflow:hidden; transition: none; background:#fff; }
-.document-header { background: linear-gradient(45deg,#667eea,#764ba2); color:white; padding:12px 15px; font-weight:600; font-size:14px; }
+.document-header { background: linear-gradient(45deg,#667eea,#0bb364); color:white; padding:12px 15px; font-weight:600; font-size:14px; }
 .document-body { padding:15px; }
 .document-image { width:100%; height:300px; object-fit:contain; border-radius:10px; cursor:pointer; border:2px solid #e9ecef; }
 .modal-xl { max-width:1200px; }

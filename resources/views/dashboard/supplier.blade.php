@@ -323,7 +323,7 @@
     }
 
     .header-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #667eea 0%, #0bb364 100%);
         border-radius: 20px;
     }
 
@@ -412,7 +412,7 @@
         width: 30px;
         height: 30px;
         border-radius: 50%;
-        background: linear-gradient(45deg, #667eea, #764ba2);
+        background: linear-gradient(45deg, #667eea, #0bb364);
         color: white;
         display: flex;
         align-items: center;
@@ -463,7 +463,7 @@
     }
 
     .aov-icon {
-        background: linear-gradient(45deg, #667eea, #764ba2);
+        background: linear-gradient(45deg, #667eea, #0bb364);
     }
 
     .table-hover tbody tr:hover {

@@ -174,7 +174,7 @@
                     </div>
                     <div class="d-flex flex-wrap gap-2">
                         @if(request('search'))
-                            <span class="badge d-inline-flex align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 8px 14px; font-size: 0.85rem; font-weight: 500;">
+                            <span class="badge d-inline-flex align-items-center" style="background: linear-gradient(135deg, #667eea 0%, #0bb364 100%); border-radius: 20px; padding: 8px 14px; font-size: 0.85rem; font-weight: 500;">
                                 <i class="fas fa-search me-2" style="font-size: 0.75rem;"></i>
                                 "{{ Str::limit(request('search'), 20) }}"
                                 <a href="{{ route('home', array_merge(request()->except('search'))) }}" 

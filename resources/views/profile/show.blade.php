@@ -3,7 +3,7 @@
 @section('content')
 <div class="mt-5">
     {{-- Profile Header Section --}}
-    <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #0bb364 100%); border-radius: 20px;">
         <div class="card-body text-center py-5">
             <div class="mb-4">
                 <div class="rounded-circle mx-auto d-flex align-items-center justify-content-center" 
@@ -43,7 +43,7 @@
             <div class="text-center mt-4">
                 <a href="{{ route('chat.index', ['user' => $user->id]) }}" 
                    class="btn btn-primary btn-lg" 
-                   style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #764ba2);">
+                   style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #0bb364);">
                     <i class="fas fa-comments me-2"></i> Chat Here
                 </a>
             </div>
@@ -150,7 +150,7 @@
                     <div class="card-body d-flex flex-column p-4">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title fw-bold mb-0" style="color: #2c3e50;">{{ $product->name }}</h5>
-                            <span class="badge" style="background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; color: #fff;">
+                            <span class="badge" style="background: linear-gradient(45deg, #667eea, #0bb364); border-radius: 15px; color: #fff;">
                                 🐟 Fresh
                             </span>
                         </div>
@@ -213,7 +213,7 @@
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <div class="d-flex align-items-center">
                                             <div class="rounded-circle d-flex align-items-center justify-content-center me-2" 
-                                                 style="width: 32px; height: 32px; background: linear-gradient(45deg, #667eea, #764ba2);">
+                                                 style="width: 32px; height: 32px; background: linear-gradient(45deg, #667eea, #0bb364);">
                                                 <i class="fas fa-user text-white" style="font-size: 0.7rem;"></i>
                                             </div>
                                             <div>
@@ -266,7 +266,7 @@
     }
     
     .btn-outline-primary:hover {
-        background: linear-gradient(45deg, #667eea, #764ba2);
+        background: linear-gradient(45deg, #667eea, #0bb364);
         border-color: #667eea;
         transform: translateY(-1px);
     }

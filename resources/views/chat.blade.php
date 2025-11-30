@@ -38,7 +38,7 @@
                                     {{-- User Avatar --}}
                                     <div class="position-relative me-3">
                                         <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                             style="width: 45px; height: 45px; background: linear-gradient(45deg, #0bb364, #764ba2); color: white; font-weight: bold;">
+                                             style="width: 45px; height: 45px; background: linear-gradient(45deg, #0bb364, #0bb364); color: white; font-weight: bold;">
                                             {{ strtoupper(substr($user->name, 0, 1)) }}
                                         </div>
                                         {{-- Online status indicator --}}
@@ -85,7 +85,7 @@
 
                             @if($receiver)
                                 <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-                                     style="width: 40px; height: 40px; background: linear-gradient(45deg, #0bb364, #764ba2); color: white; font-weight: bold;">
+                                     style="width: 40px; height: 40px; background: linear-gradient(45deg, #0bb364, #0bb364); color: white; font-weight: bold;">
                                     {{ strtoupper(substr($receiver->name, 0, 1)) }}
                                 </div>
                                 <div>
@@ -109,7 +109,7 @@
                                         {{-- Sender (me) --}}
                                         <div class="d-flex justify-content-end mb-3">
                                             <div class="p-3 rounded-4 position-relative" 
-                                                 style="background: linear-gradient(45deg, #0bb364, #764ba2); 
+                                                 style="background: linear-gradient(45deg, #0bb364, #0bb364); 
                                                         color: white; 
                                                         max-width: 70%; 
                                                         box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);

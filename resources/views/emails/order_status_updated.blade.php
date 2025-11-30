@@ -7,7 +7,7 @@
 <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding:0; background:#f4f4f4; color:#333; }
     .container { max-width:600px; margin:40px auto; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 4px 6px rgba(0,0,0,0.1); }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; text-align:center; padding:40px 20px; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #0bb364 100%); color:#fff; text-align:center; padding:40px 20px; }
     .header h1 { margin:0; font-size:28px; }
     .header p { margin:10px 0 0; font-size:16px; opacity:0.9; }
     .content { padding:40px 30px; }

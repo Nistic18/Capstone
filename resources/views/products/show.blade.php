@@ -89,7 +89,7 @@
 
                     {{-- Fresh Badge --}}
                     <span class="badge position-absolute top-0 start-0 m-3" 
-                          style="background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 20px; padding: 10px 15px; font-size: 0.9rem;">
+                          style="background: linear-gradient(45deg, #667eea, #0bb364); border-radius: 20px; padding: 10px 15px; font-size: 0.9rem;">
                         <i class="fas fa-fish me-1"></i>Fresh Fish
                     </span>
                 </div>
@@ -206,7 +206,7 @@
     <h6 class="fw-bold mb-3">
         <i class="fas fa-user-tie text-primary me-2"></i>Seller Information
     </h6>
-    <div class="card border-0" style="background: linear-gradient(135deg, #667eea20, #764ba220); border-radius: 15px;">
+    <div class="card border-0" style="background: linear-gradient(135deg, #667eea20, #0bb36420); border-radius: 15px;">
         <div class="card-body">
             <div class="d-flex align-items-start">
                 <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" 
@@ -494,7 +494,7 @@
     }
     
     .nav-pills .nav-link.active {
-        background: linear-gradient(45deg, #667eea, #764ba2) !important;
+        background: linear-gradient(45deg, #667eea, #0bb364) !important;
         color: white !important;
     }
     

@@ -347,7 +347,7 @@
     }
 
     .header-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #667eea 0%, #0bb364 100%);
         border-radius: 20px;
     }
 
@@ -379,7 +379,7 @@
         color: white;
     }
 
-    .users-icon { background: linear-gradient(45deg, #667eea, #764ba2); }
+    .users-icon { background: linear-gradient(45deg, #667eea, #0bb364); }
     .products-icon { background: linear-gradient(45deg, #28a745, #20c997); }
     .orders-icon { background: linear-gradient(45deg, #fd7e14, #e83e8c); }
     .revenue-icon { background: linear-gradient(45deg, #007bff, #6f42c1); }

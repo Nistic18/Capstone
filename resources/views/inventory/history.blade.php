@@ -182,7 +182,7 @@
         </div>
 
         <div class="col-md-4 mb-3">
-            <div class="card border-0 shadow-sm" style="border-radius: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card border-0 shadow-sm" style="border-radius: 15px; background: linear-gradient(135deg, #667eea 0%, #0bb364 100%);">
                 <div class="card-body text-white p-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>

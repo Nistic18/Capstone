@@ -18,7 +18,7 @@
     </nav>
 
     {{-- Page Header --}}
-    {{-- <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #0bb364 100%); border-radius: 20px;">
         <div class="card-body text-center py-4">
             <div class="mb-3">
                 <i class="fas fa-bell text-white" style="font-size: 2.5rem;"></i>
@@ -136,7 +136,7 @@
                             @endif
                             @if(isset($notification->data['action_url']))
                                 <a href="{{ $notification->data['action_url'] }}" class="btn btn-primary btn-sm w-100" 
-                                   style="border-radius: 15px; background: linear-gradient(45deg, #667eea, #764ba2);">
+                                   style="border-radius: 15px; background: linear-gradient(45deg, #667eea, #0bb364);">
                                     <i class="fas fa-external-link-alt me-2"></i>View Details
                                 </a>
                             @endif
@@ -155,7 +155,7 @@
                 <h3 class="text-muted mb-3">No Notifications Yet</h3>
                 <p class="text-muted mb-4">You're all caught up! New notifications will appear here when you have updates.</p>
                 <a href="{{ route('home') }}" class="btn btn-primary btn-lg" 
-                   style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
+                   style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #0bb364); border: none;">
                     <i class="fas fa-home me-2"></i>Back to Home
                 </a>
             </div>
@@ -238,7 +238,7 @@
     }
     
     .btn-outline-primary:hover {
-        background: linear-gradient(45deg, #667eea, #764ba2);
+        background: linear-gradient(45deg, #667eea, #0bb364);
         border-color: #667eea;
     }
     

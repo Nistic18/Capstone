@@ -3,7 +3,7 @@
 @section('content')
 <div class="mt-5">
     {{-- Header Section --}}
-    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    {{-- <div class="card border-0 shadow-lg mb-5" style="background: linear-gradient(135deg, #667eea 0%, #0bb364 100%); border-radius: 20px;">
         <div class="card-body text-center py-4">
             <div class="mb-3">
                 <i class="fas fa-user-edit text-white" style="font-size: 2.5rem;"></i>
@@ -34,7 +34,7 @@
                 <div class="card-header border-0 text-center py-4" style="background: linear-gradient(45deg, #f8f9fa, #ffffff); border-radius: 20px 20px 0 0;">
                     <div class="d-flex align-items-center justify-content-center mb-2">
                         <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
-                             style="width: 60px; height: 60px; background: linear-gradient(45deg, #667eea, #764ba2);">
+                             style="width: 60px; height: 60px; background: linear-gradient(45deg, #667eea, #0bb364);">
                             <i class="fas fa-user text-white" style="font-size: 1.5rem;"></i>
                         </div>
                         <div class="text-start">

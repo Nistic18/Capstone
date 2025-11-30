@@ -14,7 +14,7 @@
             padding: 20px;
         }
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #0bb364 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -36,7 +36,7 @@
         .button {
             display: inline-block;
             padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #0bb364 100%);
             color: white;
             text-decoration: none;
             border-radius: 5px;

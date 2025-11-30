@@ -66,7 +66,7 @@
                             <h3 class="text-muted mb-3">Your Cart is Empty</h3>
                             <p class="text-muted mb-4">Looks like you haven't added any fresh fish to your cart yet!</p>
                             <a href="{{ route('home') }}" class="btn btn-primary btn-lg" 
-                               style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #764ba2); border: none;">
+                               style="border-radius: 25px; background: linear-gradient(45deg, #667eea, #0bb364); border: none;">
                                 <i class="fas fa-fish me-2"></i>Start Shopping
                             </a>
                         </div>
@@ -84,7 +84,7 @@
                                     Cart Items ({{ $cart->count() }})
                                 </h4>
                             </div>
-                            <span class="badge" style="background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 15px; padding: 8px 15px; color: #fff;">
+                            <span class="badge" style="background: linear-gradient(45deg, #667eea, #0bb364); border-radius: 15px; padding: 8px 15px; color: #fff;">
                                 🐟 Fresh Selection
                             </span>
                         </div>
@@ -406,7 +406,7 @@
 <div class="modal fade" id="checkoutConfirmationModal" tabindex="-1" aria-labelledby="checkoutConfirmationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px 20px 0 0;">
+            <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, #667eea 0%, #0bb364 100%); border-radius: 20px 20px 0 0;">
                 <h5 class="modal-title fw-bold text-white" id="checkoutConfirmationModalLabel">
                     <i class="fas fa-check-circle me-2"></i>Confirm Your Order
                 </h5>
