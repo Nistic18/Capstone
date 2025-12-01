@@ -410,6 +410,7 @@ p, span, a, div, input, select, button, label {
 <div class="col-lg-7 col-md-8">
     <div class="register-box mx-auto">
         <form method="POST" action="#" class="needs-validation" novalidate>
+            @csrf
             <div class="row g-4">
 
                 <!-- Left Column -->
