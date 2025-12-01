@@ -598,8 +598,8 @@
             <div class="row align-items-center">
                 <!-- Hero Text -->
                 <div class="col-lg-7 text-white hero-text">
-                    <h1>{{ $hero->title ?? 'Fish Market' }}</h1>
-                    <p>{{ $hero->content ?? 'Discover the freshest seafood delivered straight to your door.' }}</p>
+                    <h1 style="font-size: 3rem; font-weight: 800;">{{ $hero->title ?? 'Fish Market' }}</h1>
+                    <p style="font-size: 1.5rem; font-weight: 500;"> {{ $hero->content ?? 'Discover the freshest seafood delivered straight to your door.' }}</p>
                     <div class="hero-buttons">
                         <a href="{{ route('login') }}" class="btn btn-hero">
                             <i class="fas fa-shopping-basket me-2"></i>Start Shopping
