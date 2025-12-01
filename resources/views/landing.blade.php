@@ -704,7 +704,7 @@
             </div>
 
             <!-- Feature Cards (if any exist in database) -->
-            <div class="section-title mt-5">
+            {{-- <div class="section-title mt-5">
                 <h2>Why Choose Dried FishMart</h2>
                 <p>Quality seafood with unmatched service</p>
             </div>
@@ -743,7 +743,7 @@
                 @endforelse
             </div>
         </div>
-    </section>
+    </section> --}}
 
 <!-- Latest Articles Section -->
     @if($latestPost)
