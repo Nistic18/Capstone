@@ -32,22 +32,30 @@ Route::get('/', function () {
     // Hero products
     $heroProducts = \App\Models\Product::inRandomOrder()->take(4)->get();
 
-    // Get featured post, or fallback to latest approved post
-    $latestPost = \App\Models\PostSupplier::with('user', 'comments', 'reactions')
+    // Get up to 4 featured posts, ordered by most recent
+    $featuredPosts = \App\Models\PostSupplier::with('user', 'comments', 'reactions')
                     ->where('status', 'approved')
                     ->where('is_featured', true)
                     ->latest()
-                    ->first();
+                    ->take(4)
+                    ->get();
     
-    // If no featured post, get the latest approved post
-    if (!$latestPost) {
-        $latestPost = \App\Models\PostSupplier::with('user', 'comments', 'reactions')
-                        ->where('status', 'approved')
-                        ->latest()
-                        ->first();
+    // If we have less than 4 featured posts, fill with latest approved posts
+    if ($featuredPosts->count() < 4) {
+        $remainingCount = 4 - $featuredPosts->count();
+        $featuredPostIds = $featuredPosts->pluck('id')->toArray();
+        
+        $additionalPosts = \App\Models\PostSupplier::with('user', 'comments', 'reactions')
+                            ->where('status', 'approved')
+                            ->whereNotIn('id', $featuredPostIds)
+                            ->latest()
+                            ->take($remainingCount)
+                            ->get();
+        
+        $featuredPosts = $featuredPosts->merge($additionalPosts);
     }
 
-    return view('landing', compact('heroProducts', 'latestPost'));
+    return view('landing', compact('heroProducts', 'featuredPosts'));
 })->name('landing');
 
 // Keep Auth::routes() for login, register, etc.

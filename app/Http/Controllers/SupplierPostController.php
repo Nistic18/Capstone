@@ -154,7 +154,7 @@ class SupplierPostController extends Controller
         return back();
     }
 
-    // New method for toggling featured status
+    // Updated method for toggling featured status (max 4 posts)
     public function toggleFeatured(PostSupplier $post)
     {
         // Only admin can feature posts
@@ -162,18 +162,25 @@ class SupplierPostController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        // If featuring this post, unfeatured all others first
+        // If trying to feature this post
         if (!$post->is_featured) {
-            PostSupplier::where('is_featured', true)->update(['is_featured' => false]);
+            // Check if we already have 4 featured posts
+            $featuredCount = PostSupplier::where('is_featured', true)->count();
+            
+            if ($featuredCount >= 4) {
+                return back()->with('error', 'You can only feature up to 4 posts on the landing page. Please unfeature another post first.');
+            }
+            
+            $post->is_featured = true;
+            $post->save();
+            
+            return back()->with('success', 'Post featured on landing page successfully!');
+        } else {
+            // Unfeaturing the post
+            $post->is_featured = false;
+            $post->save();
+            
+            return back()->with('success', 'Post removed from landing page.');
         }
-
-        $post->is_featured = !$post->is_featured;
-        $post->save();
-
-        $message = $post->is_featured 
-            ? 'Post featured on landing page successfully!' 
-            : 'Post removed from landing page.';
-
-        return back()->with('success', $message);
     }
 }

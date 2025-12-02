@@ -13,10 +13,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     
-    <!-- Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
         body {
@@ -32,6 +30,46 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+        }
+
+        /* Back to Home Button */
+        .back-to-home {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1000;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            color: #0bb364;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .btn-back:hover {
+            background: #0bb364;
+            color: white;
+            transform: translateX(-5px);
+            box-shadow: 0 4px 12px rgba(11, 179, 100, 0.3);
+        }
+
+        .btn-back i {
+            font-size: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-back:hover i {
+            transform: translateX(-3px);
         }
 
         /* Brand Section */
@@ -341,6 +379,11 @@
             .features-list {
                 align-items: center;
             }
+
+            .back-to-home {
+                top: 1rem;
+                left: 1rem;
+            }
         }
 
         @media (max-width: 767px) {
@@ -366,15 +409,37 @@
                 padding: 1.5rem;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
+
+            .btn-back {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .btn-back span {
+                display: none;
+            }
+
+            .btn-back i {
+                margin-right: 0 !important;
+            }
         }
+
         body, 
-h1, h2, h3, h4, h5, h6, 
-p, span, a, div, input, select, button, label {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-}
+        h1, h2, h3, h4, h5, h6, 
+        p, span, a, div, input, select, button, label {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+        }
     </style>
 </head>
 <body>
+    <div class="register-wrapper">
+        {{-- Back to Home Button --}}
+        <div class="back-to-home">
+            <a href="{{ route('landing') }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Home</span>
+            </a>
+        </div>
     <div class="register-wrapper">
         <div class="container">
             <div class="row align-items-center justify-content-center min-vh-100 py-5">

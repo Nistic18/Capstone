@@ -463,7 +463,22 @@
                 width: 100%;
             }
         }
-        
+        .article-card {
+    cursor: pointer;
+}
+
+.article-card:hover {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+}
+
+.article-card img {
+    transition: transform 0.3s ease;
+}
+
+.article-card:hover img {
+    transform: scale(1.05);
+}
+
         body, 
         h1, h2, h3, h4, h5, h6, 
         p, span, a, div, input, select, button, label {
@@ -746,36 +761,89 @@
     </section> --}}
 
 <!-- Latest Articles Section -->
-    @if($latestPost)
-    <section id="articles" class="py-5" style="background: white;">
-        <div class="container">
-            <div class="section-title">
-                <h2>{{ $articles->title ?? 'Updates and Announcement' }}</h2>
-                <p>{{ $articles->content ?? 'Stay updated with news and updates' }}</p>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-                        <div class="card-body">
-                            <h5 class="fw-bold mb-2">{{ $latestPost->title }}</h5>
-                            <p style="text-align: justify;">{{ Str::limit($latestPost->content, 1000) }}
-                                @if(strlen($latestPost->content) > 1000)
-                                    <a href="{{ route('newsfeedsupplier.show', $latestPost) }}" class="text-primary">Read more</a>
-                                @endif
-                            </p>
-                            @if($latestPost->image)
-                                <img src="{{ asset('storage/' . $latestPost->image) }}" class="img-fluid rounded mb-2" alt="Post image">
-                            @endif
-                            <small class="text-muted">
-                                By {{ $latestPost->user->name }} • {{ $latestPost->created_at->diffForHumans() }}
-                            </small>
+@if($featuredPosts->count() > 0)
+<section id="articles" class="py-5" style="background: white;">
+    <div class="container">
+        <div class="section-title">
+            <h2>{{ $articles->title ?? 'Updates and Announcements' }}</h2>
+            <p>{{ $articles->content ?? 'Stay updated with news and updates' }}</p>
+        </div>
+        
+        <div class="row g-4">
+            @foreach($featuredPosts as $post)
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 article-card" 
+                     style="border-radius: 20px; transition: all 0.3s ease;"
+                     onmouseover="this.style.transform='translateY(-5px)'; this.classList.add('shadow-lg')"
+                     onmouseout="this.style.transform='translateY(0)'; this.classList.remove('shadow-lg')">
+                    
+                    @if($post->image)
+                    <div style="height: 200px; overflow: hidden; border-radius: 20px 20px 0 0;">
+                        <img src="{{ asset('storage/' . $post->image) }}" 
+                             class="img-fluid w-100 h-100" 
+                             style="object-fit: cover;"
+                             alt="{{ $post->title }}">
+                    </div>
+                    @endif
+                    
+                    <div class="card-body d-flex flex-column">
+                        @if($post->is_featured)
+                        <div class="mb-2">
+                            <span class="badge bg-warning text-dark" style="border-radius: 10px;">
+                                <i class="fas fa-star me-1"></i>Featured
+                            </span>
                         </div>
+                        @endif
+                        
+                        <h5 class="fw-bold mb-2">{{ $post->title }}</h5>
+                        
+                        <p class="text-muted flex-grow-1" style="text-align: justify;">
+                            {{ Str::limit($post->content, 150) }}
+                        </p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3" style="border-top: 1px solid #e9ecef;">
+                            <div>
+                                {{-- <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i>{{ $post->user->name }}
+                                </small>
+                                <br> --}}
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>{{ $post->created_at->format('F d, Y') }}
+                                </small>
+                            </div>
+                            <a href="{{ route('newsfeedsupplier.show', $post) }}" 
+                               class="btn btn-sm btn-primary"
+                               style="border-radius: 10px; background: linear-gradient(45deg, #0bb364, #088a50); border: none;">
+                                Read More <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                        
+                        {{-- <div class="d-flex gap-3 mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-heart text-danger me-1"></i>
+                                {{ $post->reactions->count() }} reactions
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-comment text-info me-1"></i>
+                                {{ $post->comments->count() }} comments
+                            </small>
+                        </div> --}}
                     </div>
                 </div>
             </div>
+            @endforeach
         </div>
-    </section>
-    @endif
+        
+        <div class="text-center mt-5">
+            <a href="{{ route('login') }}" 
+               class="btn btn-lg btn-primary px-5"
+               style="border-radius: 25px; background: linear-gradient(45deg, #0bb364, #088a50); border: none;">
+                <i class="fas fa-newspaper me-2"></i>View All Posts
+            </a>
+        </div>
+    </div>
+</section>
+@endif
 
     <!-- Fish Species Guide Section -->
     <section id="fish-guide" class="py-5" style="background: #f8f9fa;">

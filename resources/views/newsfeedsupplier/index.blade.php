@@ -107,7 +107,7 @@
                         </button>
                         <div id="dropdown-{{ $post->id }}" 
                              class="dropdown-menu-custom shadow-sm" 
-                             style="display: none; position: absolute; right: 0; top: 100%; min-width: 200px; background: white; border-radius: 10px; z-index: 1000; margin-top: 5px; padding: 5px 0;">
+                             style="display: none; position: absolute; right: 0; bottom: 100%; min-width: 200px; background: white; border-radius: 10px; z-index: 1000; margin-bottom: 5px; padding: 5px 0;">
                             <a class="dropdown-item-custom" href="{{ route('newsfeedsupplier.show', $post) }}">
                                 <i class="fas fa-eye me-2"></i>View Full Post
                             </a>
@@ -171,7 +171,7 @@
                 @endif
 
                 {{-- Engagement Stats --}}
-                <div class="d-flex justify-content-between align-items-center py-2 mb-3" 
+                {{-- <div class="d-flex justify-content-between align-items-center py-2 mb-3" 
                      style="border-top: 1px solid #f8f9fa; border-bottom: 1px solid #f8f9fa;">
                     <div class="d-flex align-items-center gap-3">
                         <span class="small text-muted">
@@ -183,10 +183,10 @@
                             {{ $post->comments->count() }} comments
                         </span>
                     </div>
-                </div>
+                </div> --}}
 
                 {{-- Reactions Bar --}}
-                <div class="d-flex align-items-center gap-2 mb-4">
+                {{-- <div class="d-flex align-items-center gap-2 mb-4">
                     @php
                         $userReaction = $post->userReaction(auth()->id());
                     @endphp
@@ -205,10 +205,10 @@
                             </button>
                         </form>
                     @endforeach
-                </div>
+                </div> --}}
 
                 {{-- Comments Section --}}
-                <div class="comments-section">
+                {{-- <div class="comments-section">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="fw-bold mb-0" style="color: #2c3e50;">
                             <i class="fas fa-comments me-2" style="color: #0bb364;"></i>
@@ -221,10 +221,10 @@
                                 <i class="fas fa-expand-alt me-1"></i>View All
                             </a>
                         @endif
-                    </div>
+                    </div> --}}
 
                     {{-- Recent Comments --}}
-                    @forelse($post->comments->sortByDesc('created_at')->take(3)->sortBy('created_at') as $comment)
+                    {{-- @forelse($post->comments->sortByDesc('created_at')->take(3)->sortBy('created_at') as $comment)
                         <div class="comment-item p-3 mb-2 rounded" style="background: #f8f9fa;">
                             <div class="d-flex align-items-center mb-2">
                                 <div class="me-2">
@@ -247,10 +247,10 @@
                             <i class="fas fa-comment text-muted mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
                             <p class="text-muted small mb-0">No comments yet. Be the first to comment!</p>
                         </div>
-                    @endforelse
+                    @endforelse --}}
 
                     {{-- Quick Comment Form --}}
-                    <div class="mt-3 pt-3" style="border-top: 1px solid #e9ecef;">
+                    {{-- <div class="mt-3 pt-3" style="border-top: 1px solid #e9ecef;">
                         <form method="POST" action="{{ route('newsfeedsupplier.comment', $post) }}" class="d-flex gap-2">
                             @csrf
                             <div class="me-2">
@@ -273,7 +273,7 @@
                             </div>
                         </form>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     @empty
@@ -728,5 +728,12 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+function confirmFeatureToggle(isFeatured) {
+    if (isFeatured) {
+        return confirm('Remove this post from the landing page?');
+    } else {
+        return confirm('Feature this post on the landing page? (Maximum 4 posts can be featured)');
+    }
+}
 </script>
 @endsection
