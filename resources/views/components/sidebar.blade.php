@@ -60,6 +60,11 @@
                         <i class="fas fa-newspaper"></i><span>Newsfeed</span>
                     </a>
                 </li>
+                <li class="{{ Request::is('newsfeedsupplier') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('newsfeedsupplier.index') }}">
+                        <i class="fas fa-newspaper"></i><span>Announcement and Update</span>
+                    </a>
+                </li>
                 <li class="{{ Request::is('buyer/dashboard') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('buyer.dashboard') }}">
                         <i class="fas fa-chart-pie"></i><span>My Dashboard</span>
@@ -90,36 +95,6 @@
                         <i class="fas fa-globe"></i><span>Landing Page Content</span>
                     </a>
                 </li>
-            {{-- <li class="{{ Request::is('orders') ? 'active' : '' }}"> 
-                <a class="nav-link" href="{{ url('orders') }}">
-                    <i class="fas fa-box"></i><span>Orders</span>
-                </a> 
-            </li> --}}
-            {{-- <li class="menu-header">Account</li> <li class="{{ Request::is('myprofile') ? 'active' : '' }}"> 
-                <a class="nav-link" href="{{ route('profile.myprofile', auth()->id()) }}">
-                    <i class="fas fa-user-circle"></i><span>My Profile</span>
-                </a>
-            </li> --}}
-            {{-- <li class="{{ Request::is('products/index') ? 'active' : '' }}"> 
-                <a class="nav-link" href="{{ url('products/index') }}">
-                    <i class="fas fa-table"></i> <span>Reseller Manage Products</span>
-                </a> 
-            </li>
-            <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}"> 
-                <a class="nav-link" href="{{ route('supplier.orders') }}">
-                    <i class="fas fa-fire"></i><span>Reseller Orders</span>
-                </a> 
-            </li> --}}
-            {{-- <li class="{{ Request::is('supplierproduct/index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('supplierproduct/index') }}">
-                    <i class="fas fa-table"></i> <span>Supplier Manage Products</span>
-                </a>
-            </li> --}}
-            {{-- <li class="{{ Request::is('supplier/orders') ? 'active' : '' }}"> 
-                <a class="nav-link" href="{{ route('supplier.orders') }}">
-                    <i class="fas fa-fire"></i><span>Supplier Orders</span>
-                </a>
-             </li> --}}
             <li class="{{ Request::is('location-map') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('map') }}">
                     <i class="fas fa-map-marked-alt"></i><span>Map Location</span>

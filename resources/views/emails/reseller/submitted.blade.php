@@ -138,13 +138,18 @@
                 </div>
 
                 <div class="detail-item">
-                    <strong>Business License ID</strong>
-                    <span>{{ $application->business_license_id }}</span>
+                    <strong>Phone Number</strong>
+                    <span>{{ $application->phone_number }}</span>
                 </div>
 
                 <div class="detail-item">
-                    <strong>Location</strong>
-                    <span>{{ $application->city }}, {{ $application->province }}, {{ $application->country }}</span>
+                    <strong>Business Address</strong>
+                    <span>{{ $application->address }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Business License ID</strong>
+                    <span>{{ $application->business_license_id }}</span>
                 </div>
 
                 <div class="detail-item">

@@ -463,7 +463,22 @@
                 width: 100%;
             }
         }
-        
+        .article-card {
+    cursor: pointer;
+}
+
+.article-card:hover {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+}
+
+.article-card img {
+    transition: transform 0.3s ease;
+}
+
+.article-card:hover img {
+    transform: scale(1.05);
+}
+
         body, 
         h1, h2, h3, h4, h5, h6, 
         p, span, a, div, input, select, button, label {
@@ -598,8 +613,8 @@
             <div class="row align-items-center">
                 <!-- Hero Text -->
                 <div class="col-lg-7 text-white hero-text">
-                    <h1>{{ $hero->title ?? 'Fish Market' }}</h1>
-                    <p>{{ $hero->content ?? 'Discover the freshest seafood delivered straight to your door.' }}</p>
+                    <h1 style="font-size: 3rem; font-weight: 800;">{{ $hero->title ?? 'Fish Market' }}</h1>
+                    <p style="font-size: 1.5rem; font-weight: 500;"> {{ $hero->content ?? 'Discover the freshest seafood delivered straight to your door.' }}</p>
                     <div class="hero-buttons">
                         <a href="{{ route('login') }}" class="btn btn-hero">
                             <i class="fas fa-shopping-basket me-2"></i>Start Shopping
@@ -637,12 +652,76 @@
         </div>
     </section>
 
+
     <!-- About Section -->
     <section class="features" id="about">
         <div class="container">
             <div class="section-title">
-                <h2>{{ $about->title ?? 'Why Choose Fish Market' }}</h2>
-                <p>{{ $about->content ?? 'Quality seafood with unmatched service' }}</p>
+                <h2>{{ $about->title ?? 'About Dried FishMart' }}</h2>
+                <p>{{ $about->content ?? 'Connecting communities through quality dried fish trade' }}</p>
+            </div>
+
+            <!-- Mission & Vision -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-6">
+                    <div class="feature-card h-100" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(11, 179, 100, 0.05));">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #667eea 0%, #0bb364 100%);">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h4 class="mb-3">Our Mission</h4>
+                        <p class="text-start" style="line-height: 1.8;">
+                            Dried FishMart is dedicated to improving the traditional dried fish trade by creating a safe, reliable, and easy-to-use online platform with real-time inventory updates, clear pricing, location features, and simple communication tools. Our mission is to build stronger connections among suppliers, resellers, and buyers, make trading faster and more organized, and support smart decision-making while helping the local industry go digital and uplifting the livelihood of the Rosario, Cavite community.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="feature-card h-100" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(11, 179, 100, 0.05));">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #667eea 0%, #0bb364 100%);">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h4 class="mb-3">Our Vision</h4>
+                        <p class="text-start" style="line-height: 1.8;">
+                            To establish Dried FishMart as a trusted community-based online marketplace that helps transform the dried fish industry of Rosario, Cavite into a modern, inclusive, and sustainable trade where suppliers, resellers, and buyers are better connected, supported by technology, and given wider opportunities to grow and succeed.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="feature-card" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(11, 179, 100, 0.05));">
+                        <div class="feature-icon mx-auto mb-4" style="background: linear-gradient(135deg, #667eea 0%, #0bb364 100%);">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h4 class="mb-4">History of Dried Fish in Rosario, Cavite</h4>
+                        <div class="text-start" style="line-height: 1.9; text-align: justify;">
+                            <p class="mb-3">
+                                Rosario, which was once known as <strong>Salinas</strong>, has long been recognized as a fishing community along Manila Bay. Because of the plentiful daily catch, residents developed traditional methods to preserve fish so it could last longer without refrigeration. The most common techniques were <strong>salting and sun-drying (daing/tuyo)</strong> and <strong>smoking (tinapa)</strong>.
+                            </p>
+                            <p class="mb-3">
+                                Through the years, Rosario became widely known for its distinct smoked fish called <strong>"Tinapang Salinas"</strong>, usually made from tamban, bangus, or galunggong. Its unique flavor and quality earned the town recognition as the <strong>"Smoked Fish Capital of Cavite."</strong>
+                            </p>
+                            <p class="mb-3">
+                                Despite Cavite's industrial growth, many families continue the fish-curing tradition today. The practices of cleaning, salting, drying, and smoking fish over coconut husks or native wood have been passed down for generations. To honor this cultural heritage, Rosario celebrates the <strong>Tinapa Festival</strong> every October, showcasing the town's specialty product and the vital role of fishing and fish-processing in the lives of its people.
+                            </p>
+                            <p class="mb-0">
+                                Today, dried and smoked fish from Rosario remain an essential part of local markets in Cavite and nearby provinces—providing livelihood, strengthening community identity, and preserving its rich fishing history.
+                            </p>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <span class="badge bg-success px-4 py-2" style="font-size: 0.95rem;">
+                                <i class="fas fa-award me-2"></i>Smoked Fish Capital of Cavite
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Cards (if any exist in database) -->
+            {{-- <div class="section-title mt-5">
+                <h2>Why Choose Dried FishMart</h2>
+                <p>Quality seafood with unmatched service</p>
             </div>
             <div class="row g-4 justify-content-center">
                 @forelse($aboutCards as $card)
@@ -654,45 +733,388 @@
                         </div>
                     </div>
                 @empty
-                    <p class="text-center text-muted">No cards added yet.</p>
+                    <!-- Default feature cards if none exist in database -->
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-fish"></i></div>
+                            <h4>Fresh Quality</h4>
+                            <p>Traditional preservation methods passed down through generations</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-handshake"></i></div>
+                            <h4>Community-Based</h4>
+                            <p>Supporting local suppliers and empowering the Rosario community</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-laptop"></i></div>
+                            <h4>Modern Platform</h4>
+                            <p>Easy-to-use online marketplace with real-time updates</p>
+                        </div>
+                    </div>
                 @endforelse
             </div>
         </div>
-    </section>
+    </section> --}}
 
-    <!-- Articles Section -->
-@if($latestPost)
-    <section id="newsfeed" class="py-5">
+<!-- Latest Articles Section -->
+@if($featuredPosts->count() > 0)
+<section id="articles" class="py-5" style="background: white;">
+    <div class="container">
+        <div class="section-title">
+            <h2>{{ $articles->title ?? 'Updates and Announcements' }}</h2>
+            <p>{{ $articles->content ?? 'Stay updated with news and updates' }}</p>
+        </div>
+        
+        <div class="row g-4">
+            @foreach($featuredPosts as $post)
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 article-card" 
+                     style="border-radius: 20px; transition: all 0.3s ease;"
+                     onmouseover="this.style.transform='translateY(-5px)'; this.classList.add('shadow-lg')"
+                     onmouseout="this.style.transform='translateY(0)'; this.classList.remove('shadow-lg')">
+                    
+                    @if($post->image)
+                    <div style="height: 200px; overflow: hidden; border-radius: 20px 20px 0 0;">
+                        <img src="{{ asset('storage/' . $post->image) }}" 
+                             class="img-fluid w-100 h-100" 
+                             style="object-fit: cover;"
+                             alt="{{ $post->title }}">
+                    </div>
+                    @endif
+                    
+                    <div class="card-body d-flex flex-column">
+                        @if($post->is_featured)
+                        <div class="mb-2">
+                            <span class="badge bg-warning text-dark" style="border-radius: 10px;">
+                                <i class="fas fa-star me-1"></i>Featured
+                            </span>
+                        </div>
+                        @endif
+                        
+                        <h5 class="fw-bold mb-2">{{ $post->title }}</h5>
+                        
+                        <p class="text-muted flex-grow-1" style="text-align: justify;">
+                            {{ Str::limit($post->content, 150) }}
+                        </p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3" style="border-top: 1px solid #e9ecef;">
+                            <div>
+                                {{-- <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i>{{ $post->user->name }}
+                                </small>
+                                <br> --}}
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>{{ $post->created_at->format('F d, Y') }}
+                                </small>
+                            </div>
+                            <a href="{{ route('newsfeedsupplier.show', $post) }}" 
+                               class="btn btn-sm btn-primary"
+                               style="border-radius: 10px; background: linear-gradient(45deg, #0bb364, #088a50); border: none;">
+                                Read More <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                        
+                        {{-- <div class="d-flex gap-3 mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-heart text-danger me-1"></i>
+                                {{ $post->reactions->count() }} reactions
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-comment text-info me-1"></i>
+                                {{ $post->comments->count() }} comments
+                            </small>
+                        </div> --}}
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{{ route('login') }}" 
+               class="btn btn-lg btn-primary px-5"
+               style="border-radius: 25px; background: linear-gradient(45deg, #0bb364, #088a50); border: none;">
+                <i class="fas fa-newspaper me-2"></i>View All Posts
+            </a>
+        </div>
+    </div>
+</section>
+@endif
+
+    <!-- Fish Species Guide Section -->
+    <section id="fish-guide" class="py-5" style="background: #f8f9fa;">
         <div class="container">
             <div class="section-title">
-                <h2>{{ $articles->title ?? 'Latest Articles' }}</h2>
-                <p>{{ $articles->content ?? 'Learn more about seafood and healthy eating' }}</p>
+                <h2><i class="fas fa-book-open me-2"></i>Fish Species Guide</h2>
+                <p>Learn about common dried fish varieties and their seasonal availability</p>
             </div>
+
+            <!-- Fish Species Accordion -->
             <div class="row justify-content-center">
-                <div class="col-md-8 ">
-                    <div class="card border-0 shadow-sm mb-4 " style="border-radius: 20px;">
-                        <div class="card-body">
-                            <h5 class="fw-bold mb-2">{{ $latestPost->title }}</h5>
-                            <p style="text-align: justify;">{{ Str::limit($latestPost->content, 400) }}
-                                @if(strlen($latestPost->content) > 400)
-                                    <a href="{{ route('newsfeedsupplier.show', $latestPost) }}" class="text-primary">Read more</a>
-                                @endif
-                            </p>
-
-                            @if($latestPost->image)
-                                <img src="{{ asset('storage/' . $latestPost->image) }}" class="img-fluid rounded mb-2" alt="Post image">
-                            @endif
-
-                            <small class="text-muted">
-                                By {{ $latestPost->user->name }} • {{ $latestPost->created_at->diffForHumans() }}
-                            </small>
+                <div class="col-lg-10">
+                    <div class="accordion" id="fishSpeciesAccordion">
+                        
+                        <!-- Tawilis -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish1">
+                                    <i class="fas fa-fish me-3 text-primary"></i>
+                                    <strong>Tawilis (Freshwater Sardine)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish1" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Tawilis is a small, silvery fish found only in Taal Lake. It evolved from marine sardines that adapted to freshwater after the lake separated from the sea. Known for its delicate texture and mild flavor, Tawilis is the world's only freshwater sardine—a rare result of volcanic history.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> Populations shift with seasonal lake conditions. A closed season allows Tawilis to spawn, followed by an open season with regulated fishing to help sustain the species.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Tamban -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish2">
+                                    <i class="fas fa-fish me-3 text-primary"></i>
+                                    <strong>Tamban (Round Scad)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish2" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Tamban is a small, streamlined fish commonly found in Philippine seas. Its silver body and thin golden stripe give it a lively appearance. It forms large schools near the surface and has a mild, slightly oily taste.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> More abundant during cooler months when plankton increases. Numbers decrease during warm months, affecting supply for markets and processing.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hasa-Hasa -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish3">
+                                    <i class="fas fa-fish me-3 text-primary"></i>
+                                    <strong>Hasa-Hasa (Short Mackerel)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish3" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Hasa-hasa is a medium-sized fish with a silver-blue body and mild flavor. Common in coastal areas, it is ideal for frying, grilling, or simmering. It is a dependable catch for many local communities.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> More common during cooler months when food is plentiful. Numbers drop during warmer seasons, affecting supply consistency.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alumahan -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish4">
+                                    <i class="fas fa-fish me-3 text-primary"></i>
+                                    <strong>Alumahan (Mackerel)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish4" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Alumahan is a medium-sized striped mackerel with a firm texture and slightly rich taste. It is commonly prepared by frying, grilling, or simmering and is a staple food for many coastal households.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> Easier to catch in cooler months when food is abundant. Warmer months lead to decreased catch and unstable market supply.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bisugo -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish5">
+                                    <i class="fas fa-fish me-3 text-primary"></i>
+                                    <strong>Bisugo (Threadfin Bream)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish5" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Bisugo is a small, pinkish fish with soft flesh and a light, delicate flavor. It is commonly used in simple everyday Filipino dishes.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> More abundant in cooler months; supply decreases during warmer seasons, affecting market availability.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Danggit -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish6">
+                                    <i class="fas fa-fish me-3 text-primary"></i>
+                                    <strong>Danggit (Rabbitfish)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish6" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Danggit is a small, flat fish popular fresh or dried. When dried, it becomes crispy when fried, making it a favorite breakfast dish in many Filipino households.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> Plentiful during the dry season when sea conditions and drying conditions are ideal. Rainy season reduces catch and drying production.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Espada -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish7">
+                                    <i class="fas fa-fish me-3 text-primary"></i>
+                                    <strong>Espada (Beltfish)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish7" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Espada is a long, slender, bright silver fish with soft white meat. Commonly found in deeper waters, it is used in frying, grilling, and soups due to its mild and clean flavor.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> Moves closer to coastal fishing areas during cooler months, increasing catch. Supply drops during warmer months.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Salay-Salay -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish8">
+                                    <i class="fas fa-fish me-3 text-primary"></i>
+                                    <strong>Salay-Salay (Slipmouth Fish)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish8" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Salay-salay is a slender fish known for its flexible, extendable mouth. It has soft flesh and a gentle flavor, often cooked by frying, steaming, or adding to soups.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> More abundant in cooler months. Catch decreases in warmer periods, reducing market availability.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hipon -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish9">
+                                    <i class="fas fa-shrimp me-3 text-primary"></i>
+                                    <strong>Hipon (Shrimp)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish9" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Hipon, or shrimp, is a small shellfish found in coastal and freshwater areas. Its soft, slightly sweet meat is used in soups, stir-fried dishes, and fried snacks, making it a vital catch for many fishers.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> Easier to catch during dry seasons when water is calmer and clearer. Rainy seasons reduce supply due to water changes.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Takla -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish10">
+                                    <i class="fas fa-shrimp me-3 text-primary"></i>
+                                    <strong>Takla (Small Shrimp)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish10" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Takla is a tiny shrimp variety commonly used in Filipino cooking. Despite its small size, it adds flavor to dishes and is often dried for longer storage.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> Most available during dry season when harvesting conditions are optimal. Supply becomes limited during rainy months.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pusit -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish11">
+                                    <i class="fas fa-fish me-3 text-primary"></i>
+                                    <strong>Pusit (Squid)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish11" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Pusit, or squid, is a popular seafood with tender, white meat and a mild, slightly sweet flavor. It can be grilled, stuffed, fried, or added to stews. When dried, it becomes a chewy, flavorful snack or ingredient that's easy to store and transport.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> Peak catches occur during cooler months when squid migrate closer to shore. Warmer months see reduced availability and higher prices.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tunsoy -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish12">
+                                    <i class="fas fa-fish me-3 text-primary"></i>
+                                    <strong>Tunsoy (Sardine)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish12" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Tunsoy is a small, oily fish similar to sardines, commonly found in Philippine waters. Rich in omega-3 fatty acids, it's often dried or canned and is a nutritious, affordable protein source for many Filipino families.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> More abundant during cooler months when schools are larger. Supply decreases in warmer seasons, affecting processing and market availability.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Galunggong -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish13">
+                                    <i class="fas fa-fish me-3 text-primary"></i>
+                                    <strong>Galunggong / GG (Round Scad)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish13" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Galunggong, commonly called GG, is one of the most popular and affordable fish in the Philippines. This silvery, medium-sized round scad has a mild flavor and firm texture, making it perfect for frying, grilling, or stewing. It's a staple in Filipino households and markets nationwide.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> Peak season is during the cooler months (November to February) when large schools migrate. During warm months, supply drops significantly, often leading to price increases and importation.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dilis -->
+                        <div class="accordion-item mb-3 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fish14">
+                                    <i class="fas fa-fish me-3 text-primary"></i>
+                                    <strong>Dilis (Anchovy)</strong>
+                                </button>
+                            </h2>
+                            <div id="fish14" class="accordion-collapse collapse" data-bs-parent="#fishSpeciesAccordion">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Dilis, or anchovies, are tiny, silvery fish packed with flavor and nutrition. Often sun-dried and salted, they become crispy when fried and are a beloved breakfast staple or snack. They're also used to add umami depth to sauces and dishes throughout Filipino cuisine.</p>
+                                    <div class="alert alert-info mb-0">
+                                        <strong><i class="fas fa-calendar-alt me-2"></i>Seasonal Topic:</strong> Best harvested during dry season when drying conditions are ideal. Rainy months reduce both catch and drying quality, limiting market supply and affecting prices.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </section>
-@endif
 
     <!-- FAQ Section -->
     <section class="features" id="faq">

@@ -32,22 +32,30 @@ Route::get('/', function () {
     // Hero products
     $heroProducts = \App\Models\Product::inRandomOrder()->take(4)->get();
 
-    // Get featured post, or fallback to latest approved post
-    $latestPost = \App\Models\PostSupplier::with('user', 'comments', 'reactions')
+    // Get up to 4 featured posts, ordered by most recent
+    $featuredPosts = \App\Models\PostSupplier::with('user', 'comments', 'reactions')
                     ->where('status', 'approved')
                     ->where('is_featured', true)
                     ->latest()
-                    ->first();
+                    ->take(4)
+                    ->get();
     
-    // If no featured post, get the latest approved post
-    if (!$latestPost) {
-        $latestPost = \App\Models\PostSupplier::with('user', 'comments', 'reactions')
-                        ->where('status', 'approved')
-                        ->latest()
-                        ->first();
+    // If we have less than 4 featured posts, fill with latest approved posts
+    if ($featuredPosts->count() < 4) {
+        $remainingCount = 4 - $featuredPosts->count();
+        $featuredPostIds = $featuredPosts->pluck('id')->toArray();
+        
+        $additionalPosts = \App\Models\PostSupplier::with('user', 'comments', 'reactions')
+                            ->where('status', 'approved')
+                            ->whereNotIn('id', $featuredPostIds)
+                            ->latest()
+                            ->take($remainingCount)
+                            ->get();
+        
+        $featuredPosts = $featuredPosts->merge($additionalPosts);
     }
 
-    return view('landing', compact('heroProducts', 'latestPost'));
+    return view('landing', compact('heroProducts', 'featuredPosts'));
 })->name('landing');
 
 // Keep Auth::routes() for login, register, etc.
@@ -144,19 +152,21 @@ Auth::routes();
 Route::middleware(['auth'])->group(function () {
     // Public routes (all authenticated users)
     Route::get('/newsfeedsupplier', [SupplierPostController::class, 'index'])->name('newsfeedsupplier.index');
-    Route::get('/newsfeedsupplier/{post}', [SupplierPostController::class, 'show'])->name('newsfeedsupplier.show');
     Route::post('/newsfeedsupplier/{post}/react', [SupplierPostController::class, 'react'])->name('newsfeedsupplier.react');
     Route::post('/newsfeedsupplier/{post}/comment', [SupplierPostController::class, 'comment'])->name('newsfeedsupplier.comment');
     
-    // Admin only routes
+    // Admin only routes - MUST come before {post} route to avoid conflicts
     Route::middleware(['admin'])->group(function () {
         Route::get('/newsfeedsupplier/create', [SupplierPostController::class, 'create'])->name('newsfeedsupplier.create');
         Route::post('/newsfeedsupplier', [SupplierPostController::class, 'store'])->name('newsfeedsupplier.store');
         Route::get('/newsfeedsupplier/{post}/edit', [SupplierPostController::class, 'edit'])->name('newsfeedsupplier.edit');
         Route::put('/newsfeedsupplier/{post}', [SupplierPostController::class, 'update'])->name('newsfeedsupplier.update');
         Route::delete('/newsfeedsupplier/{post}', [SupplierPostController::class, 'destroy'])->name('newsfeedsupplier.destroy');
-        Route::post('/newsfeed-supplier/{post}/toggle-featured', [SupplierPostController::class, 'toggleFeatured'])->name('newsfeedsupplier.toggleFeatured');
+        Route::post('/newsfeedsupplier/{post}/toggle-featured', [SupplierPostController::class, 'toggleFeatured'])->name('newsfeedsupplier.toggleFeatured');
     });
+    
+    // Show route MUST come last because {post} will match anything including "create"
+    Route::get('/newsfeedsupplier/{post}', [SupplierPostController::class, 'show'])->name('newsfeedsupplier.show');
 });
 
     Route::post('/gemini/generate', [App\Http\Controllers\GeminiController::class, 'generate'])->name('gemini.generate');

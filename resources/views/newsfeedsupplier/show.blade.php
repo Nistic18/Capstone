@@ -51,7 +51,7 @@
                     </div>
                 @else
                     {{-- DEBUG: Show why button is not appearing --}}
-                    @if(config('app.debug'))
+                    {{-- @if(config('app.debug'))
                         <div class="alert alert-warning small">
                             Button hidden because:
                             @if(!auth()->user()->is_admin)
@@ -61,7 +61,7 @@
                                 <br>- Post status is "{{ $post->status }}" (must be "approved")
                             @endif
                         </div>
-                    @endif
+                    @endif --}}
                 @endif
             @endauth
 
@@ -74,7 +74,7 @@
             @endif
 
             {{-- Reactions --}}
-            <div class="d-flex align-items-center mt-2 mb-2">
+            {{-- <div class="d-flex align-items-center mt-2 mb-2">
                 @php
                     $userReaction = $post->userReaction(auth()->id());
                 @endphp
@@ -87,13 +87,13 @@
                         </button>
                     @endforeach
                 </form>
-            </div>
+            </div> --}}
 
             {{-- All Comments --}}
             <div class="mt-3">
-                <h6 class="fw-bold">Comments ({{ $post->comments->count() }})</h6>
+                {{-- <h6 class="fw-bold">Comments ({{ $post->comments->count() }})</h6>
 
-                @forelse($post->comments as $comment)
+                @forelse($post->comments as $z)
                     <div class="d-flex mb-1">
                         <strong>{{ $comment->user->name }}</strong>
                         <small class="text-muted ms-2">{{ $comment->created_at->diffForHumans() }}</small>
@@ -101,16 +101,16 @@
                     <p class="mb-1">{{ $comment->content }}</p>
                 @empty
                     <p class="text-muted small">No comments yet.</p>
-                @endforelse
+                @endforelse --}}
 
                 {{-- Comment Form --}}
-                <form method="POST" action="{{ route('newsfeedsupplier.comment', $post) }}">
+                {{-- <form method="POST" action="{{ route('newsfeedsupplier.comment', $post) }}">
                     @csrf
                     <div class="input-group mb-3">
                         <input type="text" name="content" class="form-control" placeholder="Add a comment..." required>
                         <button class="btn btn-outline-primary" type="submit">Comment</button>
                     </div>
-                </form>
+                </form> --}}
             </div>
 
         </div>

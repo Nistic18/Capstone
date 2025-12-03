@@ -12,7 +12,7 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
@@ -39,6 +39,14 @@
 
 @section('content')
 <div class="login-wrapper">
+    {{-- Back to Home Button --}}
+    <div class="back-to-home">
+        <a href="{{ route('landing') }}" class="btn-back">
+            <i class="fas fa-arrow-left me-2"></i>
+            <span>Back to Home</span>
+        </a>
+    </div>
+
     <div class="container">
         <div class="row align-items-center justify-content-center min-vh-100 py-5">
             <div class="col-12 col-xl-10">
@@ -127,14 +135,6 @@
                                 </div>
                             </form>
                         </div>
-
-                        {{-- Security Badge --}}
-                        {{-- <div class="text-center mt-4">
-                            <p class="security-text">
-                                <i class="fas fa-shield-alt me-2"></i>
-                                <span class="fw-semibold">Secure & Safe</span> - Your data is protected
-                            </p>
-                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -157,6 +157,46 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
+    }
+
+    /* Back to Home Button */
+    .back-to-home {
+        position: absolute;
+        top: 2rem;
+        left: 2rem;
+        z-index: 1000;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        background: rgba(255, 255, 255, 0.95);
+        color: #0bb364;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .btn-back:hover {
+        background: #0bb364;
+        color: white;
+        transform: translateX(-5px);
+        box-shadow: 0 4px 12px rgba(11, 179, 100, 0.3);
+    }
+
+    .btn-back i {
+        font-size: 1rem;
+        transition: transform 0.3s ease;
+    }
+
+    .btn-back:hover i {
+        transform: translateX(-3px);
     }
 
     /* Brand Section */
@@ -316,17 +356,6 @@
         transform: translateY(0);
     }
 
-    /* Security Text */
-    .security-text {
-        font-size: 0.875rem;
-        color: #616161;
-        margin: 0;
-    }
-
-    .security-text i {
-        color: #43a047;
-    }
-
     /* Invalid Feedback */
     .invalid-feedback {
         font-size: 0.875rem;
@@ -347,6 +376,11 @@
         .brand-subtitle {
             font-size: 1.25rem;
         }
+
+        .back-to-home {
+            top: 1rem;
+            left: 1rem;
+        }
     }
 
     @media (max-width: 575px) {
@@ -362,12 +396,26 @@
             padding: 1.5rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
+        .btn-back {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-back span {
+            display: none;
+        }
+
+        .btn-back i {
+            margin-right: 0 !important;
+        }
     }
-body, 
-h1, h2, h3, h4, h5, h6, 
-p, span, a, div, input, select, button, label {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-}
+
+    body, 
+    h1, h2, h3, h4, h5, h6, 
+    p, span, a, div, input, select, button, label {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    }
 </style>
 
 {{-- Custom JavaScript --}}
@@ -387,60 +435,58 @@ p, span, a, div, input, select, button, label {
             toggleIcon.classList.add('fa-eye');
         }
     }
-document.addEventListener("DOMContentLoaded", function() {
-    let countdownTimer = null;
 
-    function startCountdown(duration, display) {
-        let remaining = duration;
+    document.addEventListener("DOMContentLoaded", function() {
+        let countdownTimer = null;
 
-        // Always ensure element is visible and styled for updates
-        display.style.display = "block";
-        display.classList.remove('invalid-feedback');
-        display.classList.add('text-danger', 'fw-semibold');
+        function startCountdown(duration, display) {
+            let remaining = duration;
 
-        if (countdownTimer) clearInterval(countdownTimer);
+            display.style.display = "block";
+            display.classList.remove('invalid-feedback');
+            display.classList.add('text-danger', 'fw-semibold');
 
-        const update = () => {
-            const minutes = Math.floor(remaining / 60);
-            const seconds = remaining % 60;
-            const formatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            display.textContent = `Too many failed attempts. Please wait ${formatted} before trying again.`;
+            if (countdownTimer) clearInterval(countdownTimer);
 
-            remaining--;
+            const update = () => {
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                const formatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                display.textContent = `Too many failed attempts. Please wait ${formatted} before trying again.`;
 
-            if (remaining < 0) {
-                clearInterval(countdownTimer);
-                display.textContent = "You can now try logging in again.";
-                display.classList.remove('text-danger');
-                display.classList.add('text-success');
-            }
-        };
+                remaining--;
 
-        update(); // immediate update on start
-        countdownTimer = setInterval(update, 1000);
-    }
+                if (remaining < 0) {
+                    clearInterval(countdownTimer);
+                    display.textContent = "You can now try logging in again.";
+                    display.classList.remove('text-danger');
+                    display.classList.add('text-success');
+                }
+            };
 
-    function initCountdown() {
-        const errorElem = document.getElementById("password-error");
-        if (!errorElem) return;
-
-        const text = errorElem.textContent.trim();
-        const match = text.match(/(\d{1,2}):(\d{2})/);
-
-        if (match) {
-            const minutes = parseInt(match[1], 10);
-            const seconds = parseInt(match[2], 10);
-            const totalSeconds = minutes * 60 + seconds;
-
-            startCountdown(totalSeconds, errorElem);
+            update();
+            countdownTimer = setInterval(update, 1000);
         }
-    }
 
-    // Observe DOM updates to restart countdown when error changes
-    const observer = new MutationObserver(() => initCountdown());
-    observer.observe(document.body, { childList: true, subtree: true });
+        function initCountdown() {
+            const errorElem = document.getElementById("password-error");
+            if (!errorElem) return;
 
-    // Initial delayed start to allow Laravel to render error
-    setTimeout(initCountdown, 300);
-});
+            const text = errorElem.textContent.trim();
+            const match = text.match(/(\d{1,2}):(\d{2})/);
+
+            if (match) {
+                const minutes = parseInt(match[1], 10);
+                const seconds = parseInt(match[2], 10);
+                const totalSeconds = minutes * 60 + seconds;
+
+                startCountdown(totalSeconds, errorElem);
+            }
+        }
+
+        const observer = new MutationObserver(() => initCountdown());
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        setTimeout(initCountdown, 300);
+    });
 </script>

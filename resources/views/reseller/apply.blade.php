@@ -170,19 +170,25 @@
                             @enderror
                         </div>
 
+                        
                         <div class="mb-3">
                             <label for="phone_number" class="form-label fw-bold">Phone Number <span class="text-danger">*</span></label>
-                            <input type="text" name="phone_number" id="phone_number"
-                                   class="form-control @error('phone_number') is-invalid @enderror"
-                                   placeholder="Business phone number (e.g., 09123456789)"
-                                   value="{{ old('phone_number') }}" 
-                                   pattern="^(09|\+639)\d{9}$"
-                                   maxlength="13"
-                                   required>
-                            <small class="text-muted">Enter a valid Philippine mobile number.</small>
-                            @error('phone_number')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="input-group">
+                                <span class="input-group-text bg-light" style="border-right: none;">09</span>
+                                <input type="text" name="phone_number_display" id="phone_number_display"
+                                    class="form-control @error('phone_number') is-invalid @enderror"
+                                    placeholder="123456789"
+                                    value="{{ old('phone_number') ? substr(old('phone_number'), 2) : '' }}"
+                                    style="border-left: none;"
+                                    maxlength="9"
+                                    pattern="\d{9}"
+                                    required>
+                                <input type="hidden" name="phone_number" id="phone_number" value="{{ old('phone_number') }}">
+                                @error('phone_number')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <small class="text-muted">Enter the remaining 9 digits of your Philippine mobile number.</small>
                         </div>
 
                         <div class="mb-3">
@@ -611,313 +617,349 @@ p, span, a, div, input, select, button, label {
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let currentStep = 1;
-        const totalSteps = 3;
-        const uploadedFiles = {
-            business_permit: null,
-            sanitation_cert: null,
-            govt_id_1: null,
-            govt_id_2: null
+document.addEventListener('DOMContentLoaded', function() {
+    let currentStep = 1;
+    const totalSteps = 3;
+    const uploadedFiles = {
+        business_permit: null,
+        sanitation_cert: null,
+        govt_id_1: null,
+        govt_id_2: null
+    };
+
+    // ==================== PHONE NUMBER HANDLING ====================
+    function initializePhoneNumber() {
+        const displayInput = document.getElementById('phone_number_display');
+        const hiddenInput = document.getElementById('phone_number');
+        
+        if (!displayInput || !hiddenInput) return;
+        
+        // Initialize hidden input value on page load
+        if (displayInput.value) {
+            hiddenInput.value = '09' + displayInput.value;
+        }
+        
+        // Only allow numbers
+        displayInput.addEventListener('input', function(e) {
+            // Remove non-numeric characters
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Limit to 9 digits
+            if (value.length > 9) {
+                value = value.substring(0, 9);
+            }
+            
+            // Update display input
+            e.target.value = value;
+            
+            // Update hidden input with full number
+            hiddenInput.value = value.length > 0 ? '09' + value : '';
+        });
+        
+        // Prevent pasting non-numeric content
+        displayInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const numbersOnly = pastedText.replace(/\D/g, '').substring(0, 9);
+            displayInput.value = numbersOnly;
+            hiddenInput.value = numbersOnly.length > 0 ? '09' + numbersOnly : '';
+        });
+        
+        // Validate on blur
+        displayInput.addEventListener('blur', function(e) {
+            const value = e.target.value;
+            
+            if (value && value.length !== 9) {
+                e.target.setCustomValidity('Please enter exactly 9 digits');
+            } else {
+                e.target.setCustomValidity('');
+            }
+        });
+        
+        // Clear custom validity on input
+        displayInput.addEventListener('input', function(e) {
+            e.target.setCustomValidity('');
+        });
+    }
+
+    // ==================== ADDRESS HANDLING ====================
+    function initializeAddressHandling() {
+        const streetInput = document.getElementById('street_address');
+        const barangaySelect = document.getElementById('barangay');
+        const addressInput = document.getElementById('address');
+        const addressPreview = document.getElementById('address_preview');
+        const previewText = document.getElementById('preview_text');
+
+        if (!streetInput || !barangaySelect || !addressInput) return;
+
+        function updateAddress() {
+            const street = streetInput.value.trim();
+            const barangay = barangaySelect.value;
+
+            if (street && barangay) {
+                const completeAddress = `${street}, Barangay ${barangay}, Rosario, Cavite`;
+                addressInput.value = completeAddress;
+                if (previewText) previewText.textContent = completeAddress;
+                if (addressPreview) addressPreview.style.display = 'block';
+            } else {
+                addressInput.value = '';
+                if (addressPreview) addressPreview.style.display = 'none';
+            }
+        }
+
+        streetInput.addEventListener('input', updateAddress);
+        barangaySelect.addEventListener('change', updateAddress);
+
+        if (streetInput.value || barangaySelect.value) {
+            updateAddress();
+        }
+    }
+
+    // ==================== FILE UPLOAD HANDLING ====================
+    function initializeFileUploads() {
+        const uploadBoxes = document.querySelectorAll('.upload-box');
+        
+        uploadBoxes.forEach(box => {
+            const inputId = box.getAttribute('data-input');
+            const fileInput = document.getElementById(inputId);
+            const placeholder = box.querySelector('.upload-placeholder');
+            const preview = box.querySelector('.upload-preview');
+            const previewImage = preview.querySelector('.preview-image');
+            const fileName = preview.querySelector('.file-name');
+            const removeBtn = preview.querySelector('.remove-file');
+
+            // Click to upload
+            box.addEventListener('click', function(e) {
+                if (!e.target.closest('.remove-file')) {
+                    fileInput.click();
+                }
+            });
+
+            // Drag and drop
+            box.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                box.style.borderColor = '#088a50';
+                box.style.backgroundColor = '#f8f9ff';
+            });
+
+            box.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                box.style.borderColor = '';
+                box.style.backgroundColor = '';
+            });
+
+            box.addEventListener('drop', function(e) {
+                e.preventDefault();
+                box.style.borderColor = '';
+                box.style.backgroundColor = '';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const dt = new DataTransfer();
+                    dt.items.add(files[0]);
+                    fileInput.files = dt.files;
+                    handleFileSelect(inputId, files[0]);
+                }
+            });
+
+            // File input change
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    handleFileSelect(inputId, e.target.files[0]);
+                }
+            });
+
+            // Remove file
+            removeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                fileInput.value = '';
+                uploadedFiles[inputId] = null;
+                placeholder.style.display = 'block';
+                preview.style.display = 'none';
+                previewImage.src = '';
+            });
+
+            function handleFileSelect(id, file) {
+                // Validate file size (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('File size must be less than 10MB');
+                    fileInput.value = '';
+                    return;
+                }
+
+                // Validate file type
+                if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+                    alert('Only JPG and PNG files are allowed');
+                    fileInput.value = '';
+                    return;
+                }
+
+                uploadedFiles[id] = file;
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    fileName.textContent = file.name;
+                    placeholder.style.display = 'none';
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // ==================== STEP NAVIGATION ====================
+    document.querySelectorAll('.next-step').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (validateStep(currentStep)) {
+                if (currentStep < totalSteps) {
+                    goToStep(currentStep + 1);
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll('.prev-step').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (currentStep > 1) {
+                goToStep(currentStep - 1);
+            }
+        });
+    });
+
+    function goToStep(step) {
+        document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+        document.querySelector(`.step-item[data-step="${currentStep}"] .step-circle`).classList.remove('active');
+        
+        if (step > currentStep) {
+            document.querySelector(`.step-item[data-step="${currentStep}"] .step-circle`).classList.add('completed');
+        } else if (step < currentStep) {
+            document.querySelector(`.step-item[data-step="${currentStep}"] .step-circle`).classList.remove('completed');
+        }
+
+        currentStep = step;
+
+        document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+        document.querySelector(`.step-item[data-step="${currentStep}"] .step-circle`).classList.add('active');
+
+        if (currentStep === 3) {
+            populateReview();
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ==================== VALIDATION ====================
+    function validateStep(step) {
+        const currentStepEl = document.querySelector(`.form-step[data-step="${step}"]`);
+        let valid = true;
+        let firstInvalid = null;
+
+        if (step === 1) {
+            const inputs = currentStepEl.querySelectorAll('input[required], select[required]');
+            inputs.forEach(input => {
+                // Skip hidden fields
+                if (input.id === 'address' || input.id === 'phone_number') return;
+                
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    if (!firstInvalid) firstInvalid = input;
+                    valid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            // Validate phone number separately
+            const phoneDisplay = document.getElementById('phone_number_display');
+            const phoneHidden = document.getElementById('phone_number');
+            if (phoneDisplay && phoneDisplay.value.length !== 9) {
+                phoneDisplay.classList.add('is-invalid');
+                if (!firstInvalid) firstInvalid = phoneDisplay;
+                valid = false;
+            } else if (phoneDisplay) {
+                phoneDisplay.classList.remove('is-invalid');
+            }
+        } else if (step === 2) {
+            const requiredFiles = ['business_permit', 'sanitation_cert', 'govt_id_1', 'govt_id_2'];
+            const missingFiles = [];
+            
+            requiredFiles.forEach(fileId => {
+                const fileInput = document.getElementById(fileId);
+                const uploadBox = document.querySelector(`.upload-box[data-input="${fileId}"]`);
+                
+                if (!fileInput.files.length) {
+                    uploadBox.style.borderColor = '#dc3545';
+                    if (!firstInvalid) firstInvalid = uploadBox;
+                    missingFiles.push(fileId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
+                    valid = false;
+                } else {
+                    uploadBox.style.borderColor = '';
+                }
+            });
+
+            if (!valid) {
+                alert('Please upload the following documents:\n- ' + missingFiles.join('\n- '));
+            }
+        }
+
+        if (!valid && firstInvalid) {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        return valid;
+    }
+
+    // ==================== REVIEW POPULATION ====================
+    function populateReview() {
+        // Populate basic info
+        document.getElementById('review_business_name').textContent = document.getElementById('business_name').value || 'N/A';
+        document.getElementById('review_email').textContent = document.getElementById('email_address').value || 'N/A';
+        
+        // Get full phone number from hidden field
+        const phone = document.getElementById('phone_number').value;
+        document.getElementById('review_phone').textContent = phone || 'Not provided';
+        
+        const address = document.getElementById('address').value;
+        document.getElementById('review_address').textContent = address || 'Not provided';
+        
+        document.getElementById('review_license').textContent = document.getElementById('business_license_id').value || 'N/A';
+        
+        // Display uploaded documents
+        const docLabels = {
+            business_permit: 'Business Permit',
+            sanitation_cert: 'Sanitation Certificate',
+            govt_id_1: 'Government ID #1',
+            govt_id_2: 'Government ID #2'
         };
 
-        // Address Handling
-        function initializeAddressHandling() {
-            const streetInput = document.getElementById('street_address');
-            const barangaySelect = document.getElementById('barangay');
-            const addressInput = document.getElementById('address');
-            const addressPreview = document.getElementById('address_preview');
-            const previewText = document.getElementById('preview_text');
-
-            function updateAddress() {
-                const street = streetInput.value.trim();
-                const barangay = barangaySelect.value;
-
-                if (street && barangay) {
-                    const completeAddress = `${street}, Barangay ${barangay}, Rosario, Cavite`;
-                    addressInput.value = completeAddress;
-                    previewText.textContent = completeAddress;
-                    addressPreview.style.display = 'block';
-                } else {
-                    addressInput.value = '';
-                    addressPreview.style.display = 'none';
-                }
-            }
-
-            streetInput.addEventListener('input', updateAddress);
-            barangaySelect.addEventListener('change', updateAddress);
-
-            if (streetInput.value || barangaySelect.value) {
-                updateAddress();
-            }
-        }
-
-        // Phone Number Validation
-        function initializePhoneValidation() {
-            const phoneInput = document.getElementById('phone_number');
-
-            phoneInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/[^\d+]/g, '');
-                
-                if (value.includes('+')) {
-                    const plusCount = (value.match(/\+/g) || []).length;
-                    if (plusCount > 1 || value.indexOf('+') !== 0) {
-                        value = value.replace(/\+/g, '');
-                    }
-                }
-                
-                if (value.startsWith('+639')) {
-                    value = value.substring(0, 13);
-                } else if (value.startsWith('09')) {
-                    value = value.substring(0, 11);
-                }
-                
-                e.target.value = value;
-            });
-
-            phoneInput.addEventListener('blur', function(e) {
-                const value = e.target.value;
-                const pattern = /^(09|\+639)\d{9}$/;
-                
-                if (value && !pattern.test(value)) {
-                    e.target.setCustomValidity('Please enter a valid Philippine mobile number');
-                } else {
-                    e.target.setCustomValidity('');
-                }
-            });
-        }
-
-        // File Upload Handling
-        function initializeFileUploads() {
-            const uploadBoxes = document.querySelectorAll('.upload-box');
+        Object.keys(docLabels).forEach(key => {
+            const reviewEl = document.getElementById(`review_${key}`);
+            const fileInput = document.getElementById(key);
             
-            uploadBoxes.forEach(box => {
-                const inputId = box.getAttribute('data-input');
-                const fileInput = document.getElementById(inputId);
-                const placeholder = box.querySelector('.upload-placeholder');
-                const preview = box.querySelector('.upload-preview');
-                const previewImage = preview.querySelector('.preview-image');
-                const fileName = preview.querySelector('.file-name');
-                const removeBtn = preview.querySelector('.remove-file');
-
-                // Click to upload
-                box.addEventListener('click', function(e) {
-                    if (!e.target.closest('.remove-file')) {
-                        fileInput.click();
-                    }
-                });
-
-                // Drag and drop
-                box.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    box.style.borderColor = '#088a50';
-                    box.style.backgroundColor = '#f8f9ff';
-                });
-
-                box.addEventListener('dragleave', function(e) {
-                    e.preventDefault();
-                    box.style.borderColor = '';
-                    box.style.backgroundColor = '';
-                });
-
-                box.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    box.style.borderColor = '';
-                    box.style.backgroundColor = '';
-                    
-                    const files = e.dataTransfer.files;
-                    if (files.length > 0) {
-                        const dt = new DataTransfer();
-                        dt.items.add(files[0]);
-                        fileInput.files = dt.files;
-                        handleFileSelect(inputId, files[0]);
-                    }
-                });
-
-                // File input change
-                fileInput.addEventListener('change', function(e) {
-                    if (e.target.files.length > 0) {
-                        handleFileSelect(inputId, e.target.files[0]);
-                    }
-                });
-
-                // Remove file
-                removeBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    fileInput.value = '';
-                    uploadedFiles[inputId] = null;
-                    placeholder.style.display = 'block';
-                    preview.style.display = 'none';
-                    previewImage.src = '';
-                });
-
-                function handleFileSelect(id, file) {
-                    // Validate file size (10MB)
-                    if (file.size > 10 * 1024 * 1024) {
-                        alert('File size must be less than 10MB');
-                        fileInput.value = '';
-                        return;
-                    }
-
-                    // Validate file type
-                    if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
-                        alert('Only JPG and PNG files are allowed');
-                        fileInput.value = '';
-                        return;
-                    }
-
-                    uploadedFiles[id] = file;
-
-                    // Show preview
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        previewImage.src = e.target.result;
-                        fileName.textContent = file.name;
-                        placeholder.style.display = 'none';
-                        preview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
-
-        // Navigation
-        document.querySelectorAll('.next-step').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (validateStep(currentStep)) {
-                    if (currentStep < totalSteps) {
-                        goToStep(currentStep + 1);
-                    }
-                }
-            });
+            if (fileInput && fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                reviewEl.innerHTML = `
+                    <div class="document-badge">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>${docLabels[key]}: ${file.name}</span>
+                    </div>
+                `;
+            } else {
+                reviewEl.innerHTML = `
+                    <div class="text-danger small">
+                        <i class="bi bi-x-circle-fill"></i> ${docLabels[key]}: Not uploaded
+                    </div>
+                `;
+            }
         });
+    }
 
-        document.querySelectorAll('.prev-step').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (currentStep > 1) {
-                    goToStep(currentStep - 1);
-                }
-            });
-        });
-
-        function goToStep(step) {
-            document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
-            document.querySelector(`.step-item[data-step="${currentStep}"] .step-circle`).classList.remove('active');
-            
-            if (step > currentStep) {
-                document.querySelector(`.step-item[data-step="${currentStep}"] .step-circle`).classList.add('completed');
-            } else if (step < currentStep) {
-                document.querySelector(`.step-item[data-step="${currentStep}"] .step-circle`).classList.remove('completed');
-            }
-
-            currentStep = step;
-
-            document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
-            document.querySelector(`.step-item[data-step="${currentStep}"] .step-circle`).classList.add('active');
-
-            if (currentStep === 3) {
-                populateReview();
-            }
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function validateStep(step) {
-            const currentStepEl = document.querySelector(`.form-step[data-step="${step}"]`);
-            let valid = true;
-            let firstInvalid = null;
-
-            if (step === 1) {
-                const inputs = currentStepEl.querySelectorAll('input[required], select[required]');
-                inputs.forEach(input => {
-                    // Skip hidden address field
-                    if (input.id === 'address') return;
-                    
-                    if (!input.value.trim()) {
-                        input.classList.add('is-invalid');
-                        if (!firstInvalid) firstInvalid = input;
-                        valid = false;
-                    } else {
-                        input.classList.remove('is-invalid');
-                    }
-                });
-            } else if (step === 2) {
-                const requiredFiles = ['business_permit', 'sanitation_cert', 'govt_id_1', 'govt_id_2'];
-                const missingFiles = [];
-                
-                requiredFiles.forEach(fileId => {
-                    const fileInput = document.getElementById(fileId);
-                    const uploadBox = document.querySelector(`.upload-box[data-input="${fileId}"]`);
-                    
-                    if (!fileInput.files.length) {
-                        uploadBox.style.borderColor = '#dc3545';
-                        if (!firstInvalid) firstInvalid = uploadBox;
-                        missingFiles.push(fileId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
-                        valid = false;
-                    } else {
-                        uploadBox.style.borderColor = '';
-                    }
-                });
-
-                if (!valid) {
-                    alert('Please upload the following documents:\n- ' + missingFiles.join('\n- '));
-                }
-            }
-
-            if (!valid && firstInvalid) {
-                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-
-            return valid;
-        }
-
-        function populateReview() {
-            // Populate basic info
-            document.getElementById('review_business_name').textContent = document.getElementById('business_name').value || 'N/A';
-            document.getElementById('review_email').textContent = document.getElementById('email_address').value || 'N/A';
-            
-            const phone = document.getElementById('phone_number').value;
-            document.getElementById('review_phone').textContent = phone || 'Not provided';
-            
-            const address = document.getElementById('address').value;
-            document.getElementById('review_address').textContent = address || 'Not provided';
-            
-            document.getElementById('review_license').textContent = document.getElementById('business_license_id').value || 'N/A';
-            
-            // Display uploaded documents
-            const docLabels = {
-                business_permit: 'Business Permit',
-                sanitation_cert: 'Sanitation Certificate',
-                govt_id_1: 'Government ID #1',
-                govt_id_2: 'Government ID #2'
-            };
-
-            Object.keys(docLabels).forEach(key => {
-                const reviewEl = document.getElementById(`review_${key}`);
-                const fileInput = document.getElementById(key);
-                
-                if (fileInput && fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    reviewEl.innerHTML = `
-                        <div class="document-badge">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>${docLabels[key]}: ${file.name}</span>
-                        </div>
-                    `;
-                } else {
-                    reviewEl.innerHTML = `
-                        <div class="text-danger small">
-                            <i class="bi bi-x-circle-fill"></i> ${docLabels[key]}: Not uploaded
-                        </div>
-                    `;
-                }
-            });
-
-            console.log('Review populated successfully');
-        }
-
-        // Form submission validation
-        document.getElementById('resellerForm').addEventListener('submit', function(e) {
+    // ==================== FORM SUBMISSION ====================
+    const resellerForm = document.getElementById('resellerForm');
+    if (resellerForm) {
+        resellerForm.addEventListener('submit', function(e) {
             const requiredFiles = ['business_permit', 'sanitation_cert', 'govt_id_1', 'govt_id_2'];
             const missingFiles = [];
 
@@ -935,16 +977,26 @@ p, span, a, div, input, select, button, label {
                 return false;
             }
 
+            // Validate phone number one more time
+            const phoneHidden = document.getElementById('phone_number');
+            if (!phoneHidden.value || phoneHidden.value.length !== 11) {
+                e.preventDefault();
+                alert('Please enter a valid 11-digit phone number');
+                goToStep(1);
+                return false;
+            }
+
             // Show loading state
             const submitBtn = e.target.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Submitting...';
         });
+    }
 
-        // Initialize all functions
-        initializeAddressHandling();
-        initializePhoneValidation();
-        initializeFileUploads();
-    });
+    // ==================== INITIALIZE ALL FUNCTIONS ====================
+    initializePhoneNumber();
+    initializeAddressHandling();
+    initializeFileUploads();
+});
 </script>
 @endsection
