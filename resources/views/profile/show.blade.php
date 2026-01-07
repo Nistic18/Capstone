@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Profile')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @section('content')
 <div class="mt-5">
     {{-- Profile Header Section --}}
@@ -116,7 +117,7 @@
                     {{-- Product Image with Overlay --}}
                     <div class="position-relative overflow-hidden" style="height: 220px; border-radius: 20px 20px 0 0;">
                         @if($product->images && $product->images->count() > 0)
-                            <img src="{{ asset('storage/' . $product->images->first()->image) }}"
+                            <img src="{{ asset($product->images->first()->image) }}"
                                  class="card-img-top w-100 h-100"
                                  style="object-fit: cover; transition: transform 0.3s ease;"
                                  alt="{{ $product->name }}"

@@ -52,9 +52,29 @@ class LandingPageController extends Controller
         $content->content = $data['content'] ?? $content->content;
         
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('landing', 'public');
-            $content->image = $path;
-        }
+
+    // Destination inside htdocs
+    $directory = $_SERVER['DOCUMENT_ROOT'] . '/img/landing/hero';
+
+    // Create folder if missing
+    if (!file_exists($directory)) {
+        mkdir($directory, 0777, true);
+    }
+
+    // Delete old hero image
+    if ($content->image && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $content->image)) {
+        unlink($_SERVER['DOCUMENT_ROOT'] . '/' . $content->image);
+    }
+
+    // New filename
+    $filename = time() . '_' . uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
+
+    // Move uploaded image
+    $request->file('image')->move($directory, $filename);
+
+    // Save relative path
+    $content->image = 'img/landing/hero/' . $filename;
+}
 
         $content->save();
 
@@ -84,10 +104,28 @@ class LandingPageController extends Controller
                 }
 
                 // Handle image upload
-                if (isset($cardData['image']) && $cardData['image'] instanceof \Illuminate\Http\UploadedFile) {
-                    $imagePath = $cardData['image']->store('landing/cards', 'public');
-                    $card->image = $imagePath;
-                }
+if (isset($cardData['image']) && $cardData['image'] instanceof \Illuminate\Http\UploadedFile) {
+
+    // Create folder if not exists
+    $destination = $_SERVER['DOCUMENT_ROOT'] . '/img/landing/cards';
+    if (!file_exists($destination)) {
+        mkdir($destination, 0777, true);
+    }
+
+    // Delete old image if card already has one
+    if ($card->image && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $card->image)) {
+        unlink($_SERVER['DOCUMENT_ROOT'] . '/' . $card->image);
+    }
+
+    // Generate unique filename
+    $filename = time() . '_' . uniqid() . '.' . $cardData['image']->getClientOriginalExtension();
+
+    // Move file
+    $cardData['image']->move($destination, $filename);
+
+    // Save relative path to DB
+    $card->image = 'img/landing/cards/' . $filename;
+}
 
                 // Update card fields
                 $card->title = $cardData['title'] ?? $card->title ?? null;

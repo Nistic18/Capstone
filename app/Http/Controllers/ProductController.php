@@ -98,7 +98,7 @@ class ProductController extends Controller
             'product_category_id' => 'required|exists:product_categories,id',
             'product_type_id' => 'required|exists:product_types,id',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
-            'unit_type' => 'required|in:pack,kilo,box,piece',
+            'unit_type' => 'required|in:pack,kilo,gram,box,piece',
             'unit_value' => 'required|numeric|min:0.01',
         ]);
 
@@ -131,8 +131,23 @@ class ProductController extends Controller
         // Handle images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
-                $product->images()->create(['image' => $path]);
+
+                // Create folder if it doesn't exist
+                $destinationPath = $_SERVER['DOCUMENT_ROOT'] . '/img/products';
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+
+                // Generate unique filename
+                $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+
+                // Move file to public/img/products
+                $image->move($destinationPath, $filename);
+
+                // Save only the relative path
+                $product->images()->create([
+                    'image' => 'img/products/' . $filename
+                ]);
             }
         }
 
@@ -166,7 +181,7 @@ class ProductController extends Controller
             'product_category_id' => 'required|exists:product_categories,id',
             'product_type_id' => 'required|exists:product_types,id',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
-            'unit_type' => 'required|in:pack,kilo,box,piece',
+            'unit_type' => 'required|in:pack,kilo,gram,box,piece',
             'unit_value' => 'required|numeric|min:0.01',
         ]);
 
@@ -200,8 +215,25 @@ class ProductController extends Controller
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
-                $product->images()->create(['image' => $path]);
+
+                // Destination folder: htdocs/img/products
+                $destinationPath = $_SERVER['DOCUMENT_ROOT'] . '/img/products';
+
+                // Create folder if it doesn't exist
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+
+                // Generate a unique filename
+                $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+
+                // Move the file to the destination
+                $image->move($destinationPath, $filename);
+
+                // Save relative path in database
+                $product->images()->create([
+                    'image' => 'img/products/' . $filename
+                ]);
             }
         }
 

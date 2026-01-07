@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Community Newsfeed')
-
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 {{-- Add Bootstrap 5 CSS if not in layout --}}
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -167,11 +167,11 @@
                 {{-- Post Image --}}
                 @if($post->image)
                     <div class="post-image-container mb-4" style="border-radius: 15px; overflow: hidden;">
-                        <img src="{{ asset('storage/' . $post->image) }}" 
+                        <img src="{{ asset($post->image) }}" 
                              class="img-fluid w-100" 
                              style="max-height: 400px; object-fit: cover; cursor: pointer;"
                              alt="Post image"
-                             onclick="openImageModal('{{ asset('storage/' . $post->image) }}')">
+                             onclick="openImageModal('{{ asset($post->image) }}')">
                     </div>
                 @endif
 

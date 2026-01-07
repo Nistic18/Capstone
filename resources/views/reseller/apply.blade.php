@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Apply as Reseller')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @section('content')
 <div class="container mt-4 mb-4">
     <div class="card shadow-lg border-0 rounded-4">

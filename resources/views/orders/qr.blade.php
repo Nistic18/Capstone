@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Order QR Code')
-
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @section('content')
 <div class="container text-center mt-5">
     <h3 class="mb-3">Order #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</h3>

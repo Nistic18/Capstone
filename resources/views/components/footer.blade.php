@@ -1,6 +1,6 @@
 <footer class="main-footer">
     <div class="footer-left">
-        &copy; 2025 Floyd Angelo Chee
+        &copy; 2025 Dried FishMarket
     </div>
     <div class="footer-right">
         1.0.0

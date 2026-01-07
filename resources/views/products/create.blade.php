@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Product')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @section('content')
 <div class="card card-body mt-5">
     <h2>{{ isset($product) ? 'Edit Product' : 'Add Product' }}</h2>
@@ -38,6 +39,9 @@
                     <option value="kilo" {{ old('unit_type', $product->unit_type ?? '') == 'kilo' ? 'selected' : '' }}>
                         Kilo (kg)
                     </option>
+                    <option value="gram" {{ old('unit_type', $product->unit_type ?? '') == 'gram' ? 'selected' : '' }}>
+            			Gram (g)
+        			</option>
                     <option value="box" {{ old('unit_type', $product->unit_type ?? '') == 'box' ? 'selected' : '' }}>
                         Box (kg per box)
                     </option>
@@ -130,27 +134,28 @@
         </div>
 
         {{-- MULTIPLE IMAGES --}}
-        <div class="mb-3">
-            <label>Product Images</label>
-            <input type="file" name="images[]" class="form-control" multiple accept="image/*">
-            <small class="text-muted">You can upload multiple images (JPG, PNG, WEBP). Max 2MB per image.</small>
+<div class="mb-3">
+    <label>Product Images</label>
+    <input type="file" name="images[]" class="form-control" multiple accept="image/*">
+    <small class="text-muted">You can upload multiple images (JPG, PNG, WEBP). Max 2MB per image.</small>
 
-            {{-- Show existing images when editing --}}
-            @if(isset($product) && $product->images->count())
-                <div class="mt-3">
-                    <label class="d-block mb-2">Current Images:</label>
-                    <div class="d-flex flex-wrap gap-2">
-                        @foreach($product->images as $image)
-                            <div class="position-relative" style="width: 120px;">
-                                <img src="{{ asset('storage/' . $image->image) }}" 
-                                     class="img-thumbnail w-100" 
-                                     style="height: 120px; object-fit: cover;">
-                            </div>
-                        @endforeach
+    {{-- Show existing images when editing --}}
+    @if(isset($product) && $product->images->count())
+        <div class="mt-3">
+            <label class="d-block mb-2">Current Images:</label>
+            <div class="d-flex flex-wrap gap-2">
+                @foreach($product->images as $image)
+                    <div class="position-relative" style="width: 120px;">
+                        <img src="{{ asset($image->image) }}" 
+                             alt="Product Image"
+                             class="img-thumbnail w-100" 
+                             style="height: 120px; object-fit: cover;">
                     </div>
-                </div>
-            @endif
+                @endforeach
+            </div>
         </div>
+    @endif
+</div>
 
         {{-- Action Buttons --}}
         <div class="d-flex gap-2 mt-4">
@@ -196,6 +201,10 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'kilo':
                 unitValueHint.textContent = 'Weight in kilograms (e.g., 2 for 2 kg)';
                 unitValueInput.placeholder = 'e.g., 2.5';
+                break;
+            case 'gram':
+                unitValueHint.textContent = 'Weight in grams (e.g., 250 for 250 grams)';
+                unitValueInput.placeholder = 'e.g., 250';
                 break;
             case 'box':
                 unitValueHint.textContent = 'Weight in kg per box (e.g., 10 for 10 kg per box)';

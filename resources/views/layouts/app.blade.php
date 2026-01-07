@@ -6,6 +6,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', config('app.name', 'Fish Market'))</title>
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('img/avatar/dried-fish-logo-transparent.png') }}">
+    
     <!-- In your layouts/app.blade.php, before closing </body> tag -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Fonts -->

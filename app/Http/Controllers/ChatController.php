@@ -51,31 +51,46 @@ class ChatController extends Controller
         ->update(['is_read' => 1]);
 }
 
-        return view('chat', compact('users', 'messages', 'receiver_id'));
+        return view('message', compact('users', 'messages', 'receiver_id'));
     }
 
-    public function send(Request $request)
-    {
-        $request->validate([
-            'message' => 'nullable|string|max:1000',
-            'image' => 'nullable|image|max:2048',
-            'receiver_id' => 'required|exists:users,id',
-        ]);
+public function send(Request $request)
+{
+    $request->validate([
+        'message' => 'nullable|string|max:1000',
+        'image' => 'nullable|image|max:2048',
+        'receiver_id' => 'required|exists:users,id',
+    ]);
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('chat_images', 'public');
+    $imagePath = null;
+
+    if ($request->hasFile('image')) {
+        // Destination folder in htdocs/img/chat_images
+        $destination = $_SERVER['DOCUMENT_ROOT'] . '/img/chat_images';
+
+        if (!file_exists($destination)) {
+            mkdir($destination, 0777, true);
         }
 
-        Message::create([
-            'user_id' => auth()->id(),
-            'receiver_id' => $request->receiver_id,
-            'content' => $request->message,
-            'image' => $imagePath,
-        ]);
+        // Unique filename
+        $filename = time() . '_' . uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
 
-        return back()->withInput();
+        // Move file
+        $request->file('image')->move($destination, $filename);
+
+        // Save relative path for database
+        $imagePath = 'img/chat_images/' . $filename;
     }
+
+    Message::create([
+        'user_id' => auth()->id(),
+        'receiver_id' => $request->receiver_id,
+        'content' => $request->message,
+        'image' => $imagePath,
+    ]);
+
+    return back()->withInput();
+}
 
     public function history()
     {

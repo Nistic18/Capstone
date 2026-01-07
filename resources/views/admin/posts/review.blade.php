@@ -47,7 +47,7 @@
 
                 @if($post->image)
                     <div class="mb-3">
-                        <img src="{{ asset('storage/' . $post->image) }}" 
+                        <img src="{{ asset($post->image) }}" 
                              class="img-fluid rounded shadow-sm" 
                              style="max-height: 300px; object-fit: cover;"
                              alt="Post image">

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', isset($product) ? 'Edit Product' : 'Create Product')
-
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -238,21 +238,25 @@
                         @enderror
 
                         {{-- Existing Images --}}
-                        @if(isset($product) && $product->images->count() > 0)
-                            <div class="mt-3">
-                                <p class="fw-semibold mb-2">Current Images:</p>
-                                <div class="row g-2">
-                                    @foreach($product->images as $image)
-                                        <div class="col-3">
-                                            <img src="{{ asset('storage/' . $image->image) }}" 
-                                                 class="img-thumbnail" 
-                                                 style="height: 100px; width: 100%; object-fit: cover; border-radius: 10px;">
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
+@if(isset($product) && $product->images->count() > 0)
+    <div class="mt-3">
+        <p class="fw-semibold mb-2">
+            <i class="fas fa-image me-1"></i>Current Images:
+        </p>
+        <div class="row g-3">
+            @foreach($product->images as $image)
+                <div class="col-md-3 col-sm-4 col-6">
+                    <div class="position-relative">
+                        <img src="{{ asset($image->image) }}" 
+                             alt="Product Image"
+                             class="img-thumbnail w-100" 
+                             style="height: 120px; object-fit: cover; border-radius: 10px;">
                     </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+@endif
 
                     {{-- Unit Summary Display --}}
                     <div class="col-12">

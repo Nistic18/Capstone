@@ -4,6 +4,7 @@
 
 @extends('layouts.app')
 @section('title', 'Shop Location')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 {{-- Add Bootstrap 5 CSS --}}
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -55,7 +56,7 @@
                         
                         {{-- Map Controls --}}
                         <div class="d-flex gap-2">
-                            <div class="dropdown">
+                            {{--<div class="dropdown">
                                 <button class="btn btn-sm btn-outline-primary dropdown-toggle" 
                                         style="border-radius: 10px;" 
                                         data-bs-toggle="dropdown">
@@ -72,7 +73,7 @@
                                         <i class="fas fa-circle text-info me-2"></i>Buyers
                                     </a></li>
                                 </ul>
-                            </div>
+                            </div>--}}
                              <div class="map-controls-wrapper">
                                 <!-- Enhanced Search Input -->
                                 <div class="map-search-container" style="width: 250px;">

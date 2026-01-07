@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Chat')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 {{-- Add Bootstrap 5 CSS --}}
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -123,11 +124,11 @@
 
                                                     @if($message->image)
                                                         <div class="mt-2">
-                                                            <img src="{{ asset('storage/'.$message->image) }}" 
+                                                            <img src="{{ asset($message->image) }}" 
                                                                 class="chat-image" 
                                                                 style="max-width: 200px; border-radius: 10px; cursor: pointer; transition: transform 0.2s;" 
                                                                 alt="Image"
-                                                                onclick="openImageModal('{{ asset('storage/'.$message->image) }}')"
+                                                                onclick="openImageModal('{{ asset($message->image) }}')"
                                                                 onmouseover="this.style.transform='scale(1.02)'"
                                                                 onmouseout="this.style.transform='scale(1)'">
                                                         </div>
@@ -168,11 +169,11 @@
 
                                                         @if($message->image)
                                                             <div class="mt-1">
-                                                                <img src="{{ asset('storage/'.$message->image) }}" 
+                                                                <img src="{{ asset($message->image) }}" 
                                                                     class="chat-image" 
                                                                     style="max-width: 200px; border-radius: 10px; cursor: pointer; transition: transform 0.2s;" 
                                                                     alt="Image"
-                                                                    onclick="openImageModal('{{ asset('storage/'.$message->image) }}')"
+                                                                    onclick="openImageModal('{{ asset($message->image) }}')"
                                                                     onmouseover="this.style.transform='scale(1.02)'"
                                                                     onmouseout="this.style.transform='scale(1)'">
                                                             </div>

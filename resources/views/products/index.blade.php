@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Manage Products')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 {{-- Add Bootstrap 5 CSS --}}
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -103,7 +104,7 @@
                     {{-- Product Image with Status Badge --}}
                     <div class="position-relative overflow-hidden" style="height: 220px; border-radius: 20px 20px 0 0;">
 @if($product->images && $product->images->count())
-    <img src="{{ asset('storage/' . $product->images->first()->image) }}"
+    <img src="{{ asset($product->images->first()->image) }}" 
          class="card-img-top w-100 h-100"
          style="object-fit: cover; transition: transform 0.3s ease; position: relative; z-index: 1; cursor: pointer;"
          alt="{{ $product->name }}"
@@ -220,6 +221,9 @@
                                         @case('kilo')
                                             {{ $product->unit_value }} kg
                                             @break
+                                        @case('gram')
+                    						{{ $product->unit_value }} g
+                    						@break
                                         @case('box')
                                             {{ $product->unit_value }} kg per box
                                             @break
@@ -295,7 +299,7 @@
                         <div class="carousel-inner">
                             @foreach($product->images as $key => $image)
                                 <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                                    <img src="{{ asset('storage/' . $image->image) }}" 
+                                    <img src="{{ asset($image->image) }}" 
                                          class="d-block w-100" 
                                          style="max-height: 600px; object-fit: contain;">
                                 </div>

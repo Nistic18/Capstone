@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
@@ -11,30 +10,38 @@ use App\Models\Order;
 class ProductCheckedOut extends Notification implements ShouldQueue
 {
     use Queueable;
-
-    protected $order;
-    protected $product;
-
+    
+    public $order;
+    public $product;
+    
     public function __construct($order, $product)
     {
         $this->order = $order;
         $this->product = $product;
     }
-
+    
     public function via($notifiable)
     {
-        return ['mail', 'database']; // You can also add 'mail' if needed
+        return ['mail', 'database'];
     }
-    // Add this method if using the 'mail' channel
+    
     public function toMail($notifiable)
     {
+        $orderNumber = str_pad($this->order->id, 6, '0', STR_PAD_LEFT);
+        $orderUrl = url('/orders/' . $this->order->id);
+        
         return (new MailMessage)
-                    ->subject('Product Checked Out')
-                    ->greeting('Hello ' . $notifiable->name . ',')
-                    ->line("Your product '{$this->product->name}' has been checked out in order #{$this->order->id}.")
-                    ->action('View Order', url('/orders/' . $this->order->id))
-                    ->line('Thank you for using our application!');
+            ->from('fishmarketnotification@gmail.com', 'FishMarket')
+            ->subject('Order Confirmation - Thank You for Your Purchase')
+            ->view('emails.product_checked_out', [
+                'order' => $this->order,
+                'product' => $this->product,
+                'notifiable' => $notifiable,
+                'orderNumber' => $orderNumber,
+                'orderUrl' => $orderUrl,
+            ]);
     }
+    
     public function toDatabase($notifiable)
     {
         return [
@@ -42,8 +49,8 @@ class ProductCheckedOut extends Notification implements ShouldQueue
             'product_id' => $this->product->id,
             'status'     => 'checked out',
             'message'    => "Your product '{$this->product->name}' has been checked out!",
-            'details'    => "Order #{$this->order->id} includes your product '{$this->product->name}'.",
-            'action_url' => route('orders.show', $this->order->id),
+            'details'    => "Order #" . str_pad($this->order->id, 6, '0', STR_PAD_LEFT) . " includes your product '{$this->product->name}'.",
+            'action_url' => url('/orders/' . $this->order->id), // Changed from route() to url()
         ];
     }
 }

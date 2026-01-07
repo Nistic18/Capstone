@@ -35,21 +35,24 @@
             </a>
         </li>
         @endif
-        <!-- Chat Icon Only (No Text) -->
+
+        <!-- Chat Icon Only (No Text) - Hidden for Admin -->
+        @if(auth()->user()->role !== 'admin')
         <li class="nav-item {{ Request::is('chat') ? 'active' : '' }}">
-    <a class="nav-link position-relative" href="{{ route('chat.index') }}">
-        <i class="fas fa-comments fa-lg"></i>
-
-        @if($chatUnread > 0)
-            <span class="badge badge-danger position-absolute top-0 start-100 translate-middle rounded-circle"
-                  style="font-size: 0.6rem; padding: 5px 7px;">
-                {{ $chatUnread }}
-            </span>
+            <a class="nav-link nav-link-lg position-relative" href="{{ route('chat.index') }}">
+                <i class="fas fa-comments"></i>
+                @if($chatUnread > 0)
+                    <span class="badge badge-danger" 
+                          style="position: absolute; top: 0; right: 0; font-size: 0.6rem; padding: 3px 5px; transform: translate(50%, -50%);">
+                        {{ $chatUnread }}
+                    </span>
+                @endif
+            </a>
+        </li>
         @endif
-    </a>
-</li>
 
-        <!-- Notifications -->
+        <!-- Notifications - Hidden for Admin -->
+        @if(auth()->user()->role !== 'admin')
         <li class="dropdown">
             <a href="#" data-toggle="dropdown" class="nav-link nav-link-lg notification-toggle">
                 <i class="fas fa-bell fa-lg"></i>
@@ -77,6 +80,7 @@
                 </div>
             </div>
         </li>
+        @endif
 
         <!-- User Menu -->
         <li class="dropdown">
@@ -111,12 +115,10 @@
 
 <style>
 .notification-dropdown {
-    min-width: 400px;   /* adjust size */
-    max-width: 400px;   /* don’t let it get too wide */
-    white-space: normal; /* wrap long messages */
-    padding: 10px;      /* add breathing space */
-}
-.notification-dropdown {
+    min-width: 400px;
+    max-width: 400px;
+    white-space: normal;
+    padding: 10px;
     max-height: 400px;
     overflow-y: auto;
 }

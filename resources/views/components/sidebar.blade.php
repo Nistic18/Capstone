@@ -10,8 +10,11 @@
         @else
             {{ url('home') }}
         @endif
-    ">
-        FISH MARKET
+    " style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <img src="{{ asset('img/avatar/dried-fish-logo.png') }}" 
+             alt="Dried Fish Market" 
+             style="height: 50px; width: auto;">
+            <span style="font-size: 20px; font-weight: bold; color: #0bb364;">Dried Fishmart</span>
     </a>
 </div>
 
@@ -25,7 +28,9 @@
             {{ url('home') }}
         @endif
     ">
-        FISH
+        <img src="{{ asset('img/avatar/dried-fish-logo.png') }}" 
+             alt="Fish" 
+             style="height: 35px; width: auto;">
     </a>
 </div>
 

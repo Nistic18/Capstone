@@ -4,6 +4,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 class ProfileController extends Controller
 {
     public function edit()
@@ -74,5 +76,22 @@ public function myprofile()
 
     return view('profile.myprofile', compact('user', 'newsfeedPosts'));
 }
+public function viewImage($folder, $file)
+{
 
+    $file_path = "storage/$folder/$file";
+    
+    $exists = Storage::disk()->exists($file_path);
+
+    if (!$exists) {
+        return "error!!!";
+    }
+
+    $file = Storage::disk()->get($file_path);
+    $type = Storage::mimeType($file_path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+    return $response;
+}
 }

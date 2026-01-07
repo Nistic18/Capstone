@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Edit Post')
-
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 {{-- Add Bootstrap 5 CSS --}}
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -86,7 +86,7 @@
                                     <div class="card-body p-3">
                                         <div class="row align-items-center">
                                             <div class="col-md-4">
-                                                <img src="{{ asset('storage/' . $post->image) }}" 
+                                                <img src="{{ asset($post->image) }}" 
                                                      class="img-fluid rounded" 
                                                      style="max-height: 150px; object-fit: cover;">
                                             </div>

@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Register - Fish Market</title>
 
     <!-- Fonts -->
@@ -15,8 +17,87 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     
-
     <style>
+    /* Register page logo styling - LARGE VERSION */
+.register-logo {
+    animation: logoFloat 3s ease-in-out infinite;
+    transition: transform 0.3s ease;
+}
+
+@keyframes logoFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.register-logo:hover {
+    transform: scale(1.08) rotate(5deg);
+    animation: none;
+}
+
+/* Responsive logo sizing for register - LARGER */
+@media (max-width: 992px) {
+    .register-logo {
+        height: 180px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .register-logo {
+        height: 150px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .register-logo {
+        height: 130px !important;
+    }
+}
+
+/* Brand section improvements */
+.brand-logo {
+    margin-bottom: 2rem;
+}
+
+.brand-title {
+    animation: fadeInUp 0.8s ease-out;
+    animation-delay: 0.2s;
+    animation-fill-mode: both;
+}
+
+.brand-subtitle {
+    animation: fadeInUp 0.8s ease-out;
+    animation-delay: 0.4s;
+    animation-fill-mode: both;
+}
+
+.features-list {
+    animation: fadeInUp 0.8s ease-out;
+    animation-delay: 0.6s;
+    animation-fill-mode: both;
+}
+
+.feature-item {
+    transition: transform 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateX(10px);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
         body {
             background: linear-gradient(135deg, #d4f1e5 0%, #c8e6c9 100%);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
@@ -276,6 +357,7 @@
         .invalid-feedback {
             font-size: 0.875rem;
             margin-top: 0.25rem;
+            display: block !important;
         }
 
         /* Terms Box */
@@ -306,6 +388,10 @@
         .form-check-input:focus {
             border-color: #0bb364;
             box-shadow: 0 0 0 0.25rem rgba(11, 179, 100, 0.25);
+        }
+
+        .form-check-input.is-invalid {
+            border-color: #e53935;
         }
 
         /* Modal Styles */
@@ -436,11 +522,11 @@
         {{-- Back to Home Button --}}
         <div class="back-to-home">
             <a href="{{ route('landing') }}" class="btn-back">
-                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-left me-2"></i>
                 <span>Back to Home</span>
             </a>
         </div>
-    <div class="register-wrapper">
+
         <div class="container">
             <div class="row align-items-center justify-content-center min-vh-100 py-5">
                 <div class="col-12 col-xl-10">
@@ -449,9 +535,12 @@
                         <div class="col-lg-5 col-md-6 mb-4 mb-md-0">
                             <div class="brand-section text-center text-md-start px-lg-4">
                                 <div class="brand-logo mb-3">
-                                    <i class="fas fa-fish"></i>
+                                    <img src="{{ asset('img/avatar/dried-fish-logo.png') }}" 
+                                         alt="Dried Fish Market Logo" 
+                                         class="register-logo"
+                                         style="height: 220px; width: auto; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.2));">
                                 </div>
-                                <h1 class="brand-title">Join Fish Market</h1>
+                                <h1 class="brand-title">Join Dried Fish Market</h1>
                                 <p class="brand-subtitle">Create your account and start connecting with buyers and sellers in your area. Join our growing community today!</p>
                                 
                                 <div class="features-list mt-4">
@@ -471,196 +560,265 @@
                             </div>
                         </div>
 
-<!-- Right Section - Registration Form -->
-<div class="col-lg-7 col-md-8">
-    <div class="register-box mx-auto">
-        <form method="POST" action="#" class="needs-validation" novalidate>
-            @csrf
-            <div class="row g-4">
+                        <!-- Right Section - Registration Form -->
+                        <div class="col-lg-7 col-md-8">
+                            <div class="register-box mx-auto">
+                                <form method="POST" action="{{ route('register') }}" class="needs-validation" novalidate>
+                                    @csrf
+                                    <div class="row g-4">
 
-                <!-- Left Column -->
-                <div class="col-md-6">
-                    <!-- Full Name -->
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">
-                            <i class="fas fa-user me-1"></i>Full Name
-                        </label>
-                        <div class="row g-2">
-                            <div class="col-md-4">
-                                <input id="first_name" type="text" class="form-control form-control-lg" required autocomplete="given-name" autofocus placeholder="First name">
+                                        <!-- Left Column -->
+                                        <div class="col-md-6">
+                                            <!-- Full Name -->
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">
+                                                    <i class="fas fa-user me-1"></i>Full Name
+                                                </label>
+                                                <div class="row g-2">
+                                                    <div class="col-md-4">
+                                                        <input id="first_name" type="text" 
+                                                               class="form-control form-control-lg @error('name') is-invalid @enderror" 
+                                                               required autocomplete="given-name" autofocus 
+                                                               placeholder="First name"
+                                                               value="{{ old('first_name', session('first_name')) }}">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input id="middle_name" type="text" 
+                                                               class="form-control form-control-lg @error('name') is-invalid @enderror" 
+                                                               autocomplete="additional-name" 
+                                                               placeholder="Middle (optional)"
+                                                               value="{{ old('middle_name', session('middle_name')) }}">
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <input id="last_name" type="text" 
+                                                               class="form-control form-control-lg @error('name') is-invalid @enderror" 
+                                                               required autocomplete="family-name" 
+                                                               placeholder="Last name"
+                                                               value="{{ old('last_name', session('last_name')) }}">
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" id="name" name="name" value="{{ old('name') }}">
+                                                <div id="name_preview" class="mt-2 p-2 bg-light rounded" style="display: none;">
+                                                    <small class="text-muted">Full Name:</small>
+                                                    <div class="fw-semibold text-dark" id="name_preview_text"></div>
+                                                </div>
+                                                @error('name')
+                                                    <div class="invalid-feedback d-block">
+                                                        {{ $message }}
+                                                    </div>
+                                                @enderror
+                                            </div>
+
+                                            <!-- Email Field -->
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">
+                                                    <i class="fas fa-envelope me-1"></i>Email Address
+                                                </label>
+                                                <input id="email" type="email" 
+                                                       class="form-control form-control-lg @error('email') is-invalid @enderror" 
+                                                       name="email" 
+                                                       value="{{ old('email') }}" 
+                                                       required autocomplete="email" 
+                                                       placeholder="Email address">
+                                                @error('email')
+                                                    <div class="invalid-feedback">
+                                                        {{ $message }}
+                                                    </div>
+                                                @enderror
+                                            </div>
+
+                                            <!-- Phone Field -->
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">
+                                                    <i class="fas fa-phone me-1"></i>Phone Number
+                                                </label>
+                                                <input id="phone" type="tel" 
+                                                       class="form-control form-control-lg @error('phone') is-invalid @enderror" 
+                                                       name="phone" 
+                                                       value="{{ old('phone') }}" 
+                                                       required autocomplete="tel" 
+                                                       placeholder="Phone (e.g., 09123456789)" 
+                                                       pattern="^(09|\+639)\d{9}$" 
+                                                       maxlength="13">
+                                                @error('phone')
+                                                    <div class="invalid-feedback">
+                                                        {{ $message }}
+                                                    </div>
+                                                @enderror
+                                            </div>
+
+                                            <!-- Password Field -->
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">
+                                                    <i class="fas fa-lock me-1"></i>Password
+                                                </label>
+                                                <div class="password-wrapper">
+                                                    <input id="password" type="password" 
+                                                           class="form-control form-control-lg @error('password') is-invalid @enderror" 
+                                                           name="password" 
+                                                           required autocomplete="new-password" 
+                                                           placeholder="Password">
+                                                    <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                                        <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="password-requirements mt-2 p-2 bg-light rounded">
+                                                    <small class="text-muted d-block mb-2 fw-semibold">Password must contain:</small>
+                                                    <div class="requirement-item" id="req-length">
+                                                        <i class="fas fa-circle requirement-icon"></i>
+                                                        <span class="requirement-text">At least 8 characters</span>
+                                                    </div>
+                                                    <div class="requirement-item" id="req-uppercase">
+                                                        <i class="fas fa-circle requirement-icon"></i>
+                                                        <span class="requirement-text">One uppercase letter (A-Z)</span>
+                                                    </div>
+                                                    <div class="requirement-item" id="req-number">
+                                                        <i class="fas fa-circle requirement-icon"></i>
+                                                        <span class="requirement-text">One number (0-9)</span>
+                                                    </div>
+                                                    <div class="requirement-item" id="req-special">
+                                                        <i class="fas fa-circle requirement-icon"></i>
+                                                        <span class="requirement-text">One special character (!@#$%^&*)</span>
+                                                    </div>
+                                                </div>
+                                                <div id="password-strength" class="mt-2">
+                                                    <small id="password-strength-text" class="fw-semibold"></small>
+                                                    <div class="progress mt-1" style="height: 6px;">
+                                                        <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0;"></div>
+                                                    </div>
+                                                </div>
+                                                @error('password')
+                                                    <div class="invalid-feedback">
+                                                        {{ $message }}
+                                                    </div>
+                                                @enderror
+                                            </div>
+
+                                            <!-- Confirm Password Field -->
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">
+                                                    <i class="fas fa-lock me-1"></i>Confirm Password
+                                                </label>
+                                                <div class="password-wrapper">
+                                                    <input id="password-confirm" type="password" 
+                                                           class="form-control form-control-lg" 
+                                                           name="password_confirmation" 
+                                                           required autocomplete="new-password" 
+                                                           placeholder="Confirm password">
+                                                    <button type="button" class="password-toggle" onclick="togglePassword('password-confirm')">
+                                                        <i class="fas fa-eye" id="togglePasswordConfirmIcon"></i>
+                                                    </button>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column -->
+                                        <div class="col-md-6">
+                                            <!-- Address Section -->
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">
+                                                    <i class="fas fa-map-marker-alt me-1"></i>Address Details
+                                                </label>
+                                                <input id="street_address" type="text" 
+                                                       class="form-control form-control-lg mb-2 @error('address') is-invalid @enderror" 
+                                                       placeholder="Street (e.g., Phase 1 Blk 1 Lot 1)" 
+                                                       value="{{ old('street_address', session('street_address')) }}"
+                                                       required>
+                                                <select id="barangay" 
+                                                        class="form-select form-select-lg @error('address') is-invalid @enderror" 
+                                                        required>
+                                                    <option value="">Select Barangay</option>
+                                                    <option value="Bagbag I" {{ old('barangay', session('barangay')) == 'Bagbag I' ? 'selected' : '' }}>Bagbag I</option>
+                                                    <option value="Bagbag II" {{ old('barangay', session('barangay')) == 'Bagbag II' ? 'selected' : '' }}>Bagbag II</option>
+                                                    <option value="Kanluran" {{ old('barangay', session('barangay')) == 'Kanluran' ? 'selected' : '' }}>Kanluran</option>
+                                                    <option value="Ligtong I" {{ old('barangay', session('barangay')) == 'Ligtong I' ? 'selected' : '' }}>Ligtong I</option>
+                                                    <option value="Ligtong II" {{ old('barangay', session('barangay')) == 'Ligtong II' ? 'selected' : '' }}>Ligtong II</option>
+                                                    <option value="Ligtong III" {{ old('barangay', session('barangay')) == 'Ligtong III' ? 'selected' : '' }}>Ligtong III</option>
+                                                    <option value="Ligtong IV" {{ old('barangay', session('barangay')) == 'Ligtong IV' ? 'selected' : '' }}>Ligtong IV</option>
+                                                    <option value="Muzon I" {{ old('barangay', session('barangay')) == 'Muzon I' ? 'selected' : '' }}>Muzon I</option>
+                                                    <option value="Muzon II" {{ old('barangay', session('barangay')) == 'Muzon II' ? 'selected' : '' }}>Muzon II</option>
+                                                    <option value="Poblacion" {{ old('barangay', session('barangay')) == 'Poblacion' ? 'selected' : '' }}>Poblacion</option>
+                                                    <option value="Sapa I" {{ old('barangay', session('barangay')) == 'Sapa I' ? 'selected' : '' }}>Sapa I</option>
+                                                    <option value="Sapa II" {{ old('barangay', session('barangay')) == 'Sapa II' ? 'selected' : '' }}>Sapa II</option>
+                                                    <option value="Sapa III" {{ old('barangay', session('barangay')) == 'Sapa III' ? 'selected' : '' }}>Sapa III</option>
+                                                    <option value="Sapa IV" {{ old('barangay', session('barangay')) == 'Sapa IV' ? 'selected' : '' }}>Sapa IV</option>
+                                                    <option value="Silangan I" {{ old('barangay', session('barangay')) == 'Silangan I' ? 'selected' : '' }}>Silangan I</option>
+                                                    <option value="Silangan II" {{ old('barangay', session('barangay')) == 'Silangan II' ? 'selected' : '' }}>Silangan II</option>
+                                                    <option value="Tejeros Convention" {{ old('barangay', session('barangay')) == 'Tejeros Convention' ? 'selected' : '' }}>Tejeros Convention</option>
+                                                    <option value="Wawa I" {{ old('barangay', session('barangay')) == 'Wawa I' ? 'selected' : '' }}>Wawa I</option>
+                                                    <option value="Wawa II" {{ old('barangay', session('barangay')) == 'Wawa II' ? 'selected' : '' }}>Wawa II</option>
+                                                    <option value="Wawa III" {{ old('barangay', session('barangay')) == 'Wawa III' ? 'selected' : '' }}>Wawa III</option>
+                                                </select>
+                                                <input type="hidden" id="address" name="address" value="{{ old('address') }}">
+                                                <div id="address_preview" class="mt-2 p-2 bg-light rounded" style="display: none;">
+                                                    <small class="text-muted">Complete Address:</small>
+                                                    <div class="fw-semibold text-dark" id="preview_text"></div>
+                                                </div>
+                                                @error('address')
+                                                    <div class="invalid-feedback">
+                                                        {{ $message }}
+                                                    </div>
+                                                @enderror
+                                            </div>
+
+                                            <!-- Terms and Conditions -->
+                                            <div class="mb-4">
+                                                <div class="terms-box">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input @error('terms') is-invalid @enderror" 
+                                                               type="checkbox" 
+                                                               name="terms" 
+                                                               id="terms" 
+                                                               {{ old('terms') ? 'checked' : '' }}
+                                                               required>
+                                                        <label class="form-check-label" for="terms">
+                                                            I agree to the <a href="#" class="terms-link" data-bs-toggle="modal" data-bs-target="#privacyModal">Terms and Conditions & Privacy Policy</a>
+                                                        </label>
+                                                        @error('terms')
+                                                            <div class="invalid-feedback">
+                                                                {{ $message }}
+                                                            </div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Register Button -->
+                                            <div class="mb-3">
+                                                <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold">
+                                                    <i class="fas fa-user-plus me-2"></i>Create Account
+                                                </button>
+                                            </div>
+
+                                            <!-- Divider -->
+                                            <div class="divider"></div>
+
+                                            <!-- Login Link -->
+                                            <div class="text-center">
+                                                <p class="text-muted mb-2">Already have an account?</p>
+                                                <a href="{{ route('login') }}" class="btn btn-outline-primary btn-lg fw-semibold px-4">
+                                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                            <div class="col-md-4">
-                                <input id="middle_name" type="text" class="form-control form-control-lg" autocomplete="additional-name" placeholder="Middle name (optional)">
-                            </div>
-                            <div class="col-md-4">
-                                <input id="last_name" type="text" class="form-control form-control-lg" required autocomplete="family-name" placeholder="Last name">
-                            </div>
-                        </div>
-                        <input type="hidden" id="name" name="name">
-                        <div id="name_preview" class="mt-2 p-2 bg-light rounded" style="display: none;">
-                            <small class="text-muted">Full Name:</small>
-                            <div class="fw-semibold text-dark" id="name_preview_text"></div>
-                        </div>
-                        <div class="invalid-feedback d-block" id="name_error" style="display: none !important;">
-                            Please enter your first and last name
-                        </div>
-                    </div>
 
-                    <!-- Email Field -->
-                    <div class="mb-3">
-                        <input id="email" type="email" class="form-control form-control-lg" name="email" required autocomplete="email" placeholder="Email address">
-                        <div class="invalid-feedback">
-                            Please enter a valid email address
-                        </div>
-                    </div>
-
-                    <!-- Phone Field -->
-                    <div class="mb-3">
-                        <input id="phone" type="tel" class="form-control form-control-lg" name="phone" required autocomplete="tel" placeholder="Phone number (e.g., 09123456789)" pattern="^(09|\+639)\d{9}$" maxlength="13">
-                        <div class="invalid-feedback">
-                            Please enter a valid Philippine mobile number (e.g., 09123456789)
-                        </div>
-                    </div>
-
-                    <!-- Password Field -->
-                    <div class="mb-3">
-                        <div class="password-wrapper">
-                            <input id="password" type="password" class="form-control form-control-lg" name="password" required autocomplete="new-password" placeholder="Password">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
-                                <i class="fas fa-eye" id="togglePasswordIcon"></i>
-                            </button>
-                        </div>
-                        <div class="password-requirements mt-2 p-2 bg-light rounded">
-                            <small class="text-muted d-block mb-2 fw-semibold">Password must contain:</small>
-                            <div class="requirement-item" id="req-length">
-                                <i class="fas fa-circle requirement-icon"></i>
-                                <span class="requirement-text">At least 8 characters</span>
-                            </div>
-                            <div class="requirement-item" id="req-uppercase">
-                                <i class="fas fa-circle requirement-icon"></i>
-                                <span class="requirement-text">One uppercase letter (A-Z)</span>
-                            </div>
-                            <div class="requirement-item" id="req-number">
-                                <i class="fas fa-circle requirement-icon"></i>
-                                <span class="requirement-text">One number (0-9)</span>
-                            </div>
-                            <div class="requirement-item" id="req-special">
-                                <i class="fas fa-circle requirement-icon"></i>
-                                <span class="requirement-text">One special character (!@#$%^&*)</span>
+                            <!-- Security Badge -->
+                            <div class="text-center mt-4">
+                                <p class="security-text">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    <span class="fw-semibold">Secure Registration</span> - Your data is encrypted
+                                </p>
                             </div>
                         </div>
-                        <div id="password-strength" class="mt-2">
-                            <small id="password-strength-text" class="fw-semibold"></small>
-                            <div class="progress mt-1" style="height: 6px;">
-                                <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0;"></div>
-                            </div>
-                        </div>
-                        <div class="invalid-feedback">
-                            Please meet all password requirements
-                        </div>
-                    </div>
-                                        <!-- Confirm Password Field -->
-                    <div class="mb-3">
-                        <div class="password-wrapper">
-                            <input id="password-confirm" type="password" class="form-control form-control-lg" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm password">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password-confirm')">
-                                <i class="fas fa-eye" id="togglePasswordConfirmIcon"></i>
-                            </button>
-                        </div>
-                        <div class="invalid-feedback">
-                            Passwords do not match
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column -->
-                <div class="col-md-6">
-                    <!-- Address Section -->
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">
-                            <i class="fas fa-map-marker-alt me-1"></i>Address Details
-                        </label>
-                        <input id="street_address" type="text" class="form-control form-control-lg mb-2" placeholder="Street (e.g., Phase 1 Blk 1 Lot 1)" required>
-                        <select id="barangay" class="form-select form-select-lg" required>
-                            <option value="" selected>Select Barangay</option>
-                            <option value="Bagbag I">Bagbag I</option>
-                            <option value="Bagbag II">Bagbag II</option>
-                            <option value="Kanluran">Kanluran</option>
-                            <option value="Ligtong I">Ligtong I</option>
-                            <option value="Ligtong II">Ligtong II</option>
-                            <option value="Ligtong III">Ligtong III</option>
-                            <option value="Ligtong IV">Ligtong IV</option>
-                            <option value="Muzon I">Muzon I</option>
-                            <option value="Muzon II">Muzon II</option>
-                            <option value="Poblacion">Poblacion</option>
-                            <option value="Sapa I">Sapa I</option>
-                            <option value="Sapa II">Sapa II</option>
-                            <option value="Sapa III">Sapa III</option>
-                            <option value="Sapa IV">Sapa IV</option>
-                            <option value="Silangan I">Silangan I</option>
-                            <option value="Silangan II">Silangan II</option>
-                            <option value="Tejeros Convention">Tejeros Convention</option>
-                            <option value="Wawa I">Wawa I</option>
-                            <option value="Wawa II">Wawa II</option>
-                            <option value="Wawa III">Wawa III</option>
-                        </select>
-                        <input type="hidden" id="address" name="address">
-                        <div id="address_preview" class="mt-2 p-2 bg-light rounded" style="display: none;">
-                            <small class="text-muted">Complete Address:</small>
-                            <div class="fw-semibold text-dark" id="preview_text"></div>
-                        </div>
-                        <div class="invalid-feedback d-block" id="address_error" style="display: none !important;">
-                            Please enter your complete address
-                        </div>
-                    </div>
-
-
-                    <!-- Terms and Conditions -->
-                    <div class="mb-4">
-                        <div class="terms-box">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="terms" id="terms" required>
-                                <label class="form-check-label" for="terms">
-                                    I agree to the <a href="#" class="terms-link" data-bs-toggle="modal" data-bs-target="#privacyModal">Terms and Conditions & Privacy Policy</a>
-                                </label>
-                                <div class="invalid-feedback">
-                                    You must agree to the terms and conditions
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Register Button -->
-                    <div class="mb-3">
-                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold">
-                            Create Account
-                        </button>
-                    </div>
-
-                    <!-- Divider -->
-                    <div class="divider"></div>
-
-                    <!-- Login Link -->
-                    <div class="text-center">
-                        <p class="text-muted mb-2">Already have an account?</p>
-                        <a href="{{ route('login') }}" class="btn btn-outline-primary btn-lg fw-semibold px-4">
-                            Sign In
-                        </a>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
-
-    <!-- Security Badge -->
-    <div class="text-center mt-4">
-        <p class="security-text">
-            <i class="fas fa-shield-alt me-2"></i>
-            <span class="fw-semibold">Secure Registration</span> - Your data is encrypted
-        </p>
-    </div>
-</div>
-
 
     <!-- Privacy & Terms Modal -->
     <div class="modal fade" id="privacyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
@@ -750,7 +908,6 @@
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-
     <script>
         // Password Strength Indicator
         const passwordInput = document.getElementById('password');
@@ -981,29 +1138,69 @@
             const form = document.querySelector('.needs-validation');
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('password-confirm');
+            const confirmError = document.getElementById('password-confirm-error');
+            
+            let userHasTypedInConfirm = false;
+
+            confirmPasswordInput.addEventListener('focus', function() {
+                userHasTypedInConfirm = true;
+            });
 
             confirmPasswordInput.addEventListener('input', function() {
-                if (this.value !== passwordInput.value) {
-                    this.setCustomValidity('Passwords do not match');
+                // Only validate if user has started typing in this field
+                if (userHasTypedInConfirm && this.value.length > 0 && this.value !== passwordInput.value) {
+                    this.classList.add('is-invalid');
+                    confirmError.style.display = 'block';
                 } else {
-                    this.setCustomValidity('');
+                    this.classList.remove('is-invalid');
+                    confirmError.style.display = 'none';
+                }
+            });
+
+            confirmPasswordInput.addEventListener('blur', function() {
+                // Check on blur only if field has value and user has interacted with it
+                if (userHasTypedInConfirm && this.value.length > 0 && this.value !== passwordInput.value) {
+                    this.classList.add('is-invalid');
+                    confirmError.style.display = 'block';
+                } else if (this.value.length > 0 && this.value === passwordInput.value) {
+                    this.classList.remove('is-invalid');
+                    confirmError.style.display = 'none';
                 }
             });
 
             passwordInput.addEventListener('input', function() {
-                if (confirmPasswordInput.value && confirmPasswordInput.value !== this.value) {
-                    confirmPasswordInput.setCustomValidity('Passwords do not match');
-                } else {
-                    confirmPasswordInput.setCustomValidity('');
+                // Only validate if confirm password has been touched and has value
+                if (userHasTypedInConfirm && confirmPasswordInput.value.length > 0) {
+                    if (confirmPasswordInput.value !== this.value) {
+                        confirmPasswordInput.classList.add('is-invalid');
+                        confirmError.style.display = 'block';
+                    } else {
+                        confirmPasswordInput.classList.remove('is-invalid');
+                        confirmError.style.display = 'none';
+                    }
                 }
             });
 
             form.addEventListener('submit', function(event) {
+                // DON'T manually validate password match on submit
+                // Let HTML5 required attribute handle empty fields
+                // Only show custom error if both fields have values and don't match
+                if (passwordInput.value.length > 0 && 
+                    confirmPasswordInput.value.length > 0 && 
+                    passwordInput.value !== confirmPasswordInput.value) {
+                    confirmPasswordInput.classList.add('is-invalid');
+                    confirmError.style.display = 'block';
+                    event.preventDefault();
+                    event.stopPropagation();
+                    confirmPasswordInput.focus();
+                    return false;
+                }
+
                 if (!form.checkValidity()) {
                     event.preventDefault();
                     event.stopPropagation();
                     
-                    const firstInvalid = form.querySelector('.form-control:invalid, .form-select:invalid');
+                    const firstInvalid = form.querySelector('.form-control:invalid, .form-select:invalid, .form-check-input:invalid');
                     if (firstInvalid) {
                         firstInvalid.focus();
                         firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1028,6 +1225,19 @@
             initializeAddressHandling();
             initializePhoneValidation();
             initializeNameHandling();
+
+            // Trigger address preview on page load if values exist
+            const streetInput = document.getElementById('street_address');
+            const barangaySelect = document.getElementById('barangay');
+            if (streetInput.value || barangaySelect.value) {
+                streetInput.dispatchEvent(new Event('input'));
+            }
+
+            // Trigger name preview on page load if values exist
+            const firstNameInput = document.getElementById('first_name');
+            if (firstNameInput.value) {
+                firstNameInput.dispatchEvent(new Event('input'));
+            }
         });
     </script>
 </body>

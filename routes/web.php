@@ -65,6 +65,8 @@ Auth::routes();
     Route::get('/login', [App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 
+    Route::get('storage/{folder}/{file}', [ProfileController::class, 'viewImage']);
+
     Route::middleware(['auth'])->group(function () {
         Route::get('/home', [App\Http\Controllers\ProductController::class, 'home'])->name('home');
         Route::view('/dashboard', 'dashboard')->name('dashboard');
@@ -172,10 +174,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/gemini/generate', [App\Http\Controllers\GeminiController::class, 'generate'])->name('gemini.generate');
     Route::get('/gemini/history', [App\Http\Controllers\GeminiController::class, 'history'])->name('gemini.history');
 
-    Route::middleware('auth')->group(function() {
-        Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
-        Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
-    });
+Route::middleware('auth')->group(function() {
+    Route::get('/messages', [ChatController::class, 'index'])->name('chat.index');
+    Route::post('/messages/send', [ChatController::class, 'send'])->name('chat.send');
+});
 
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');

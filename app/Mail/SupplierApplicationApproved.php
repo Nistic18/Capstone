@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
@@ -11,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 class SupplierApplicationApproved extends Mailable
 {
     use Queueable, SerializesModels;
-
+    
     public $user;
     public $defaultPassword;
 
@@ -30,6 +29,7 @@ class SupplierApplicationApproved extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: 'fishmarketnotification@gmail.com',
             subject: '🎉 Supplier Application Approved - Welcome!',
         );
     }
@@ -56,19 +56,5 @@ class SupplierApplicationApproved extends Mailable
     public function attachments(): array
     {
         return [];
-    }
-
-    /**
-     * Build the message (Laravel 9/10 compatibility)
-     */
-    public function build()
-    {
-        return $this->from('support@yourdomain.com', 'Fish Market')
-                    ->subject('🎉 Supplier Application Approved - Welcome!')
-                    ->view('emails.reseller.supplier-approved')
-                    ->with([
-                        'user' => $this->user,
-                        'defaultPassword' => $this->defaultPassword,
-                    ]);
     }
 }

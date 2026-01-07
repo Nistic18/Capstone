@@ -6,8 +6,8 @@
 @endphp
 
 @extends('layouts.app')
-@section('title', 'Fish Market')
-
+@section('title', 'Dried FishMarket')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 {{-- Add Bootstrap 5 CSS --}}
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -130,6 +130,7 @@
                                         <option value="">All Units</option>
                                         <option value="piece" {{ request('unit_type') == 'piece' ? 'selected' : '' }}>Pieces</option>
                                         <option value="kilo" {{ request('unit_type') == 'kilo' ? 'selected' : '' }}>Kilogram</option>
+                                    	<option value="gram" {{ request('unit_type') == 'gram' ? 'selected' : '' }}>Gram</option>
                                         <option value="pack" {{ request('unit_type') == 'pack' ? 'selected' : '' }}>Pack</option>
                                         <option value="box" {{ request('unit_type') == 'box' ? 'selected' : '' }}>Box</option>
                                     </select>
@@ -288,7 +289,7 @@
         <div class="carousel-inner">
             @foreach($product->images as $key => $image)
                 <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                    <img src="{{ asset('storage/' . $image->image) }}" 
+                    <img src="{{ asset($image->image) }}" 
                          class="d-block w-100" 
                          style="height:250px; object-fit:cover;" 
                          alt="{{ $product->name }}">
@@ -394,6 +395,9 @@
                                     @case('kilo')
                                         {{ $product->unit_value }} kg
                                         @break
+                        			@case('gram')
+                    					{{ $product->unit_value }} g
+                    					@break
                                     @case('box')
                                         {{ $product->unit_value }} kg per box
                                         @break

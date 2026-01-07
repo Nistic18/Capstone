@@ -141,7 +141,12 @@ class OrderController extends Controller
 
         // ✅ Notify buyer
         $order = Order::findOrFail($orderId);
-        $order->user->notify(new OrderStatusUpdated($order));
+        try {
+            $order->user->notify(new OrderStatusUpdated($order));
+            Log::info('Buyer notification sent for order: ' . $order->id);
+        } catch (\Exception $e) {
+            Log::error('Failed to send buyer notification: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Product and order status updated.');
     }
@@ -187,7 +192,12 @@ class OrderController extends Controller
 
         // Notify buyer
         $order = Order::findOrFail($orderId);
-        $order->user->notify(new OrderStatusUpdated($order));
+        try {
+            $order->user->notify(new OrderStatusUpdated($order));
+            Log::info('Buyer notification sent for bulk update: ' . $order->id);
+        } catch (\Exception $e) {
+            Log::error('Failed to send buyer notification: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'All products updated successfully.');
     }
@@ -230,6 +240,24 @@ class OrderController extends Controller
             'refund_reason' => $request->refund_reason,
         ]);
 
+        // ✅ FIX: Send notification to the CUSTOMER who requested refund
+        try {
+            $order->user->notify(new OrderStatusUpdated($order));
+            Log::info('Customer refund request notification sent for order: ' . $order->id);
+        } catch (\Exception $e) {
+            Log::error('Failed to send customer refund notification: ' . $e->getMessage());
+        }
+
+        // ✅ Notify all sellers/suppliers about the refund request
+        $order->products->each(function ($product) use ($order) {
+            try {
+                $product->user->notify(new OrderStatusUpdated($order));
+                Log::info('Seller refund notification sent for order: ' . $order->id . ' to seller: ' . $product->user_id);
+            } catch (\Exception $e) {
+                Log::error('Failed to send seller refund notification: ' . $e->getMessage());
+            }
+        });
+
         return back()->with('success', 'Refund request submitted successfully.');
     }
 
@@ -237,7 +265,7 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($orderId);
 
-        if (!in_array(auth()->user()->role, ['supplier', 'reseller'])) {
+        if (!in_array(auth()->user()->role, ['supplier', 'reseller', 'seller'])) {
             abort(403, 'Unauthorized access.');
         }
 
@@ -246,35 +274,44 @@ class OrderController extends Controller
             'status' => 'Refunded',
         ]);
 
-        // Notify buyer
-        $order->user->notify(new OrderStatusUpdated($order));
+        // ✅ FIX: Notify buyer about approved refund
+        try {
+            $order->user->notify(new OrderStatusUpdated($order));
+            Log::info('Customer refund approval notification sent for order: ' . $order->id);
+        } catch (\Exception $e) {
+            Log::error('Failed to send customer refund approval notification: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'Refund approved successfully.');
     }
 
-    public function declineRefund(Request $request, $orderId)
-    {
-        $order = Order::findOrFail($orderId);
+public function declineRefund(Request $request, $orderId)
+{
+    $order = Order::findOrFail($orderId);
 
-        if (!in_array(auth()->user()->role, ['supplier', 'reseller'])) {
-            abort(403, 'Unauthorized access.');
-        }
-
-        $request->validate([
-            'decline_reason' => 'nullable|string|max:500',
-        ]);
-
-        $order->update([
-            'refund_status' => 'Rejected',
-            'status' => 'Declined Refund',
-            'refund_reason' => 'Seller/Reseller: ' . $request->decline_reason,
-        ]);
-
-        // Notify buyer
-        $order->user->notify(new OrderStatusUpdated($order));
-
-        return back()->with('success', 'Refund declined successfully.');
+    if (!in_array(auth()->user()->role, ['supplier', 'reseller', 'seller'])) {
+        abort(403, 'Unauthorized access.');
     }
+
+    $request->validate([
+        'decline_reason' => 'nullable|string|max:500',
+    ]);
+
+    $order->update([
+        'refund_status' => 'Rejected',
+        'status' => 'Declined Refund',
+        'decline_reason' => $request->decline_reason, // This should store the seller's reason
+    ]);
+
+    try {
+        $order->user->notify(new OrderStatusUpdated($order));
+        Log::info('Customer refund rejection notification sent for order: ' . $order->id);
+    } catch (\Exception $e) {
+        Log::error('Failed to send customer refund rejection notification: ' . $e->getMessage());
+    }
+
+    return back()->with('success', 'Refund declined successfully.');
+}
 
     public function cancelOrder(Request $request, $orderId)
     {
@@ -319,8 +356,22 @@ class OrderController extends Controller
                 ->update(['product_status' => 'Cancelled']);
         });
 
+        // ✅ FIX: Send notification to the CUSTOMER who cancelled
+        try {
+            $order->user->notify(new OrderStatusUpdated($order));
+            Log::info('Customer cancellation notification sent for order: ' . $order->id);
+        } catch (\Exception $e) {
+            Log::error('Failed to send customer notification: ' . $e->getMessage());
+        }
+
+        // ✅ Also notify sellers/suppliers about the cancellation
         $order->products->each(function ($product) use ($order) {
-            $product->user->notify(new OrderStatusUpdated($order));
+            try {
+                $product->user->notify(new OrderStatusUpdated($order));
+                Log::info('Seller notification sent for cancelled order: ' . $order->id . ' to seller: ' . $product->user_id);
+            } catch (\Exception $e) {
+                Log::error('Failed to send seller notification: ' . $e->getMessage());
+            }
         });
 
         return back()->with('success', 'Order cancelled successfully.');
@@ -366,7 +417,12 @@ class OrderController extends Controller
         $order->status = 'Delivered';
         $order->save();
 
-        $order->user->notify(new OrderDeliveredNotification($order));
+        try {
+            $order->user->notify(new OrderDeliveredNotification($order));
+            Log::info('Delivery notification sent for order: ' . $order->id);
+        } catch (\Exception $e) {
+            Log::error('Failed to send delivery notification: ' . $e->getMessage());
+        }
 
         Log::info("Order {$order->id} marked as delivered via QR scan by buyer " . Auth::id());
 

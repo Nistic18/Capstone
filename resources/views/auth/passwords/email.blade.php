@@ -1,6 +1,7 @@
 @section('title', 'Forgot Password - Fish Market')
 
 <head>
+    <link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -145,7 +146,7 @@
 
     .brand-logo i {
         font-size: 4rem;
-        color: #7c4dff;
+        color: #0bb364;
         animation: float 3s ease-in-out infinite;
     }
 
@@ -159,7 +160,7 @@
     }
 
     .brand-title {
-        color: #7c4dff;
+        color: #0bb364;
         font-size: 3.5rem;
         font-weight: 700;
         line-height: 1.2;
@@ -210,7 +211,7 @@
     }
 
     .form-control:focus {
-        border-color: #7c4dff;
+        border-color: #0bb364;
         box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.1);
         outline: none;
         background-color: #fafafa;
@@ -231,7 +232,7 @@
 
     /* Primary Button */
     .btn-primary {
-        background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);
+        background: linear-gradient(135deg, #0bb364 0%, #651fff 100%);
         border: none;
         border-radius: 8px;
         font-size: 1.125rem;
@@ -252,7 +253,7 @@
 
     /* Back to Login Link */
     .back-link {
-        color: #7c4dff;
+        color: #0bb364;
         font-size: 0.938rem;
         text-decoration: none;
         transition: color 0.2s;

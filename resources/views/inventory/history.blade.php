@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Inventory History - ' . $product->name)
-
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -28,7 +28,7 @@
             <div class="row align-items-center">
                 <div class="col-md-2">
                     @if($product->images && $product->images->count())
-                        <img src="{{ asset('storage/' . $product->images->first()->image) }}" 
+                        <img src="{{ asset($product->images->first()->image) }}" 
                              alt="{{ $product->name }}"
                              class="rounded w-100"
                              style="object-fit: cover; max-height: 120px;">

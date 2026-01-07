@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'My Profile')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @section('content')
 <div class="mt-5">
     {{-- Profile Header Section --}}
@@ -226,7 +227,7 @@
                                                         <div class="d-flex align-items-center mb-2 p-2 rounded" style="background: #f8f9fa;">
                                                             <div class="rounded me-3" style="width: 40px; height: 40px; overflow: hidden;">
                                                                 @if($product->images && $product->images->count() > 0)
-                                                                    <img src="{{ asset('storage/' . $product->images->first()->image) }}" 
+                                                                    <img src="{{ asset($product->images->first()->image) }}" 
                                                                          class="w-100 h-100" style="object-fit: cover;" 
                                                                          alt="{{ $product->name }}">
                                                                 @else
@@ -335,7 +336,7 @@
                                             {{-- Product Image --}}
                                             <div class="position-relative overflow-hidden" style="height: 200px;">
                                                 @if($product->image)
-                                                    <img src="{{ asset('storage/' . $product->image) }}"
+                                                    <img src="{{ asset($product->image) }}"
                                                          class="card-img-top w-100 h-100"
                                                          style="object-fit: cover;"
                                                          alt="{{ $product->name }}">
@@ -442,9 +443,10 @@
                             </div>
                             <h5 class="text-muted mb-3">No Posts Yet</h5>
                             <p class="text-muted">Share your thoughts, experiences, or updates with the community!</p>
-                            <button class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#newPostModal">
-                                <i class="fas fa-plus me-2"></i>Create Your First Post
-                            </button>
+                            <a href="{{ route('newsfeed.index') }}"
+   								class="btn btn-primary rounded-pill">
+    							<i class="fas fa-plus me-2"></i>Create Your First Post
+							</a>
                         </div>
                     @else
                         @php
@@ -491,7 +493,7 @@
 
                                         @if($post->image)
                                             <div class="mb-3">
-                                                <img src="{{ asset('storage/' . $post->image) }}" 
+                                                <img src="{{ asset($post->image) }}" 
                                                      class="img-fluid rounded" 
                                                      style="max-height: 400px; width: 100%; object-fit: cover;" 
                                                      alt="Post image">

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Order Delivered')
-
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @section('content')
 <div class="container text-center mt-5">
     <div class="card shadow-sm mx-auto" style="max-width: 400px; border-radius: 20px;">

@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Profile')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @section('content')
     <div class="row justify-content-center">
         <div class="col-md-8 mt-5">

@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Supplier Order')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @section('content')
 <div class="container mt-4">
     {{-- Breadcrumb Navigation --}}

@@ -2,6 +2,7 @@
 {{-- Add Bootstrap 5 CSS --}}
 
 @section('title', 'Cart')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -120,7 +121,7 @@
                                         <div class="col-md-2 col-3">
                                             <div class="position-relative">
 @if($item->product->images && $item->product->images->count())
-    <img src="{{ asset('storage/' . $item->product->images->first()->image) }}" 
+    <img src="{{ asset($item->product->images->first()->image) }}" 
          alt="{{ $item->product->name }}"
          class="img-fluid rounded"
          style="height: 80px; width: 80px; object-fit: cover;">
@@ -158,6 +159,9 @@
                                                         @case('kilo')
                                                             {{ $item->product->unit_value }} kg
                                                             @break
+                                                        @case('gram')
+                    										{{ $item->product->unit_value }} g
+                    										@break
                                                         @case('box')
                                                             {{ $item->product->unit_value }} kg/box
                                                             @break

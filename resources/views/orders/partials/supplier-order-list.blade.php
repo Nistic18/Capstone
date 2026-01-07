@@ -156,7 +156,7 @@
                                         <div class="d-flex align-items-center">
                                             <div class="me-3">
                                                 @if($product->images && $product->images->count() > 0)
-                                                    <img src="{{ asset('storage/' . $product->images->first()->image) }}" 
+                                                    <img src="{{ asset($product->images->first()->image) }}" 
                                                         alt="{{ $product->name }}" class="rounded"
                                                         style="width: 50px; height: 50px; object-fit: cover;">
                                                 @else
@@ -186,6 +186,9 @@
                                                     @case('kilo')
                                                         {{ $product->unit_value }} kg
                                                         @break
+               										@case('gram')
+                    									{{ $product->unit_value }} g
+                    									@break
                                                     @case('box')
                                                         {{ $product->unit_value }} kg/box
                                                         @break
@@ -270,66 +273,183 @@
                 </div>
             </form>
 
-            {{-- Refund Actions --}}
-            @if ($order->refund_status === 'Pending')
-                <div class="mt-3">
-                    <form action="{{ route('orders.refund.approve', $order->id) }}" method="POST" class="d-inline">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="btn btn-success btn-sm">
-                            <i class="fas fa-check"></i> Accept Refund
-                        </button>
-                    </form>
+{{-- Refund Actions --}}
+@if ($order->refund_status === 'Pending')
+    <div class="mt-3">
+        {{-- Display Refund Reason --}}
+        @if($order->refund_reason)
+            <div class="alert alert-warning mb-3" style="border-radius: 10px;">
+                <h6 class="mb-2">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Refund Request
+                </h6>
+                <p class="mb-0">
+                    <strong>Buyer's Reason:</strong> {{ $order->refund_reason }}
+                </p>
+            </div>
+        @endif
 
-                    <form action="{{ route('orders.refund.decline', $order->id) }}" method="POST" class="d-inline">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="btn btn-danger btn-sm"
-                            onclick="return confirm('Are you sure you want to reject this refund request?');">
-                            <i class="fas fa-times"></i> Reject Refund
-                        </button>
-                    </form>
+        <div id="refundButtons_{{ $order->id }}">
+            <form action="{{ route('orders.refund.approve', $order->id) }}" method="POST" class="d-inline">
+                @csrf
+                @method('PUT')
+                <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to approve this refund request?')">
+                    <i class="fas fa-check"></i> Accept Refund
+                </button>
+            </form>
+
+            <button type="button" class="btn btn-danger btn-sm" onclick="toggleDeclineForm_{{ $order->id }}()">
+                <i class="fas fa-times"></i> Reject Refund
+            </button>
+        </div>
+
+        {{-- Inline Decline Form (Hidden by default) --}}
+        <div id="declineForm_{{ $order->id }}" style="display: none; margin-top: 15px; padding: 15px; background-color: #fff3cd; border-radius: 10px; border: 2px solid #ffc107; position: relative; z-index: 1;">
+            <form action="{{ route('orders.refund.decline', $order->id) }}" method="POST" id="declineReasonForm_{{ $order->id }}" onsubmit="console.log('Form submitting for order {{ $order->id }}'); console.log('Decline reason value:', document.getElementById('decline_reason_{{ $order->id }}').value); return true;">
+                @csrf
+                @method('PUT')
+                <div class="mb-3">
+                    <label for="decline_reason_{{ $order->id }}" class="form-label fw-semibold">
+                        <i class="fas fa-exclamation-circle text-warning me-1"></i>
+                        Reason for rejection (optional)
+                    </label>
+                    <textarea 
+                        class="form-control" 
+                        id="decline_reason_{{ $order->id }}" 
+                        name="decline_reason" 
+                        rows="3" 
+                        placeholder="Explain why you're rejecting this refund request..."
+                        onchange="console.log('Textarea changed:', this.value)"></textarea>
+                    <small class="text-muted">This message will be visible to the buyer.</small>
                 </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="fas fa-times-circle me-1"></i> Confirm Rejection
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="toggleDeclineForm_{{ $order->id }}()">
+                        <i class="fas fa-undo me-1"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <script>
+        (function() {
+            // Create a closure to avoid conflicts
+            var formVisible_{{ $order->id }} = false;
+            
+            window.toggleDeclineForm_{{ $order->id }} = function() {
+                console.log('Toggle decline form for order {{ $order->id }}');
+                
+                // IMPORTANT: Find the active tab pane FIRST
+                var activeTabPane = document.querySelector('.tab-pane.active');
+                if (!activeTabPane) {
+                    console.error('No active tab pane found!');
+                    return;
+                }
+                
+                console.log('Active tab pane:', activeTabPane.id);
+                
+                // Find the form and buttons WITHIN the active tab pane
+                var formElement = activeTabPane.querySelector('#declineForm_{{ $order->id }}');
+                var buttonElement = activeTabPane.querySelector('#refundButtons_{{ $order->id }}');
+                
+                console.log('Form element in active tab:', formElement);
+                console.log('Button element in active tab:', buttonElement);
+                
+                if (!formElement || !buttonElement) {
+                    console.error('Elements not found in active tab pane!');
+                    return;
+                }
+                
+                if (formVisible_{{ $order->id }}) {
+                    // Hide form, show buttons
+                    formElement.style.cssText = 'display: none; margin-top: 15px; padding: 15px; background-color: #fff3cd; border-radius: 10px; border: 2px solid #ffc107; position: relative; z-index: 1;';
+                    buttonElement.style.display = 'block';
+                    formVisible_{{ $order->id }} = false;
+                    console.log('Form hidden');
+                } else {
+                    // Show form, hide buttons
+                    formElement.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; margin-top: 15px; padding: 15px; background-color: #fff3cd; border-radius: 10px; border: 2px solid #ffc107; position: relative; z-index: 1000; min-height: 200px; width: 100%;';
+                    buttonElement.style.display = 'none';
+                    formVisible_{{ $order->id }} = true;
+                    console.log('Form shown in active tab');
+                    
+                    // Force a reflow
+                    formElement.offsetHeight;
+                    
+                    // Double-check visibility after a tiny delay
+                    setTimeout(function() {
+                        console.log('After timeout - Form offsetHeight:', formElement.offsetHeight);
+                        console.log('After timeout - Form offsetWidth:', formElement.offsetWidth);
+                        
+                        if (formElement.offsetHeight > 0) {
+                            console.log('✅ Form is now visible!');
+                        } else {
+                            console.error('❌ Form still not visible');
+                        }
+                    }, 100);
+                }
+            };
+        })();
+        </script>
+    </div>
+@elseif ($order->refund_status === 'Approved')
+    <div class="mt-3">
+        <div class="alert alert-success mb-0" style="border-radius: 10px;">
+            <h6 class="mb-2">
+                <i class="fas fa-check-circle me-2"></i>Refund Approved
+            </h6>
+            @if($order->refund_reason)
+                <p class="mb-0"><small><strong>Buyer's Reason:</strong> {{ $order->refund_reason }}</small></p>
             @endif
+        </div>
+    </div>
+@elseif ($order->refund_status === 'Rejected')
+    <div class="mt-3">
+        <div class="alert alert-danger mb-0" style="border-radius: 10px;">
+            <h6 class="mb-2">
+                <i class="fas fa-times-circle me-2"></i>Refund Rejected
+            </h6>
+            @if($order->refund_reason)
+                <p class="mb-1"><small><strong>Buyer's Reason:</strong> {{ $order->refund_reason }}</small></p>
+            @endif
+            @if($order->decline_reason)
+                <p class="mb-0"><small><strong>Your Response:</strong> {{ $order->decline_reason }}</small></p>
+            @else
+                <p class="mb-0"><small class="text-muted">No reason provided by seller.</small></p>
+            @endif
+        </div>
+    </div>
+@endif
+        </div> {{-- End of card-body --}}
 
-            {{-- Footer --}}
-            <div class="card-footer border-0 bg-light d-flex justify-content-end gap-2 mt-4 p-3">
-                {{-- Contact Buyer Button --}}
-                @if($order->user_id)
-                    <a href="{{ route('chat.index', ['user' => $order->user_id, 'order' => $order->id]) }}" 
-                       class="btn btn-sm btn-outline-primary" 
-                       style="border-radius: 10px;">
-                        <i class="fas fa-comment me-1"></i>Contact Buyer
-                    </a>
-                @endif
-
-                <a href="{{ route('orders.show', $order->id) }}" 
+        {{-- Footer --}}
+        <div class="card-footer border-0 bg-light d-flex justify-content-end gap-2 p-3">
+            {{-- Contact Buyer Button --}}
+            @if($order->user_id)
+                <a href="{{ route('chat.index', ['user' => $order->user_id, 'order' => $order->id]) }}" 
                    class="btn btn-sm btn-outline-primary" 
                    style="border-radius: 10px;">
-                    <i class="fas fa-eye me-1"></i> View Details
+                    <i class="fas fa-comment me-1"></i>Contact Buyer
                 </a>
+            @endif
 
-                @if($order->status === 'Pending' || $order->status === 'Packed')
-                    <a href="{{ route('orders.generateQR', $order->id) }}" 
-                       class="btn btn-sm btn-outline-success"
-                       style="border-radius: 10px;">
-                        <i class="fas fa-qrcode me-1"></i> Generate QR
-                    </a>
-                @endif
+            <a href="{{ route('orders.show', $order->id) }}" 
+               class="btn btn-sm btn-outline-primary" 
+               style="border-radius: 10px;">
+                <i class="fas fa-eye me-1"></i> View Details
+            </a>
 
-                @if ($order->refund_status === 'Approved')
-                    <span class="badge bg-success" style="font-size: 0.9rem; padding: 8px 12px; border-radius: 10px;">
-                        <i class="fas fa-check-circle me-1"></i> Refund Accepted
-                    </span>
-                @elseif ($order->refund_status === 'Rejected')
-                    <span class="badge bg-danger" style="font-size: 0.9rem; padding: 8px 12px; border-radius: 10px;">
-                        <i class="fas fa-times-circle me-1"></i> Refund Rejected
-                    </span>
-                @endif
-            </div>
+            @if($order->status === 'Pending' || $order->status === 'Packed')
+                <a href="{{ route('orders.generateQR', $order->id) }}" 
+                   class="btn btn-sm btn-outline-success"
+                   style="border-radius: 10px;">
+                    <i class="fas fa-qrcode me-1"></i> Generate QR
+                </a>
+            @endif
         </div>
         
-    </div>
+    </div> {{-- End of card --}}
 @empty
     <div class="text-center py-5">
         <i class="fas fa-box-open fa-3x text-muted mb-3"></i>

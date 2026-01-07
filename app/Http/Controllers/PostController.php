@@ -30,26 +30,43 @@ class PostController extends Controller
         return view('newsfeed.post'); // Show the separate form page
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string|max:1000',
-            'image' => 'nullable|image|max:2048'
-        ]);
+public function store(Request $request)
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string|max:1000',
+        'image' => 'nullable|image|max:2048'
+    ]);
 
-        $path = $request->file('image')?->store('posts', 'public');
+    $imagePath = null;
 
-        Post::create([
-            'user_id' => auth()->id(),
-            'title' => $request->title,
-            'content' => $request->content,
-            'image' => $path,
-            'status' => 'pending',
-        ]);
+    if ($request->hasFile('image')) {
+        // Destination folder
+        $destination = $_SERVER['DOCUMENT_ROOT'] . '/img/posts';
+        if (!file_exists($destination)) {
+            mkdir($destination, 0777, true);
+        }
 
-        return redirect()->route('newsfeed.index')->with('success', 'Post created successfully!');
+        // Generate unique filename
+        $filename = time() . '_' . uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
+
+        // Move the file
+        $request->file('image')->move($destination, $filename);
+
+        // Save relative path
+        $imagePath = 'img/posts/' . $filename;
     }
+
+    Post::create([
+        'user_id' => auth()->id(),
+        'title' => $request->title,
+        'content' => $request->content,
+        'image' => $imagePath,
+        'status' => 'pending',
+    ]);
+
+    return redirect()->route('newsfeed.index')->with('success', 'Post created successfully!');
+}
 
     public function show(Post $post)
     {
@@ -67,46 +84,56 @@ class PostController extends Controller
         return view('newsfeed.edit', compact('post'));
     }
 
-    public function update(Request $request, Post $post)
-    {
-        // Check if user owns the post
-        if (auth()->id() !== $post->user_id) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string|max:1000',
-            'image' => 'nullable|image|max:2048',
-            'remove_image' => 'nullable|boolean'
-        ]);
-
-        $data = [
-            'title' => $request->title,
-            'content' => $request->content,
-        ];
-
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($post->image) {
-                Storage::disk('public')->delete($post->image);
-            }
-            $data['image'] = $request->file('image')->store('posts', 'public');
-        }
-
-        // Handle image removal
-        if ($request->has('remove_image') && $request->remove_image) {
-            if ($post->image) {
-                Storage::disk('public')->delete($post->image);
-            }
-            $data['image'] = null;
-        }
-
-        $post->update($data);
-
-        return redirect()->route('newsfeed.index')->with('success', 'Post updated successfully!');
+public function update(Request $request, Post $post)
+{
+    // Check if user owns the post
+    if (auth()->id() !== $post->user_id) {
+        abort(403, 'Unauthorized action.');
     }
+
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string|max:1000',
+        'image' => 'nullable|image|max:2048',
+        'remove_image' => 'nullable|boolean'
+    ]);
+
+    $data = [
+        'title' => $request->title,
+        'content' => $request->content,
+    ];
+
+    // Destination folder for images
+    $destination = $_SERVER['DOCUMENT_ROOT'] . '/img/posts';
+    if (!file_exists($destination)) {
+        mkdir($destination, 0777, true);
+    }
+
+    // Handle image upload
+    if ($request->hasFile('image')) {
+        // Delete old image if exists
+        if ($post->image && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $post->image)) {
+            unlink($_SERVER['DOCUMENT_ROOT'] . '/' . $post->image);
+        }
+
+        $filename = time() . '_' . uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
+        $request->file('image')->move($destination, $filename);
+
+        $data['image'] = 'img/posts/' . $filename;
+    }
+
+    // Handle image removal
+    if ($request->has('remove_image') && $request->remove_image) {
+        if ($post->image && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $post->image)) {
+            unlink($_SERVER['DOCUMENT_ROOT'] . '/' . $post->image);
+        }
+        $data['image'] = null;
+    }
+
+    $post->update($data);
+
+    return redirect()->route('newsfeed.index')->with('success', 'Post updated successfully!');
+}
 
     public function destroy(Post $post)
     {

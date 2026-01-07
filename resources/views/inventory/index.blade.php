@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Inventory Management')
-
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -151,7 +151,7 @@
                             <td class="px-4 py-3">
                                 <div class="d-flex align-items-center">
                                     @if($product->images && $product->images->count())
-                                        <img src="{{ asset('storage/' . $product->images->first()->image) }}" 
+                                        <img src="{{ asset( $product->images->first()->image) }}" 
                                              alt="{{ $product->name }}"
                                              class="rounded me-3"
                                              style="width: 50px; height: 50px; object-fit: cover;">

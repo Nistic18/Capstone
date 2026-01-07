@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\ResellerApplication;
+use App\Models\UserBanHistory;
 use App\Mail\SupplierApplicationApproved;
 use App\Mail\SupplierApplicationRejected;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -35,8 +37,13 @@ class UserController extends Controller
             ->with('user')
             ->latest()
             ->get();
+        
+        // Get ban history
+        $banHistory = UserBanHistory::with('user', 'bannedBy')
+            ->latest()
+            ->paginate(10, ['*'], 'ban_page');
             
-        return view('users.index', compact('users', 'pendingApplications', 'roleFilter'));
+        return view('users.index', compact('users', 'pendingApplications', 'roleFilter', 'banHistory'));
     }
 
     public function edit(User $user)
@@ -73,10 +80,90 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
-    public function destroy(User $user)
+    /**
+     * Restrict user for 2 days
+     */
+    public function restrictUser(Request $request, User $user)
     {
-        $user->delete();
-        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        try {
+            $request->validate([
+                'reason' => 'required|string|max:1000',
+            ]);
+
+            // Set restriction until 2 days from now
+            $restrictedUntil = Carbon::now()->addDays(2);
+            
+            $user->update([
+                'is_banned' => true,
+                'banned_until' => $restrictedUntil,
+                'ban_reason' => $request->reason,
+            ]);
+
+            // Create ban history record
+            UserBanHistory::create([
+                'user_id' => $user->id,
+                'banned_by' => auth()->id(),
+                'action_type' => 'restrict',
+                'reason' => $request->reason,
+                'banned_until' => $restrictedUntil,
+            ]);
+
+            return back()->with('success', "User {$user->name} has been restricted for 2 days.");
+        } catch (\Exception $e) {
+            Log::error('Error restricting user: ' . $e->getMessage());
+            return back()->with('error', 'Failed to restrict user. Please try again.');
+        }
+    }
+
+    /**
+     * Ban user permanently
+     */
+    public function banUser(Request $request, User $user)
+    {
+        try {
+            $request->validate([
+                'reason' => 'required|string|max:1000',
+            ]);
+
+            $user->update([
+                'is_banned' => true,
+                'banned_until' => null, // null means permanent ban
+                'ban_reason' => $request->reason,
+            ]);
+
+            // Create ban history record
+            UserBanHistory::create([
+                'user_id' => $user->id,
+                'banned_by' => auth()->id(),
+                'action_type' => 'ban',
+                'reason' => $request->reason,
+                'banned_until' => null,
+            ]);
+
+            return back()->with('success', "User {$user->name} has been permanently banned.");
+        } catch (\Exception $e) {
+            Log::error('Error banning user: ' . $e->getMessage());
+            return back()->with('error', 'Failed to ban user. Please try again.');
+        }
+    }
+
+    /**
+     * Unban/unrestrict user
+     */
+    public function unbanUser(User $user)
+    {
+        try {
+            $user->update([
+                'is_banned' => false,
+                'banned_until' => null,
+                'ban_reason' => null,
+            ]);
+
+            return back()->with('success', "User {$user->name} has been unbanned.");
+        } catch (\Exception $e) {
+            Log::error('Error unbanning user: ' . $e->getMessage());
+            return back()->with('error', 'Failed to unban user. Please try again.');
+        }
     }
     
     /**

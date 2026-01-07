@@ -62,7 +62,7 @@
                                     {{-- Product Image --}}
                                     <div class="me-3">
                                         @if($product->images && $product->images->count() > 0)
-                                            <img src="{{ asset('storage/' . $product->images->first()->image) }}" 
+                                            <img src="{{ asset($product->images->first()->image) }}" 
                                                  alt="{{ $product->name }}"
                                                  class="border"
                                                  style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;">
@@ -90,6 +90,9 @@
                                                     @case('kilo')
                                                         {{ $product->unit_value }} kg
                                                         @break
+                                                    @case('gram')
+                    									{{ $product->unit_value }} g
+                    									@break
                                                     @case('box')
                                                         {{ $product->unit_value }} kg per box
                                                         @break
@@ -205,37 +208,48 @@
                                     <strong>Refund Approved</strong>
                                 </div>
                             </div>
-                        @elseif($order->refund_status === 'Rejected')
-                            <div class="col-12">
-                                <div class="alert alert-danger mb-0 py-2" style="border-radius: 4px; font-size: 0.9rem;">
-                                    <i class="fas fa-times-circle me-2"></i>
-                                    <strong>Refund Rejected:</strong> {{ $order->refund_reason }}
-                                </div>
-                            </div>
-                        @endif
+                       @elseif($order->refund_status === 'Rejected')
+    <div class="col-12">
+        <div class="alert alert-danger mb-0 py-2" style="border-radius: 4px; font-size: 0.9rem;">
+            <i class="fas fa-times-circle me-2"></i>
+            <strong>Refund Request Rejected by Seller</strong>
+            @if($order->refund_reason)
+                <br>
+                <small><strong>Your refund reason:</strong> {{ $order->refund_reason }}</small>
+            @endif
+            @if($order->decline_reason)
+                <br>
+                <small><strong>Seller's response:</strong> {{ $order->decline_reason }}</small>
+            @else
+                <br>
+                <small class="text-muted">The seller did not provide a reason for the rejection.</small>
+            @endif
+        </div>
+    </div>
+@endif
 
                         {{-- Cancel Order --}}
-                        @if($order->status !== 'Delivered' && $order->status !== 'Cancelled' && $order->status !== 'Shipped')
-                            <div class="col-md-6">
-                                <form action="{{ route('orders.cancel', $order->id) }}" method="POST">
-                                    @csrf
-                                    <div class="input-group">
-                                        <input type="text" name="cancel_reason" class="form-control form-control-sm" 
-                                               placeholder="Reason for cancellation..." required style="border-radius: 4px 0 0 4px;">
-                                        <button type="submit" class="btn btn-outline-secondary btn-sm" style="border-radius: 0 4px 4px 0;">
-                                            Cancel Order
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        @elseif($order->status === 'Cancelled')
-                            <div class="col-12">
-                                <div class="alert alert-secondary mb-0 py-2" style="border-radius: 4px; font-size: 0.9rem;">
-                                    <i class="fas fa-times-circle me-2"></i>
-                                    <strong>Order Cancelled:</strong> {{ $order->cancel_reason }}
-                                </div>
-                            </div>
-                        @endif
+@if($order->status !== 'Delivered' && $order->status !== 'Cancelled' && $order->status !== 'Shipped' && $order->refund_status === 'None')
+    <div class="col-md-6">
+        <form action="{{ route('orders.cancel', $order->id) }}" method="POST">
+            @csrf
+            <div class="input-group">
+                <input type="text" name="cancel_reason" class="form-control form-control-sm" 
+                       placeholder="Reason for cancellation..." required style="border-radius: 4px 0 0 4px;">
+                <button type="submit" class="btn btn-outline-secondary btn-sm" style="border-radius: 0 4px 4px 0;">
+                    Cancel Order
+                </button>
+            </div>
+        </form>
+    </div>
+@elseif($order->status === 'Cancelled')
+    <div class="col-12">
+        <div class="alert alert-secondary mb-0 py-2" style="border-radius: 4px; font-size: 0.9rem;">
+            <i class="fas fa-times-circle me-2"></i>
+            <strong>Order Cancelled:</strong> {{ $order->cancel_reason }}
+        </div>
+    </div>
+@endif
 
                         {{-- Action Buttons --}}
                         <div class="col-12 text-end mt-2">

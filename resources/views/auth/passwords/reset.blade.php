@@ -1,44 +1,17 @@
+@extends('layouts.app')
+
 @section('title', 'Reset Password - Fish Market')
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', config('app.name', 'Fish Market'))</title>
-
-    <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/components.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/skins/reverse.css') }}">
-
-    @stack('css')
-</head>
-
-{{-- Add Bootstrap 5 CSS --}}
-@push('styles')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<meta name="csrf-token" content="{{ csrf_token() }}">
-@endpush
-
-{{-- Add Bootstrap 5 JavaScript --}}
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-@endpush
 
 @section('content')
 <div class="reset-password-wrapper">
+    {{-- Back to Home Button --}}
+    <div class="back-to-home">
+        <a href="{{ url('/') }}" class="btn-back">
+            <i class="fas fa-arrow-left me-2"></i>
+            <span>Back to Home</span>
+        </a>
+    </div>
+
     <div class="container">
         <div class="row align-items-center justify-content-center min-vh-100 py-5">
             <div class="col-12 col-xl-10">
@@ -47,7 +20,10 @@
                     <div class="col-lg-6 col-md-6 mb-4 mb-md-0">
                         <div class="brand-section text-center text-md-start px-lg-5">
                             <div class="brand-logo mb-3">
-                                <i class="fas fa-key"></i>
+                                <img src="{{ asset('img/avatar/dried-fish-logo.png') }}" 
+                                     alt="Dried Fish Market Logo" 
+                                     class="reset-logo"
+                                     style="height: 220px; width: auto; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.2));">
                             </div>
                             <h1 class="brand-title">Reset Password</h1>
                             <p class="brand-subtitle">Create a new password for your Fish Market account. Make sure it's strong and secure.</p>
@@ -55,25 +31,40 @@
                     </div>
 
                     {{-- Right Section - Reset Password Form --}}
-                    <div class="col-lg-4 col-md-6">
+                    <div class="col-lg-5 col-md-5 mb-4 mb-md-0">
                         <div class="reset-box mx-auto">
+                            {{-- Display any status messages --}}
+                            @if (session('status'))
+                                <div class="alert alert-success border-0 mb-4" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    {{ session('status') }}
+                                </div>
+                            @endif
+
+                            {{-- Display error if token is invalid --}}
+                            @if ($errors->has('email'))
+                                <div class="alert alert-danger border-0 mb-4" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    {{ $errors->first('email') }}
+                                </div>
+                            @endif
+
                             <form method="POST" action="{{ route('password.update') }}">
                                 @csrf
 
-                                <input type="hidden" name="token" value="{{ $token }}">
+                                <input type="hidden" name="token" value="{{ $token ?? request()->route('token') }}">
 
                                 {{-- Email Field --}}
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">Email Address</label>
                                     <input id="email" 
                                            type="email" 
                                            class="form-control form-control-lg @error('email') is-invalid @enderror" 
                                            name="email" 
-                                           value="{{ $email ?? old('email') }}" 
+                                           value="{{ $email ?? old('email') ?? request()->email }}" 
                                            required 
                                            autocomplete="email" 
                                            autofocus
-                                           placeholder="Enter your email">
+                                           placeholder="Email">
 
                                     @error('email')
                                         <div class="invalid-feedback">
@@ -84,7 +75,6 @@
 
                                 {{-- Password Field --}}
                                 <div class="mb-3">
-                                    <label for="password" class="form-label">New Password</label>
                                     <div class="password-wrapper">
                                         <input id="password" 
                                                type="password" 
@@ -92,7 +82,7 @@
                                                name="password" 
                                                required 
                                                autocomplete="new-password"
-                                               placeholder="Enter new password">
+                                               placeholder="New Password">
                                         <button type="button" class="password-toggle" onclick="togglePassword('password', 'togglePasswordIcon')">
                                             <i class="fas fa-eye" id="togglePasswordIcon"></i>
                                         </button>
@@ -107,7 +97,6 @@
 
                                 {{-- Confirm Password Field --}}
                                 <div class="mb-3">
-                                    <label for="password-confirm" class="form-label">Confirm Password</label>
                                     <div class="password-wrapper">
                                         <input id="password-confirm" 
                                                type="password" 
@@ -115,7 +104,7 @@
                                                name="password_confirmation" 
                                                required 
                                                autocomplete="new-password"
-                                               placeholder="Confirm new password">
+                                               placeholder="Confirm Password">
                                         <button type="button" class="password-toggle" onclick="togglePassword('password-confirm', 'toggleConfirmIcon')">
                                             <i class="fas fa-eye" id="toggleConfirmIcon"></i>
                                         </button>
@@ -157,9 +146,76 @@
 
 {{-- Custom CSS --}}
 <style>
+    /* Reset page logo styling - matches login */
+    .reset-logo {
+        animation: logoFloat 3s ease-in-out infinite;
+        transition: transform 0.3s ease;
+    }
+
+    @keyframes logoFloat {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .reset-logo:hover {
+        transform: scale(1.08) rotate(5deg);
+        animation: none;
+    }
+
+    /* Responsive logo sizing for reset - matches login */
+    @media (max-width: 992px) {
+        .reset-logo {
+            height: 180px !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .reset-logo {
+            height: 150px !important;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .reset-logo {
+            height: 130px !important;
+        }
+    }
+
+    /* Brand section improvements */
+    .brand-logo {
+        margin-bottom: 2rem;
+    }
+
+    .brand-title {
+        animation: fadeInUp 0.8s ease-out;
+        animation-delay: 0.2s;
+        animation-fill-mode: both;
+    }
+
+    .brand-subtitle {
+        animation: fadeInUp 0.8s ease-out;
+        animation-delay: 0.4s;
+        animation-fill-mode: both;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     body {
-        background: linear-gradient(135deg, #f3e7fd 0%, #e8eaf6 100%);
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+        background: linear-gradient(135deg, #d4f1e5 0%, #c8e6c9 100%);
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
         margin: 0;
         padding: 0;
         overflow-x: hidden;
@@ -170,6 +226,46 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
+    }
+
+    /* Back to Home Button */
+    .back-to-home {
+        position: absolute;
+        top: 2rem;
+        left: 2rem;
+        z-index: 1000;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        background: rgba(255, 255, 255, 0.95);
+        color: #0bb364;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .btn-back:hover {
+        background: #0bb364;
+        color: white;
+        transform: translateX(-5px);
+        box-shadow: 0 4px 12px rgba(11, 179, 100, 0.3);
+    }
+
+    .btn-back i {
+        font-size: 1rem;
+        transition: transform 0.3s ease;
+    }
+
+    .btn-back:hover i {
+        transform: translateX(-3px);
     }
 
     /* Brand Section */
@@ -177,23 +273,8 @@
         padding-right: 0;
     }
 
-    .brand-logo i {
-        font-size: 4rem;
-        color: #7c4dff;
-        animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-        0%, 100% {
-            transform: translateY(0px);
-        }
-        50% {
-            transform: translateY(-10px);
-        }
-    }
-
     .brand-title {
-        color: #7c4dff;
+        color: #0bb364;
         font-size: 3.5rem;
         font-weight: 700;
         line-height: 1.2;
@@ -213,16 +294,25 @@
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 10px 20px rgba(0, 0, 0, 0.1);
         padding: 2rem;
-        max-width: 420px;
+        max-width: 520px;
         margin: 0 auto;
     }
 
-    /* Form Labels */
-    .form-label {
-        font-weight: 600;
-        color: #424242;
+    /* Alert Styles */
+    .alert {
+        border-radius: 8px;
+        padding: 1rem;
         font-size: 0.938rem;
-        margin-bottom: 0.5rem;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        color: #2e7d32;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        color: #c62828;
     }
 
     /* Form Controls */
@@ -235,8 +325,8 @@
     }
 
     .form-control:focus {
-        border-color: #7c4dff;
-        box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.1);
+        border-color: #0bb364;
+        box-shadow: 0 0 0 3px rgba(11, 179, 100, 0.1);
         outline: none;
         background-color: #fafafa;
     }
@@ -273,24 +363,24 @@
     }
 
     .password-toggle:hover {
-        color: #7c4dff;
+        color: #0bb364;
     }
 
     /* Primary Button */
     .btn-primary {
-        background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);
+        background: linear-gradient(135deg, #66d88e 0%, #0bb364 100%);
         border: none;
         border-radius: 8px;
         font-size: 1.125rem;
         padding: 0.875rem 1rem;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(124, 77, 255, 0.3);
+        box-shadow: 0 2px 8px rgba(11, 179, 100, 0.3);
     }
 
     .btn-primary:hover {
-        background: linear-gradient(135deg, #651fff 0%, #6200ea 100%);
+        background: linear-gradient(135deg, #0bb364 0%, #289c58 100%);
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(124, 77, 255, 0.4);
+        box-shadow: 0 4px 12px rgba(11, 179, 100, 0.4);
     }
 
     .btn-primary:active {
@@ -299,7 +389,7 @@
 
     /* Back to Login Link */
     .back-link {
-        color: #7c4dff;
+        color: #0bb364;
         font-size: 0.938rem;
         text-decoration: none;
         transition: color 0.2s;
@@ -307,7 +397,7 @@
     }
 
     .back-link:hover {
-        color: #651fff;
+        color: #289c58;
         text-decoration: underline;
     }
 
@@ -348,6 +438,11 @@
         .brand-subtitle {
             font-size: 1.25rem;
         }
+
+        .back-to-home {
+            top: 1rem;
+            left: 1rem;
+        }
     }
 
     @media (max-width: 575px) {
@@ -363,6 +458,26 @@
             padding: 1.5rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
+        .btn-back {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-back span {
+            display: none;
+        }
+
+        .btn-back i {
+            margin-right: 0 !important;
+        }
+    }
+
+    /* Font family override for all elements */
+    body, 
+    h1, h2, h3, h4, h5, h6, 
+    p, span, a, div, input, select, button, label {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
     }
 </style>
 
@@ -384,3 +499,4 @@
         }
     }
 </script>
+@endsection

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+    <link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 <div class="card mt-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h4>Edit Section: {{ ucfirst($content->section) }}</h4>
@@ -36,7 +37,7 @@
                 <div class="form-group mb-3">
                     <label>Hero Background Image</label><br>
                     @if(!empty($content->image))
-                        <img src="{{ asset('storage/' . $content->image) }}" alt="Hero Image" class="rounded mb-2" width="300">
+                        <img src="{{ asset($content->image) }}" alt="Hero Image" class="rounded mb-2" width="300">
                     @endif
                     <input type="file" name="image" class="form-control">
                     <small class="text-muted">Upload a new image to change the landing page background.</small>

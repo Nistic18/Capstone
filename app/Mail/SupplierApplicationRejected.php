@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
@@ -11,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 class SupplierApplicationRejected extends Mailable
 {
     use Queueable, SerializesModels;
-
+    
     public $application;
 
     /**
@@ -28,6 +27,7 @@ class SupplierApplicationRejected extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: 'fishmarketnotification@gmail.com',
             subject: 'Supplier Application Status Update',
         );
     }
@@ -53,14 +53,5 @@ class SupplierApplicationRejected extends Mailable
     public function attachments(): array
     {
         return [];
-    }
-        /**
-     * Build the message (Laravel 9/10 compatibility)
-     */
-    public function build()
-    {
-        return $this->from('support@yourdomain.com', 'Fish Market')
-                    ->subject('Supplier Application Rejected')
-                    ->view('emails.reseller.rejected');
     }
 }

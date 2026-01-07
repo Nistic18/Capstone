@@ -19,6 +19,11 @@ class User extends Authenticatable
         'longitude',
         'address',
         'phone',
+        'email_verified_at',
+        // BAN FIELDS - ADD THESE THREE LINES
+        'is_banned',
+        'banned_until',
+        'ban_reason',
     ];
 
     protected $hidden = [
@@ -31,6 +36,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            // BAN CASTS - ADD THESE TWO LINES
+            'is_banned' => 'boolean',
+            'banned_until' => 'datetime',
         ];
     }
 
@@ -69,8 +77,53 @@ class User extends Authenticatable
     {
         return $this->hasOne(ResellerApplication::class, 'user_id')->latestOfMany();
     }
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
+
+    /**
+     * Check if user is currently banned
+     */
+    public function isBanned()
+    {
+        if (!$this->is_banned) {
+            return false;
+        }
+
+        // If banned_until is null, it's a permanent ban
+        if (is_null($this->banned_until)) {
+            return true;
+        }
+
+        // If banned_until has passed, user is no longer banned
+        if (now()->greaterThan($this->banned_until)) {
+            // Auto-unban if restriction expired
+            $this->update([
+                'is_banned' => false,
+                'banned_until' => null,
+                'ban_reason' => null,
+            ]);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Ban history relationship
+     */
+    public function banHistory()
+    {
+        return $this->hasMany(UserBanHistory::class, 'user_id');
+    }
+
+    /**
+     * Who banned this user
+     */
+    public function bannedByUser()
+    {
+        return $this->hasOne(UserBanHistory::class, 'user_id')->latest();
     }
 }

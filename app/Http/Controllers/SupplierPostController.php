@@ -28,31 +28,49 @@ class SupplierPostController extends Controller
         return view('newsfeedsupplier.post');
     }
 
-    public function store(Request $request)
-    {
-        // Only admins can store posts
-        if (!auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action. Only administrators can create posts.');
+public function store(Request $request)
+{
+    // Only admins can store posts
+    if (!auth()->user()->is_admin) {
+        abort(403, 'Unauthorized action. Only administrators can create posts.');
+    }
+
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string|max:1000',
+        'image' => 'nullable|image|max:2048'
+    ]);
+
+    $imagePath = null;
+
+    if ($request->hasFile('image')) {
+        // Destination folder: htdocs/img/posts
+        $destination = $_SERVER['DOCUMENT_ROOT'] . '/img/posts';
+        if (!file_exists($destination)) {
+            mkdir($destination, 0777, true);
         }
 
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string|max:1000',
-            'image' => 'nullable|image|max:2048'
-        ]);
+        // Unique filename
+        $filename = time() . '_' . uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
 
-        $path = $request->file('image')?->store('posts', 'public');
+        // Move the file
+        $request->file('image')->move($destination, $filename);
 
-        PostSupplier::create([
-            'user_id' => auth()->id(),
-            'title' => $request->title,
-            'content' => $request->content,
-            'image' => $path,
-            'status' => 'approved', // Auto-approve all posts
-        ]);
-
-        return redirect()->route('newsfeedsupplier.index')->with('success', 'Post created successfully!');
+        // Save relative path
+        $imagePath = 'img/posts/' . $filename;
     }
+
+    PostSupplier::create([
+        'user_id' => auth()->id(),
+        'title' => $request->title,
+        'content' => $request->content,
+        'image' => $imagePath,
+        'status' => 'approved', // Auto-approve all posts
+    ]);
+
+    return redirect()->route('newsfeedsupplier.index')->with('success', 'Post created successfully!');
+}
+
 
     public function show(PostSupplier $post)
     {
@@ -70,45 +88,60 @@ class SupplierPostController extends Controller
         return view('newsfeedsupplier.edit', compact('post'));
     }
 
-    public function update(Request $request, PostSupplier $post)
-    {
-        // Only admins can update posts
-        if (!auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action. Only administrators can update posts.');
-        }
-
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string|max:1000',
-            'image' => 'nullable|image|max:2048',
-            'remove_image' => 'nullable|boolean'
-        ]);
-
-        $data = [
-            'title' => $request->title,
-            'content' => $request->content,
-        ];
-
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            if ($post->image) {
-                Storage::disk('public')->delete($post->image);
-            }
-            $data['image'] = $request->file('image')->store('posts', 'public');
-        }
-
-        // Handle image removal
-        if ($request->has('remove_image') && $request->remove_image) {
-            if ($post->image) {
-                Storage::disk('public')->delete($post->image);
-            }
-            $data['image'] = null;
-        }
-
-        $post->update($data);
-
-        return redirect()->route('newsfeedsupplier.index')->with('success', 'Post updated successfully!');
+public function update(Request $request, PostSupplier $post)
+{
+    // Only admins can update posts
+    if (!auth()->user()->is_admin) {
+        abort(403, 'Unauthorized action. Only administrators can update posts.');
     }
+
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string|max:1000',
+        'image' => 'nullable|image|max:2048',
+        'remove_image' => 'nullable|boolean'
+    ]);
+
+    $data = [
+        'title' => $request->title,
+        'content' => $request->content,
+    ];
+
+    // Destination folder for images
+    $destination = $_SERVER['DOCUMENT_ROOT'] . '/img/posts';
+    if (!file_exists($destination)) {
+        mkdir($destination, 0777, true);
+    }
+
+    // Handle image upload
+    if ($request->hasFile('image')) {
+        // Delete old image if exists
+        if ($post->image && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $post->image)) {
+            unlink($_SERVER['DOCUMENT_ROOT'] . '/' . $post->image);
+        }
+
+        // Unique filename
+        $filename = time() . '_' . uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
+
+        // Move the new file
+        $request->file('image')->move($destination, $filename);
+
+        $data['image'] = 'img/posts/' . $filename;
+    }
+
+    // Handle image removal
+    if ($request->has('remove_image') && $request->remove_image) {
+        if ($post->image && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $post->image)) {
+            unlink($_SERVER['DOCUMENT_ROOT'] . '/' . $post->image);
+        }
+        $data['image'] = null;
+    }
+
+    $post->update($data);
+
+    return redirect()->route('newsfeedsupplier.index')->with('success', 'Post updated successfully!');
+}
+
 
     public function destroy(PostSupplier $post)
     {

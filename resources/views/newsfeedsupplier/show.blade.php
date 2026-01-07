@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Supplier NewsFeed')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @section('content')
 <div class="container mt-5">
 
@@ -70,7 +71,7 @@
 
             {{-- Post Image --}}
             @if($post->image)
-                <img src="{{ asset('storage/' . $post->image) }}" class="img-fluid rounded mb-2">
+                <img src="{{ asset($post->image) }}" class="img-fluid rounded mb-2">
             @endif
 
             {{-- Reactions --}}

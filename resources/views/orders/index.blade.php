@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'My Orders')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @section('content')
 <div class="container mt-4">
     {{-- SUCCESS BANNER - Dynamic based on action --}}

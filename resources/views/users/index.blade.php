@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Manage Users')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 @section('content')
 <div class="mt-5">
     {{-- Success/Error Alert --}}
@@ -17,6 +18,15 @@
             <div class="d-flex align-items-center">
                 <i class="fas fa-exclamation-circle me-3" style="font-size: 1.2rem;"></i>
                 <span style="font-weight: 500;">{{ session('error') }}</span>
+            </div>
+        </div>
+    @endif
+
+    @if(session('warning'))
+        <div class="alert alert-warning border-0 shadow-sm mb-4" style="border-radius: 15px;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle me-3" style="font-size: 1.2rem;"></i>
+                <span style="font-weight: 500;">{{ session('warning') }}</span>
             </div>
         </div>
     @endif
@@ -139,11 +149,11 @@
                                                                 <span>Business Permit</span>
                                                             </div>
                                                             <div class="document-body">
-                                                                <img src="{{ asset('storage/' . $app->business_permit_photo) }}" 
+                                                                <img src="{{ asset($app->business_permit_photo) }}" 
                                                                      alt="Business Permit"
                                                                      class="document-image"
-                                                                     onclick="openImageModal('{{ asset('storage/' . $app->business_permit_photo) }}', 'Business Permit')">
-                                                                <a href="{{ asset('storage/' . $app->business_permit_photo) }}" 
+                                                                     onclick="openImageModal('{{ asset($app->business_permit_photo) }}', 'Business Permit')">
+                                                                <a href="{{ asset($app->business_permit_photo) }}" 
                                                                    target="_blank" 
                                                                    class="btn btn-sm btn-outline-primary mt-2 w-100">
                                                                     <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
@@ -162,11 +172,11 @@
                                                                 <span>Sanitation Certificate</span>
                                                             </div>
                                                             <div class="document-body">
-                                                                <img src="{{ asset('storage/' . $app->sanitation_cert_photo) }}" 
+                                                                <img src="{{ asset($app->sanitation_cert_photo) }}" 
                                                                      alt="Sanitation Certificate"
                                                                      class="document-image"
-                                                                     onclick="openImageModal('{{ asset('storage/' . $app->sanitation_cert_photo) }}', 'Sanitation Certificate')">
-                                                                <a href="{{ asset('storage/' . $app->sanitation_cert_photo) }}" 
+                                                                     onclick="openImageModal('{{ asset($app->sanitation_cert_photo) }}', 'Sanitation Certificate')">
+                                                                <a href="{{ asset($app->sanitation_cert_photo) }}" 
                                                                    target="_blank" 
                                                                    class="btn btn-sm btn-outline-primary mt-2 w-100">
                                                                     <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
@@ -185,11 +195,11 @@
                                                                 <span>Government ID #1</span>
                                                             </div>
                                                             <div class="document-body">
-                                                                <img src="{{ asset('storage/' . $app->govt_id_photo_1) }}" 
+                                                                <img src="{{ asset($app->govt_id_photo_1) }}" 
                                                                      alt="Government ID 1"
                                                                      class="document-image"
-                                                                     onclick="openImageModal('{{ asset('storage/' . $app->govt_id_photo_1) }}', 'Government ID #1')">
-                                                                <a href="{{ asset('storage/' . $app->govt_id_photo_1) }}" 
+                                                                     onclick="openImageModal('{{ asset($app->govt_id_photo_1) }}', 'Government ID #1')">
+                                                                <a href="{{ asset($app->govt_id_photo_1) }}" 
                                                                    target="_blank" 
                                                                    class="btn btn-sm btn-outline-primary mt-2 w-100">
                                                                     <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
@@ -208,11 +218,11 @@
                                                                 <span>Government ID #2</span>
                                                             </div>
                                                             <div class="document-body">
-                                                                <img src="{{ asset('storage/' . $app->govt_id_photo_2) }}" 
+                                                                <img src="{{ asset($app->govt_id_photo_2) }}" 
                                                                      alt="Government ID 2"
                                                                      class="document-image"
-                                                                     onclick="openImageModal('{{ asset('storage/' . $app->govt_id_photo_2) }}', 'Government ID #2')">
-                                                                <a href="{{ asset('storage/' . $app->govt_id_photo_2) }}" 
+                                                                     onclick="openImageModal('{{ asset($app->govt_id_photo_2) }}', 'Government ID #2')">
+                                                                <a href="{{ asset($app->govt_id_photo_2) }}" 
                                                                    target="_blank" 
                                                                    class="btn btn-sm btn-outline-primary mt-2 w-100">
                                                                     <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
@@ -269,7 +279,7 @@
     @endif
 
     {{-- Users Table Card --}}
-    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+    <div class="card border-0 shadow-sm mb-5" style="border-radius: 20px;">
         <div class="card-header border-0 py-4" style="background: linear-gradient(45deg, #f8f9fa, #ffffff); border-radius: 20px 20px 0 0;">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
@@ -332,6 +342,7 @@
                                 <th class="border-0 py-3 px-4">User</th>
                                 <th class="border-0 py-3 px-4">Email</th>
                                 <th class="border-0 py-3 px-4">Role</th>
+                                <th class="border-0 py-3 px-4">Status</th>
                                 <th class="border-0 py-3 px-4">Joined</th>
                                 <th class="border-0 py-3 px-4 text-center">Actions</th>
                             </tr>
@@ -379,31 +390,136 @@
                                 </td>
 
                                 <td class="px-4 py-4">
+                                    @if($user->is_banned)
+                                        @if($user->banned_until)
+                                            <span class="badge px-3 py-2" style="background: linear-gradient(45deg, #ffc107, #ff9800); border-radius: 25px;">
+                                                <i class="fas fa-clock me-1"></i>Restricted until {{ \Carbon\Carbon::parse($user->banned_until)->format('M d, Y') }}
+                                            </span>
+                                        @else
+                                            <span class="badge px-3 py-2" style="background: linear-gradient(45deg, #dc3545, #c82333); border-radius: 25px;">
+                                                <i class="fas fa-ban me-1"></i>Permanently Banned
+                                            </span>
+                                        @endif
+                                    @else
+                                        <span class="badge px-3 py-2" style="background: linear-gradient(45deg, #28a745, #20c997); border-radius: 25px;">
+                                            <i class="fas fa-check-circle me-1"></i>Active
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <td class="px-4 py-4">
                                     <div>
                                         <span>{{ $user->created_at->format('M d, Y') }}</span>
                                         <br><small class="text-muted">{{ $user->created_at->diffForHumans() }}</small>
                                     </div>
                                 </td>
 
-                                <td class="px-4 py-4 text-center">
-                                    {{-- <div class="d-flex justify-content-center gap-2">
-                                        <a href="{{ route('users.edit', $user) }}" 
-                                           class="btn btn-sm btn-outline-warning" 
-                                           style="border-radius: 10px;">
-                                            <i class="fas fa-edit"></i>
-                                        </a> --}}
-
-                                        <form action="{{ route('users.destroy', $user) }}" 
-                                              method="POST" 
-                                              onsubmit="return confirm('Delete {{ $user->name }}?')">
-                                            @csrf 
-                                            @method('DELETE')
-                                            <button type="submit" 
-                                                    class="btn btn-sm btn-outline-danger" 
-                                                    style="border-radius: 10px;">
-                                                <i class="fas fa-trash"></i>
+                                <td class="px-4 py-4">
+                                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                        @if($user->is_banned)
+                                            {{-- Unban Button --}}
+                                            <form action="{{ route('users.unban', $user->id) }}" method="POST" 
+                                                  onsubmit="return confirm('Remove ban/restriction from {{ $user->name }}?')">
+                                                @csrf
+                                                <button type="submit" 
+                                                        class="btn btn-sm btn-outline-success" 
+                                                        style="border-radius: 10px;"
+                                                        data-bs-toggle="tooltip"
+                                                        title="Unban User">
+                                                    <i class="fas fa-unlock me-1"></i>Unban
+                                                </button>
+                                            </form>
+                                        @else
+                                            {{-- Restrict Button (2 days) --}}
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-warning" 
+                                                    style="border-radius: 10px;"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#restrictModal{{ $user->id }}"
+                                                    title="Restrict for 2 Days">
+                                                <i class="fas fa-clock me-1"></i>Restrict
                                             </button>
-                                        </form>
+
+                                            {{-- Ban Button --}}
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-danger" 
+                                                    style="border-radius: 10px;"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#banModal{{ $user->id }}"
+                                                    title="Permanently Ban">
+                                                <i class="fas fa-ban me-1"></i>Ban
+                                            </button>
+                                        @endif
+                                    </div>
+
+                                    {{-- Restrict Modal --}}
+                                    <div class="modal fade" id="restrictModal{{ $user->id }}" tabindex="-1">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                                                <div class="modal-header border-0" style="background: linear-gradient(45deg, #ffc107, #ff9800);">
+                                                    <h5 class="modal-title fw-bold text-white">
+                                                        <i class="fas fa-clock me-2"></i>Restrict User
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form action="{{ route('users.restrict', $user->id) }}" method="POST">
+                                                    @csrf
+                                                    <div class="modal-body">
+                                                        <p class="mb-3">Restrict <strong>{{ $user->name }}</strong> for 2 days?</p>
+                                                        <div class="alert alert-warning">
+                                                            <i class="fas fa-info-circle me-2"></i>
+                                                            User will be unable to access their account until {{ \Carbon\Carbon::now()->addDays(2)->format('M d, Y H:i') }}
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Reason <span class="text-danger">*</span></label>
+                                                            <textarea name="reason" class="form-control" rows="3" 
+                                                                      placeholder="Enter reason for restriction..." required></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-warning">
+                                                            <i class="fas fa-clock me-1"></i>Restrict for 2 Days
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Ban Modal --}}
+                                    <div class="modal fade" id="banModal{{ $user->id }}" tabindex="-1">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                                                <div class="modal-header border-0" style="background: linear-gradient(45deg, #dc3545, #c82333);">
+                                                    <h5 class="modal-title fw-bold text-white">
+                                                        <i class="fas fa-ban me-2"></i>Ban User Permanently
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form action="{{ route('users.ban', $user->id) }}" method="POST">
+                                                    @csrf
+                                                    <div class="modal-body">
+                                                        <p class="mb-3">Permanently ban <strong>{{ $user->name }}</strong>?</p>
+                                                        <div class="alert alert-danger">
+                                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                                            <strong>Warning:</strong> This will permanently ban the user from accessing the system.
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold">Reason <span class="text-danger">*</span></label>
+                                                            <textarea name="reason" class="form-control" rows="3" 
+                                                                      placeholder="Enter reason for permanent ban..." required></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-danger">
+                                                            <i class="fas fa-ban me-1"></i>Ban Permanently
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -417,8 +533,96 @@
 
     {{-- Pagination --}}
     @if(!$users->isEmpty())
-        <div class="d-flex justify-content-center mt-5">
+        <div class="d-flex justify-content-center mb-5">
             {{ $users->links('pagination::bootstrap-4') }}
+        </div>
+    @endif
+
+    {{-- Ban History Section --}}
+    <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="card-header border-0 py-4" style="background: linear-gradient(45deg, #6c757d, #5a6268); border-radius: 20px 20px 0 0;">
+            <h4 class="fw-bold mb-0 text-white">
+                <i class="fas fa-history me-2"></i>
+                Ban & Restriction History
+            </h4>
+        </div>
+        <div class="card-body p-0">
+            @if($banHistory->isEmpty())
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-history text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+                    </div>
+                    <h5 class="text-muted mb-3">No Ban History</h5>
+                    <p class="text-muted">No users have been banned or restricted yet.</p>
+                </div>
+            @else
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead style="background: #f8f9fa;">
+                            <tr>
+                                <th class="border-0 py-3 px-4">User</th>
+                                <th class="border-0 py-3 px-4">Action Type</th>
+                                <th class="border-0 py-3 px-4">Reason</th>
+                                <th class="border-0 py-3 px-4">Banned By</th>
+                                <th class="border-0 py-3 px-4">Duration</th>
+                                <th class="border-0 py-3 px-4">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($banHistory as $history)
+                            <tr class="border-bottom">
+                                <td class="px-4 py-4">
+                                    <div>
+                                        <h6 class="mb-0 fw-semibold">{{ $history->user->name ?? 'Unknown User' }}</h6>
+                                        <small class="text-muted">{{ $history->user->email ?? 'N/A' }}</small>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    @if($history->action_type === 'restrict')
+                                        <span class="badge px-3 py-2" style="background: linear-gradient(45deg, #ffc107, #ff9800); border-radius: 25px;">
+                                            <i class="fas fa-clock me-1"></i>Restriction (2 Days)
+                                        </span>
+                                    @else
+                                        <span class="badge px-3 py-2" style="background: linear-gradient(45deg, #dc3545, #c82333); border-radius: 25px;">
+                                            <i class="fas fa-ban me-1"></i>Permanent Ban
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-4">
+                                    <small>{{ Str::limit($history->reason, 50) }}</small>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div>
+                                        <h6 class="mb-0 fw-semibold">{{ $history->bannedBy->name ?? 'System' }}</h6>
+                                        <small class="text-muted">{{ $history->bannedBy->role ?? 'N/A' }}</small>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    @if($history->banned_until)
+                                        <small>Until {{ \Carbon\Carbon::parse($history->banned_until)->format('M d, Y H:i') }}</small>
+                                    @else
+                                        <span class="badge bg-danger">Permanent</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div>
+                                        <span>{{ $history->created_at->format('M d, Y') }}</span>
+                                        <br><small class="text-muted">{{ $history->created_at->diffForHumans() }}</small>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Ban History Pagination --}}
+    @if(!$banHistory->isEmpty())
+        <div class="d-flex justify-content-center mt-5">
+            {{ $banHistory->links('pagination::bootstrap-4') }}
         </div>
     @endif
 </div>
@@ -437,7 +641,6 @@
         </div>
     </div>
 </div>
-
 
 {{-- CSS --}}
 <style>

@@ -15,6 +15,7 @@ class Order extends Model
         'status', 
         'refund_status', 
         'refund_reason',
+        'decline_reason',  // ← ADD THIS LINE
         'cancel_reason',
         'payment_method'
     ];
@@ -27,7 +28,7 @@ class Order extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class)
-                    ->withPivot('quantity', 'product_status') // include status
+                    ->withPivot('quantity', 'product_status')
                     ->withTimestamps();
     }
 

@@ -108,60 +108,71 @@ class CartController extends Controller
             // Fetch only selected items from the user's cart
             $cartItems = Cart::where('user_id', Auth::id())
                             ->whereIn('product_id', $selectedProducts)
-                            ->with('product')
+                            ->with('product.user') // Load supplier relationship
                             ->get();
 
             if ($cartItems->isEmpty()) {
                 return redirect()->back()->with('error', 'No valid selected products found in your cart.');
             }
 
-            // Calculate delivery and totals
-            $totalQuantity = $cartItems->sum('quantity');
-            $deliveryFee = $totalQuantity >= 10 ? 0 : 0;
-            $totalProducts = 0;
+            // Group cart items by supplier (product owner)
+            $itemsBySupplier = $cartItems->groupBy(function($item) {
+                return $item->product->user_id;
+            });
 
             // Determine order status based on payment method
             $paymentMethod = $request->payment_method;
             $orderStatus = ($paymentMethod === 'Pickup') ? 'Packed' : 'Pending';
 
-            // Create order with appropriate status
-            $order = Order::create([
-                'user_id' => Auth::id(),
-                'status' => $orderStatus,
-                'total_price' => 0, // temporary
-                'delivery_fee' => $deliveryFee,
-                'payment_method' => $paymentMethod
-            ]);
+            $createdOrders = [];
 
-            foreach ($cartItems as $item) {
-                $product = $item->product;
+            // Create separate order for each supplier
+            foreach ($itemsBySupplier as $supplierId => $supplierItems) {
+                $totalQuantity = $supplierItems->sum('quantity');
+                $deliveryFee = $totalQuantity >= 10 ? 0 : 0;
+                $totalProducts = 0;
 
-                if (!$product) {
-                    throw new \Exception("One of the selected products no longer exists.");
-                }
-
-                if ($item->quantity > $product->quantity) {
-                    throw new \Exception("Not enough stock for {$product->name}. Available: {$product->quantity}");
-                }
-
-                // Add to order with appropriate product status based on payment method
-                $order->products()->attach($product->id, [
-                    'quantity' => $item->quantity,
-                    'product_status' => $orderStatus
+                // Create order for this supplier's products
+                $order = Order::create([
+                    'user_id' => Auth::id(),
+                    'status' => $orderStatus,
+                    'total_price' => 0, // temporary
+                    'delivery_fee' => $deliveryFee,
+                    'payment_method' => $paymentMethod
                 ]);
 
-                // Notify seller
-                if ($product->user) {
-                    $product->user->notify(new ProductCheckedOut($order, $product));
+                foreach ($supplierItems as $item) {
+                    $product = $item->product;
+
+                    if (!$product) {
+                        throw new \Exception("One of the selected products no longer exists.");
+                    }
+
+                    if ($item->quantity > $product->quantity) {
+                        throw new \Exception("Not enough stock for {$product->name}. Available: {$product->quantity}");
+                    }
+
+                    // Add to order with appropriate product status
+                    $order->products()->attach($product->id, [
+                        'quantity' => $item->quantity,
+                        'product_status' => $orderStatus
+                    ]);
+
+                    // Notify seller
+                    if ($product->user) {
+                        $product->user->notify(new ProductCheckedOut($order, $product));
+                    }
+
+                    // Update totals & stock
+                    $totalProducts += $product->price * $item->quantity;
+                    $product->decrement('quantity', $item->quantity);
                 }
 
-                // Update totals & stock
-                $totalProducts += $product->price * $item->quantity;
-                $product->decrement('quantity', $item->quantity);
+                // Finalize order total
+                $order->update(['total_price' => $totalProducts + $deliveryFee]);
+                
+                $createdOrders[] = $order->id;
             }
-
-            // Finalize order total
-            $order->update(['total_price' => $totalProducts + $deliveryFee]);
 
             // Remove only selected items from cart
             Cart::where('user_id', Auth::id())
@@ -170,7 +181,12 @@ class CartController extends Controller
 
             DB::commit();
 
-            return redirect()->route('orders.index')->with('success', 'Checkout successful!');
+            $orderCount = count($createdOrders);
+            $message = $orderCount > 1 
+                ? "Checkout successful! {$orderCount} orders created (one per supplier)." 
+                : "Checkout successful!";
+
+            return redirect()->route('orders.index')->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollBack();

@@ -68,10 +68,37 @@ class ResellerApplicationController extends Controller
         }
 
         // ✅ Store uploaded images
-        $businessPermitPath = $request->file('business_permit')->store('reseller_applications/business_permits', 'public');
-        $sanitationCertPath = $request->file('sanitation_cert')->store('reseller_applications/sanitation_certs', 'public');
-        $govtId1Path = $request->file('govt_id_1')->store('reseller_applications/govt_ids', 'public');
-        $govtId2Path = $request->file('govt_id_2')->store('reseller_applications/govt_ids', 'public');
+// Destination folders
+$businessPermitPath = $_SERVER['DOCUMENT_ROOT'] . '/img/reseller_applications/business_permits';
+$sanitationCertPath  = $_SERVER['DOCUMENT_ROOT'] . '/img/reseller_applications/sanitation_certs';
+$govtIdPath          = $_SERVER['DOCUMENT_ROOT'] . '/img/reseller_applications/govt_ids';
+
+// Create folders if they don't exist
+foreach ([$businessPermitPath, $sanitationCertPath, $govtIdPath] as $folder) {
+    if (!file_exists($folder)) {
+        mkdir($folder, 0777, true);
+    }
+}
+
+// Move uploaded files
+$businessPermitFilename = time().'_'.uniqid().'.'.$request->file('business_permit')->getClientOriginalExtension();
+$request->file('business_permit')->move($businessPermitPath, $businessPermitFilename);
+
+$sanitationCertFilename = time().'_'.uniqid().'.'.$request->file('sanitation_cert')->getClientOriginalExtension();
+$request->file('sanitation_cert')->move($sanitationCertPath, $sanitationCertFilename);
+
+$govtId1Filename = time().'_'.uniqid().'.'.$request->file('govt_id_1')->getClientOriginalExtension();
+$request->file('govt_id_1')->move($govtIdPath, $govtId1Filename);
+
+$govtId2Filename = time().'_'.uniqid().'.'.$request->file('govt_id_2')->getClientOriginalExtension();
+$request->file('govt_id_2')->move($govtIdPath, $govtId2Filename);
+
+// Store relative paths in database
+$businessPermitPath = 'img/reseller_applications/business_permits/'.$businessPermitFilename;
+$sanitationCertPath = 'img/reseller_applications/sanitation_certs/'.$sanitationCertFilename;
+$govtId1Path       = 'img/reseller_applications/govt_ids/'.$govtId1Filename;
+$govtId2Path       = 'img/reseller_applications/govt_ids/'.$govtId2Filename;
+
 
         // ✅ Create new reseller application
         $application = ResellerApplication::create([

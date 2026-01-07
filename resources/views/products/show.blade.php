@@ -6,6 +6,7 @@
 
 @extends('layouts.app')
 @section('title', 'Product')
+<link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
 {{-- Add Bootstrap 5 CSS --}}
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -44,7 +45,7 @@
 @if($product->images && $product->images->count())
     {{-- Main Image --}}
     <img id="main-product-image"
-         src="{{ asset('storage/' . $product->images->first()->image) }}" 
+         src="{{ asset($product->images->first()->image) }}" 
          alt="{{ $product->name }}" 
          class="card-img-top w-100 mb-3"
          style="height: 400px; object-fit: cover; border-radius: 10px;">
@@ -54,7 +55,7 @@
         <div class="row g-2">
             @foreach($product->images as $key => $image)
                 <div class="col-3">
-                    <img src="{{ asset('storage/' . $image->image) }}" 
+                    <img src="{{ asset($image->image) }}" 
                          alt="Thumbnail {{ $key+1 }}" 
                          class="img-fluid rounded shadow-sm thumbnail-image"
                          style="height: 80px; width: 100%; object-fit: cover; cursor: pointer;"
@@ -94,38 +95,6 @@
                     </span>
                 </div>
             </div>
-
-            {{-- Additional Product Images (if you have multiple images in future) --}}
-            {{-- <div class="row g-2 mt-3">
-                <div class="col-3">
-                    <div class="card border-0 shadow-sm" style="border-radius: 10px; height: 80px; opacity: 0.7;">
-                        <div class="card-body d-flex align-items-center justify-content-center p-2">
-                            <i class="fas fa-images text-muted"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="card border-0 shadow-sm" style="border-radius: 10px; height: 80px; opacity: 0.7;">
-                        <div class="card-body d-flex align-items-center justify-content-center p-2">
-                            <i class="fas fa-images text-muted"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="card border-0 shadow-sm" style="border-radius: 10px; height: 80px; opacity: 0.7;">
-                        <div class="card-body d-flex align-items-center justify-content-center p-2">
-                            <i class="fas fa-images text-muted"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="card border-0 shadow-sm" style="border-radius: 10px; height: 80px; opacity: 0.7;">
-                        <div class="card-body d-flex align-items-center justify-content-center p-2">
-                            <i class="fas fa-plus text-muted"></i>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
         </div>
 
         {{-- Product Details Section --}}
@@ -163,7 +132,32 @@
                     <div class="mb-4">
                         <div class="d-flex align-items-baseline gap-2">
                             <span class="display-5 fw-bold" style="color: #28a745;">₱{{ number_format($product->price, 2) }}</span>
-                            <span class="h6 text-muted">per piece</span>
+                            @if($product->unit_type && $product->unit_value)
+                                <span class="h6 text-muted">
+                                    / {{ $product->unit_value }} 
+                                    @switch($product->unit_type)
+                                        @case('pack')
+                                            piece{{ $product->unit_value > 1 ? 's' : '' }} per pack
+                                            @break
+                                        @case('kilo')
+                                            kg
+                                            @break
+                                        @case('gram')
+                                            gram{{ $product->unit_value > 1 ? 's' : '' }}
+                                            @break
+                                        @case('box')
+                                            kg per box
+                                            @break
+                                        @case('piece')
+                                            piece{{ $product->unit_value > 1 ? 's' : '' }}
+                                            @break
+                                        @default
+                                            unit{{ $product->unit_value > 1 ? 's' : '' }}
+                                    @endswitch
+                                </span>
+                            @else
+                                <span class="h6 text-muted">per piece</span>
+                            @endif
                         </div>
                         <small class="text-muted">💰 Competitive market price</small>
                     </div>
@@ -173,18 +167,48 @@
                         <div class="col-6">
                             <div class="card border-0" style="background-color: #f8f9fa; border-radius: 15px;">
                                 <div class="card-body text-center py-3">
-                                    <i class="fas fa-fish text-primary mb-2" style="font-size: 1.5rem;"></i>
-                                    <h6 class="mb-1">Fish</h6>
-                                    <small class="text-muted">Fresh & Premium</small>
+                                    @if($product->category)
+                                        <i class="fas fa-tag text-primary mb-2" style="font-size: 1.5rem;"></i>
+                                        <h6 class="mb-1">{{ $product->category->name }}</h6>
+                                        <small class="text-muted">Category</small>
+                                    @else
+                                        <i class="fas fa-fish text-primary mb-2" style="font-size: 1.5rem;"></i>
+                                        <h6 class="mb-1">Fish</h6>
+                                        <small class="text-muted">Fresh & Premium</small>
+                                    @endif
                                 </div>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="card border-0" style="background-color: #f8f9fa; border-radius: 15px;">
                                 <div class="card-body text-center py-3">
-                                    <i class="fas fa-shipping-fast text-success mb-2" style="font-size: 1.5rem;"></i>
-                                    <h6 class="mb-1">Delivery</h6>
-                                    <small class="text-muted">Same Day Available</small>
+                                    @if($product->unit_type && $product->unit_value)
+                                        <i class="fas fa-box text-info mb-2" style="font-size: 1.5rem;"></i>
+                                        <h6 class="mb-1">
+                                            @switch($product->unit_type)
+                                                @case('pack')
+                                                    {{ $product->unit_value }} pcs/pack
+                                                    @break
+                                                @case('kilo')
+                                                    {{ $product->unit_value }} kg
+                                                    @break
+                                                @case('gram')
+                                                    {{ $product->unit_value }} g
+                                                    @break
+                                                @case('box')
+                                                    {{ $product->unit_value }} kg/box
+                                                    @break
+                                                @case('piece')
+                                                    Per Piece
+                                                    @break
+                                            @endswitch
+                                        </h6>
+                                        <small class="text-muted">Unit Size</small>
+                                    @else
+                                        <i class="fas fa-shipping-fast text-success mb-2" style="font-size: 1.5rem;"></i>
+                                        <h6 class="mb-1">Delivery</h6>
+                                        <small class="text-muted">Same Day Available</small>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -359,6 +383,32 @@
                                             <td class="fw-semibold">Price:</td>
                                             <td class="text-success fw-bold">₱{{ number_format($product->price, 2) }}</td>
                                         </tr>
+                                        @if($product->unit_type && $product->unit_value)
+                                        <tr>
+                                            <td class="fw-semibold">Unit:</td>
+                                            <td>
+                                                <span class="badge bg-info">
+                                                    @switch($product->unit_type)
+                                                        @case('pack')
+                                                            {{ $product->unit_value }} piece{{ $product->unit_value > 1 ? 's' : '' }} per pack
+                                                            @break
+                                                        @case('kilo')
+                                                            {{ $product->unit_value }} kg
+                                                            @break
+                                                        @case('gram')
+                                                            {{ $product->unit_value }} g
+                                                            @break
+                                                        @case('box')
+                                                            {{ $product->unit_value }} kg per box
+                                                            @break
+                                                        @case('piece')
+                                                            Sold per piece
+                                                            @break
+                                                    @endswitch
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        @endif
                                         <tr>
                                             <td class="fw-semibold">Stock:</td>
                                             <td>
@@ -369,6 +419,18 @@
                                                 @endif
                                             </td>
                                         </tr>
+                                        @if($product->category)
+                                        <tr>
+                                            <td class="fw-semibold">Category:</td>
+                                            <td>{{ $product->category->name }}</td>
+                                        </tr>
+                                        @endif
+                                        @if($product->type)
+                                        <tr>
+                                            <td class="fw-semibold">Type:</td>
+                                            <td>{{ $product->type->name }}</td>
+                                        </tr>
+                                        @endif
                                         <tr>
                                             <td class="fw-semibold">Seller:</td>
                                             <td>{{ $product->user->name ?? 'N/A' }}</td>

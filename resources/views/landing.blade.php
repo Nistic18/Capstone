@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fish Market - Home</title>
+    <title>Dried FishMarket - Home</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/avatar/dried-fish-logo.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -12,6 +13,107 @@
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
     <style>
+/* Updated logo styling for side-by-side layout */
+.hero-logo-inline {
+    animation: fadeInLeft 1s ease-out;
+    display: inline-block;
+}
+
+@keyframes fadeInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Logo hover effect */
+.hero-logo-inline:hover {
+    transform: scale(1.05) rotate(2deg);
+    transition: transform 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-logo-inline {
+        height: 70px !important;
+    }
+    
+    .d-flex.align-items-center h1 {
+        font-size: 2rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-logo-inline {
+        height: 60px !important;
+    }
+    
+    .d-flex.align-items-center {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+    
+    .d-flex.align-items-center h1 {
+        font-size: 1.75rem !important;
+        margin-top: 0.5rem;
+    }
+}
+
+/* Hero Text Animation - adjusted for side-by-side layout */
+.hero .hero-text h1 {
+    animation: fadeInRight 1s ease forwards;
+    animation-delay: 0.4s;
+    opacity: 0;
+}
+
+@keyframes fadeInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.hero .hero-text p {
+    animation: fadeInUp 1s ease forwards;
+    animation-delay: 0.6s;
+    opacity: 0;
+}
+
+.hero .hero-buttons {
+    animation: fadeInUp 1s ease forwards;
+    animation-delay: 0.8s;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
         .hero {
             min-height: 90vh;
             display: flex;
@@ -478,6 +580,25 @@
 .article-card:hover img {
     transform: scale(1.05);
 }
+                                       
+/* Logo styling */
+.navbar-brand img {
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover img {
+    transform: scale(1.05);
+}
+
+/* Responsive logo sizing */
+@media (max-width: 576px) {
+    .navbar-brand img {
+        height: 35px;
+    }
+    .navbar-brand span {
+        font-size: 1.2rem;
+    }
+}
 
         body, 
         h1, h2, h3, h4, h5, h6, 
@@ -581,9 +702,12 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="{{ route('landing') }}">
-                <i class="fas fa-fish"></i> Fish Market
-            </a>
+                    <a class="navbar-brand d-flex align-items-center" href="{{ route('landing') }}">
+            <img src="{{ asset('img/avatar/dried-fish-logo.png') }}" 
+                 alt="Dried Fish Market" 
+                 style="height: 65px; width: auto; margin-right: 12px;">
+            <span style="font-size: 1.6rem;">Dried Fish Market</span>
+        </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -602,28 +726,36 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero" id="home" style="
-        background: linear-gradient(135deg, rgba(102, 216, 130, 0.7), rgba(40, 156, 88, 0.7)), 
-                    url('{{ $hero && $hero->image ? asset('storage/' . $hero->image) : asset('default-hero.jpg') }}') no-repeat center center;
-        background-size: cover;
-        position: relative;
-        padding: 100px 0;
-    ">
-        <div class="container">
-            <div class="row align-items-center">
-                <!-- Hero Text -->
-                <div class="col-lg-7 text-white hero-text">
-                    <h1 style="font-size: 3rem; font-weight: 800;">{{ $hero->title ?? 'Fish Market' }}</h1>
-                    <p style="font-size: 1.5rem; font-weight: 500;"> {{ $hero->content ?? 'Discover the freshest seafood delivered straight to your door.' }}</p>
-                    <div class="hero-buttons">
-                        <a href="{{ route('login') }}" class="btn btn-hero">
-                            <i class="fas fa-shopping-basket me-2"></i>Start Shopping
-                        </a>
-                        <a href="{{ route('reseller.create') }}" class="btn btn-supplier">
-                            <i class="fas fa-store me-2"></i>Apply as Supplier
-                        </a>
-                    </div>
+<section class="hero" id="home" style="
+    background: linear-gradient(135deg, rgba(102, 216, 130, 0.7), rgba(40, 156, 88, 0.7)), 
+                url('{{ $hero && $hero->image ? asset($hero->image) : asset('default-hero.jpg') }}') no-repeat center center;
+    background-size: cover;
+    position: relative;
+    padding: 100px 0;
+">
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- Hero Text -->
+            <div class="col-lg-7 text-white hero-text">
+                <!-- Logo placed beside the title -->
+                <div class="d-flex align-items-center mb-3">
+                    <img src="{{ asset('img/avatar/dried-fish-logo.png') }}" 
+                         alt="Dried Fish Market Logo" 
+                         class="hero-logo-inline me-3"
+                         style="height: 100px; width: auto; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));">
+                    <h1 class="mb-0" style="font-size: 3rem; font-weight: 800;">{{ $hero->title ?? 'Fish Market' }}</h1>
                 </div>
+                
+                <p style="font-size: 1.5rem; font-weight: 500;">{{ $hero->content ?? 'Discover the freshest seafood delivered straight to your door.' }}</p>
+                <div class="hero-buttons">
+                    <a href="{{ route('login') }}" class="btn btn-hero">
+                        <i class="fas fa-shopping-basket me-2"></i>Start Shopping
+                    </a>
+                    <a href="{{ route('reseller.create') }}" class="btn btn-supplier">
+                        <i class="fas fa-store me-2"></i>Apply as Supplier
+                    </a>
+                </div>
+            </div>
 
                 <!-- 4 Random Hero Products -->
                 <div class="col-lg-5">
@@ -632,7 +764,7 @@
                             <div class="col-6">
                                 <div class="text-center">
                                     <div class="hero-product-image-wrapper">
-                                        <img src="{{ $product->images->first() ? asset('storage/' . $product->images->first()->image) : asset('default-hero.jpg') }}" 
+                                        <img src="{{ $product->images->first() ? asset($product->images->first()->image) : asset('default-hero.jpg') }}" 
                                              class="hero-product-image" 
                                              alt="{{ $product->name }}">
                                     </div>
@@ -779,7 +911,7 @@
                     
                     @if($post->image)
                     <div style="height: 200px; overflow: hidden; border-radius: 20px 20px 0 0;">
-                        <img src="{{ asset('storage/' . $post->image) }}" 
+                        <img src="{{ asset($post->image) }}" 
                              class="img-fluid w-100 h-100" 
                              style="object-fit: cover;"
                              alt="{{ $post->title }}">
@@ -1471,39 +1603,60 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5><i class="fas fa-fish"></i> Fish Market</h5>
-                    <p style="color: rgba(255,255,255,0.7);">Your trusted source for fresh, quality seafood delivered to your door.</p>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h6>Quick Links</h6>
-                    <div class="footer-links">
-                        <a href="#home">Home</a>
-                        <a href="#about">About</a>
-                        <a href="#articles">Articles</a>
-                        <a href="#stores">Stores</a>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h6>Support</h6>
-                    <div class="footer-links">
-                        <a href="#faq">FAQ</a>
-                        <a href="#contact">Contact</a>
-                        <a href="{{ route('reseller.create') }}">Apply as Supplier</a>
-                        <a href="{{ route('login') }}">Login</a>
-                    </div>
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <h5><i class="fas fa-fish"></i> Fish Market</h5>
+                <p style="color: rgba(255,255,255,0.7);">Your trusted source for fresh, quality seafood delivered to your door.</p>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h6>Quick Links</h6>
+                <div class="footer-links">
+                    <a href="#home">Home</a>
+                    <a href="#about">About</a>
+                    <a href="#articles">Articles</a>
+                    <a href="#stores">Stores</a>
                 </div>
             </div>
-            <hr style="border-color: rgba(255,255,255,0.1);">
-            <div class="text-center" style="color: rgba(255,255,255,0.6);">
-                <p>&copy; 2025 Fish Market. All rights reserved.</p>
+            <div class="col-md-3 mb-4">
+                <h6>Support</h6>
+                <div class="footer-links">
+                    <a href="#faq">FAQ</a>
+                    <a href="#contact">Contact</a>
+                    <a href="{{ route('reseller.create') }}">Apply as Supplier</a>
+                    <a href="{{ route('login') }}">Login</a>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h6><i class="fas fa-users me-2"></i>Made By</h6>
+                <div class="footer-links">
+                    <div class="team-member mb-2">
+                        <i class="fas fa-user-circle me-2" style="color: rgba(255,255,255,0.5);"></i>
+                        <span>Shiela Mae Sale</span>
+                    </div>
+                    <div class="team-member mb-2">
+                        <i class="fas fa-user-circle me-2" style="color: rgba(255,255,255,0.5);"></i>
+                        <span>Jave Pico</span>
+                    </div>
+                    <div class="team-member mb-2">
+                        <i class="fas fa-user-circle me-2" style="color: rgba(255,255,255,0.5);"></i>
+                        <span>Abegail Quijano</span>
+                    </div>
+                    <div class="team-member mb-2">
+                        <i class="fas fa-user-circle me-2" style="color: rgba(255,255,255,0.5);"></i>
+                        <span>Roschelle Rodriguez</span>
+                    </div>
+                </div>
             </div>
         </div>
-    </footer>
+        <hr style="border-color: rgba(255,255,255,0.1);">
+        <div class="text-center" style="color: rgba(255,255,255,0.6);">
+            <p>&copy; 2025 Dried FishMarket. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1955,7 +2108,33 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user has already accepted terms
+    const hasAccepted = localStorage.getItem('termsAccepted');
+    
+    // If not accepted, show the modal
+    if (!hasAccepted) {
+        const privacyModal = new bootstrap.Modal(document.getElementById('privacyModal'), {
+            backdrop: 'static',
+            keyboard: false
+        });
+        privacyModal.show();
+    }
+    
+    // Handle accept button click
+    document.getElementById('acceptBtn').addEventListener('click', function() {
+        // Save acceptance to localStorage
+        localStorage.setItem('termsAccepted', 'true');
+        
+        // Close the modal
+        const modalElement = document.getElementById('privacyModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        modalInstance.hide();
+        
+        // Optional: Show a success message
+        console.log('Terms accepted');
+    });
+});
     </script>
 </body>
 </html>

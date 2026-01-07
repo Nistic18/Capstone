@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Mail;
 
 use App\Models\ResellerApplication;
@@ -12,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 class ResellerApplicationSubmitted extends Mailable
 {
     use Queueable, SerializesModels;
-
+    
     public $application;
 
     /**
@@ -29,6 +28,7 @@ class ResellerApplicationSubmitted extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: 'fishmarketnotification@gmail.com', // Use the same email as OrderStatusUpdated
             subject: 'Supplier Application Received',
         );
     }
@@ -39,7 +39,7 @@ class ResellerApplicationSubmitted extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.reseller.submitted',
+            view: 'emails.reseller.submitted', // Make sure this matches your view path
         );
     }
 
@@ -49,11 +49,5 @@ class ResellerApplicationSubmitted extends Mailable
     public function attachments(): array
     {
         return [];
-    }
-    public function build()
-    {
-    return $this->from('support@yourdomain.com', 'Fish Market')
-                ->subject('Supplier Application Submitted')
-                ->view('emails.Supplier.submitted');
     }
 }
